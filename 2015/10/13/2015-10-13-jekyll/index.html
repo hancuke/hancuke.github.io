@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+
+
+  <html class="light page-post">
+
+
+<head>
+  <meta charset="utf-8">
+  
+  <title>jekyll免安装教程 | Hexo</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="hancuke,前端,设计,Hexo主题,前端开发,用户体验,设计,frontend,design,nodejs,JavaScript,实习生" />
+  
+
+  <meta name="description" content="前言
+
+
+很早就听过jekyll这个名词，早期学统计学的时候上网查资”料不知不觉跑到了统计之都那里，发现谢益辉推荐用jekyll建立自己的博客。刚开始还没有在意，只是看了一些他写的关于买主机和域名的内容。但是，jekyll这个名词此时已经在脑中生了根！
+
+
+jekyll与wordpress
+
+
+在接触jekyll之前接触过wordpress，这两个可以算是一个框架，其目的都是提供一个写作环境给创作">
+<meta property="og:type" content="article">
+<meta property="og:title" content="jekyll免安装教程">
+<meta property="og:url" content="http://yoursite.com/2015/10/13/2015-10-13-jekyll/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="前言
+
+
+很早就听过jekyll这个名词，早期学统计学的时候上网查资”料不知不觉跑到了统计之都那里，发现谢益辉推荐用jekyll建立自己的博客。刚开始还没有在意，只是看了一些他写的关于买主机和域名的内容。但是，jekyll这个名词此时已经在脑中生了根！
+
+
+jekyll与wordpress
+
+
+在接触jekyll之前接触过wordpress，这两个可以算是一个框架，其目的都是提供一个写作环境给创作">
+<meta property="og:updated_time" content="2016-03-09T17:02:12.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="jekyll免安装教程">
+<meta name="twitter:description" content="前言
+
+
+很早就听过jekyll这个名词，早期学统计学的时候上网查资”料不知不觉跑到了统计之都那里，发现谢益辉推荐用jekyll建立自己的博客。刚开始还没有在意，只是看了一些他写的关于买主机和域名的内容。但是，jekyll这个名词此时已经在脑中生了根！
+
+
+jekyll与wordpress
+
+
+在接触jekyll之前接触过wordpress，这两个可以算是一个框架，其目的都是提供一个写作环境给创作">
+
+  
+
+  
+    <link rel="icon" href="/favicon.ico">
+  
+
+  <link href="/css/styles.css?v=c114cbe6" rel="stylesheet">
+
+
+  
+    <link rel="stylesheet" href="/css/personal-style.css">
+  
+
+  
+
+  
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?57e94d016e201fba3603a8a2b0263af0";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  
+    <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
+
+  
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  
+</head>
+
+<body>
+
+
+  
+    <span id="toolbox-mobile" class="toolbox-mobile">盒子</span>
+  
+
+  <div class="post-header CENTER">
+   
+  <div class="toolbox">
+    <a class="toolbox-entry" href="/">
+      <span class="toolbox-entry-text">盒子</span>
+      <i class="icon-angle-down"></i>
+      <i class="icon-home"></i>
+    </a>
+    <ul class="list-toolbox">
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/archives/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            博客
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/category/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            分类
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/tag/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            标签
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/link/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            友链
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/about/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            关于
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/atom.xml"
+            rel="noopener noreferrer"
+            target="_blank"
+            >
+            RSS
+          </a>
+        </li>
+      
+        <li class="item-toolbox">
+          <a
+            class="CIRCLE"
+            href="/search/"
+            rel="noopener noreferrer"
+            target="_self"
+            >
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+
+
+</div>
+
+
+  <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#undefined"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#undefined"><span class="toc-text">jekyll与wordpress</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#undefined"><span class="toc-text">jekyll安装</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#undefined"><span class="toc-text">    博客生成</span></a></li></ol>
+  </div>
+
+
+
+<div class="content content-post CENTER">
+   <article id="post-2015-10-13-jekyll" class="article article-type-post" itemprop="blogPost">
+  <header class="article-header">
+    <h1 class="post-title">jekyll免安装教程</h1>
+
+    <div class="article-meta">
+      <span>
+        <i class="icon-calendar"></i>
+        <span>2015.10.13</span>
+      </span>
+
+      
+        <span class="article-author">
+          <i class="icon-user"></i>
+          <span>John Doe</span>
+        </span>
+      
+
+      
+
+
+      
+        <span>
+          <i class="icon-comment"></i>
+          <a href="http://yoursite.com/2015/10/13/2015-10-13-jekyll/#disqus_thread"></a>
+        </span>
+      
+
+      
+      <i class="fa fa-eye"></i> 
+        <span id="busuanzi_container_page_pv">
+           &nbsp热度 <span id="busuanzi_value_page_pv">
+           <i class="fa fa-spinner fa-spin"></i></span>℃
+        </span>
+      
+
+      
+      
+    </div>
+  </header>
+
+  <div class="article-content">
+    
+      <h1>前言</h1>
+
+
+<p>很早就听过jekyll这个名词，早期学统计学的时候上网查资”<br>料不知不觉跑到了<a href="http://cos.name/" target="_blank" rel="external">统计之都</a>那里，发现<a href="http://yihui.name/cn/" target="_blank" rel="external">谢益辉</a>推荐用jekyll建立自己的博客。刚开始还没有在意，只是看了一些他写的关于买主机和域名的内容。但是，jekyll这个名词此时已经在脑中生了根！<br></p>
+
+
+<h1>jekyll与wordpress</h1>
+
+
+<p>在接触jekyll之前接触过wordpress，这两个可以算是一个框架，其目的都是提供一个写作环境给创作者。如果没有这两个框架，想在网络上独立发布创作内容的人在提供<em>写作内容</em>之余，还需要会写html标记和css页面布局。现在有了wordpress和jekyll框架后，创作者可以通过登录wordpress后台进行文章内容写作，而不需要理会网页编写的问题。相比Wordpress，jekyll有一个明显的优势就是，jekyll是一个静态网站，对主机服务器的性能要求低。关于wordpress和jekyll的详细区别可以参考<a href="#">这里</a><br></p>
+
+
+<h1>jekyll安装</h1>
+
+
+<p>对于不想折腾，只想拿来就用只关心写作的朋友，现在由牛人为了能够迅速在不同的windows计算机上配置jekyll环境，封装了一个包，可以来<a href="https://github.com/madhur/PortableJekyll" target="_blank" rel="external">这里</a>点击右下角”downloadzip”进行下载。下载解压后进入解压目录可以看见一个setpath.cmd文件，这是一个windows命令行脚本，其作用在于设置环境变量。因为解压出来的文件中包含了ruby程序和jekyll程序，如果要执行jekyll命令，windows需要知道执行程序的路径（其实所有操作系统都这样），设置完成环境变量的过程如下<br><ol><br>    <li>在解压目录按住shift+鼠标右键，出现快捷菜单</li><br>    <li>在菜单中选择在此处打开命令行窗口</li><br>    <li>在命令行中输入setpath，不要关闭这个窗口</li><br></ol><br>此时jekyll环境就在windows下配置好了，这是多么简单啊（感谢前人的贡献）！！<br></p>
+
+<h1><br>    博客生成<br></h1>
+
+
+<p><br>    现在是博客的生成，其实不用在本地安装jekyll程序也可以用jekyll写blog。只要按照jekyll的规范在本地计算机上用文本编辑器编写规范的目录，然后push到github的仓库下也可以进行写作。<br><br>    在本地安装jekyll程序的好处是，可以执行jekyll serve 命令来让jekyll程序来模拟一个服务器，编辑符合jekyll规范的文件教程可以参考阮一峰的<a href="http://www.ruanyifeng.com/blog/2012/08/blogging_with_jekyll.html" target="_blank" rel="external">这篇教程。</a><br></p>
+    
+  </div>
+</article>
+
+
+   
+  <div class="text-center donation">
+    <div class="inner-donation">
+      <span class="btn-donation">支持一下</span>
+      <div class="donation-body">
+        <div class="tip text-center">扫一扫，支持forsigner</div>
+        <ul class="theme.donation.items.length">
+        
+          <li class="item">
+            <img src="/images/qr-wechat.png" alt="">
+          </li>
+        
+          <li class="item">
+            <img src="/images/qr-alipay.png" alt="">
+          </li>
+        
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+   
+  <div class="box-prev-next clearfix">
+    <a class="hide pull-left" href="/">
+        <i class="icon icon-angle-left"></i>
+    </a>
+    <a class="show pull-right" href="/2016/03/08/2016-03-09-problem/">
+        <i class="icon icon-angle-right"></i>
+    </a>
+  </div>
+
+
+
+
+</div>
+
+
+  <a id="backTop" class="back-top">
+    <i class="icon-angle-up"></i>
+  </a>
+
+
+
+
+  <div class="modal" id="modal">
+  <span id="cover" class="cover hide"></span>
+  <div id="modal-dialog" class="modal-dialog hide-dialog">
+    <div class="modal-header">
+      <span id="close" class="btn-close">关闭</span>
+    </div>
+    <hr>
+    <div class="modal-body">
+      <ul class="list-toolbox">
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/archives/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              博客
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/category/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              分类
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/tag/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              标签
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/link/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              友链
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/about/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              关于
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/atom.xml"
+              rel="noopener noreferrer"
+              target="_blank"
+              >
+              RSS
+            </a>
+          </li>
+        
+          <li class="item-toolbox">
+            <a
+              class="CIRCLE"
+              href="/search/"
+              rel="noopener noreferrer"
+              target="_self"
+              >
+              搜索
+            </a>
+          </li>
+        
+      </ul>
+
+    </div>
+  </div>
+</div>
+
+
+
+  
+      <div class="fexo-comments comments-post">
+    
+  <section class="disqus-comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+  </section>
+
+  <script>
+    var disqus_shortname = 'forsigner';
+    
+    var disqus_url = 'http://yoursite.com/2015/10/13/2015-10-13-jekyll/';
+    
+    (function(){
+      var dsq = document.createElement('script');
+      dsq.type = 'text/javascript';
+      dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+
+  <script id="dsq-count-scr" src="//forsigner.disqus.com/count.js" async></script>
+
+
+
+    
+
+
+
+
+  </div>
+
+  
+
+  <script type="text/javascript">
+  function loadScript(url, callback) {
+    var script = document.createElement('script')
+    script.type = 'text/javascript';
+
+    if (script.readyState) { //IE
+      script.onreadystatechange = function() {
+        if (script.readyState == 'loaded' ||
+          script.readyState == 'complete') {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+    } else { //Others
+      script.onload = function() {
+        callback();
+      };
+    }
+
+    script.src = url;
+    document.getElementsByTagName('head')[0].appendChild(script);
+  }
+
+  window.onload = function() {
+    loadScript('/js/bundle.js?235683', function() {
+      // load success
+    });
+  }
+</script>
+
+</body>
+</html>
