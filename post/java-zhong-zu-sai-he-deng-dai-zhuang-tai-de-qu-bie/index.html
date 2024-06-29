@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>java中阻塞和等待状态的区别 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="首先看java中线程状态轮转图：
+
+可以看到：
+
+阻塞（synchronized）
+等待（Object,wait()，Object.join()，LockSupport.park()）
+超时等待（Thread.sleep(long)，Obj..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="java中阻塞和等待状态的区别" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="首先看java中线程状态轮转图：
+
+可以看到：
+
+阻塞（synchronized）
+等待（Object,wait()，Object.join()，LockSupport.park()）
+超时等待（Thread.sleep(long)，Obj...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/java-zhong-zu-sai-he-deng-dai-zhuang-tai-de-qu-bie/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2023-02-02">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="java中阻塞和等待状态的区别">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="java中阻塞和等待状态的区别">
+        <meta name="twitter:description" content="首先看java中线程状态轮转图：
+
+可以看到：
+
+阻塞（synchronized）
+等待（Object,wait()，Object.join()，LockSupport.park()）
+超时等待（Thread.sleep(long)，Obj...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    java中阻塞和等待状态的区别
+                                </h2>
+                                <span class="article-info">
+                                    2023-02-02, 391 words, 2 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <p>首先看java中线程状态轮转图：<br>
+<img src="https://toomi.pages.dev/post-images/1675326458789.png" alt="" loading="lazy"><br>
+可以看到：</p>
+<ul>
+<li>阻塞（synchronized）</li>
+<li>等待（Object,wait()，Object.join()，LockSupport.park()）</li>
+<li>超时等待（Thread.sleep(long)，Object.wait(long)，Thread.join(long)，LockSupport.parkNano()，LockSupport.parkUntil()）</li>
+</ul>
+<h2 id="名称解释">名称解释</h2>
+<h3 id="阻塞blocked">阻塞（BLOCKED）</h3>
+<blockquote>
+<p>A thread that is blocked waiting for a monitor lock is in this state.<br>
+一个线程因为等待临界区的锁被阻塞产生的状态，synchronize 关键字产生的状态。</p>
+</blockquote>
+<h3 id="等待waiting">等待（WAITING）</h3>
+<blockquote>
+<p>A thread that is waiting indefinitely for another thread to perform a particular action is in this state.</p>
+</blockquote>
+<p>当wait，join，park方法调用时，进入waiting状态。前提是这个线程已经拥有锁了。</p>
+<ul>
+<li>进入 waiting 状态是线程主动的，而进入 blocked 状态是被动的。</li>
+<li>进入 blocked 状态是在同步（synchronized）代码之外，而进入 waiting 状态是在同步代码之内（然后马上退出同步）。</li>
+</ul>
+<h2 id="thread">Thread</h2>
+<p>Thread类里有两个ParkEvent和一个Parker， 其实ParkEvent和Parker实现和功能都类似，只是源码没有重构而已。</p>
+<ul>
+<li>一个是给实现synchronized关键字用的；</li>
+<li>一个是给Thread.sleep/wait用的；</li>
+<li>parker是用来实现J.U.C(Unsafe)的park/unpark(阻塞/唤醒)；</li>
+</ul>
+<p>上面提到，WAITING状态的线程，主要指调用Object,wait()，Object.join()，LockSupport.park()方法的线程操作，其中AQS的挂起，也就是调用LockSupport.park()，恢复则调用LockSupport.unPark()。AQS.Condition.await()，内部也是调用LockSupport.park()；</p>
+<h2 id="原文">原文</h2>
+<p>https://giteedev.gitee.io/yyz-coder/2020/08/20/java%E4%B8%AD%E9%98%BB%E5%A1%9E%E5%92%8C%E7%AD%89%E5%BE%85%E7%8A%B6%E6%80%81%E7%9A%84%E5%8C%BA%E5%88%AB%E6%98%AF%E5%95%A5%E7%8E%A9%E6%84%8F%E5%84%BF%EF%BC%9F/</p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/evolution-of-java-concurrency/">
+                                                    <h3 class="post-title">
+                                                        Evolution of Java Concurrency
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>Lucene基础工作流程 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="索引的生成分为两个部分：
+
+创建阶段：
+
+添加文档阶段，通过IndexWriter调用addDocument方法生成正向索引文件；
+文档添加后，通过flush或merge操作生成倒排索引文件。
+
+
+搜索阶段：
+
+用户通过查询语句向Lucen..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="Lucene基础工作流程" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="索引的生成分为两个部分：
+
+创建阶段：
+
+添加文档阶段，通过IndexWriter调用addDocument方法生成正向索引文件；
+文档添加后，通过flush或merge操作生成倒排索引文件。
+
+
+搜索阶段：
+
+用户通过查询语句向Lucen...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/lucene-ji-chu-gong-zuo-liu-cheng/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2022-12-14">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="Lucene基础工作流程">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="Lucene基础工作流程">
+        <meta name="twitter:description" content="索引的生成分为两个部分：
+
+创建阶段：
+
+添加文档阶段，通过IndexWriter调用addDocument方法生成正向索引文件；
+文档添加后，通过flush或merge操作生成倒排索引文件。
+
+
+搜索阶段：
+
+用户通过查询语句向Lucen...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    Lucene基础工作流程
+                                </h2>
+                                <span class="article-info">
+                                    2022-12-14, 945 words, 4 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <p>索引的生成分为两个部分：</p>
+<ol>
+<li>创建阶段：
+<ul>
+<li>添加文档阶段，通过IndexWriter调用addDocument方法生成正向索引文件；</li>
+<li>文档添加后，通过flush或merge操作生成倒排索引文件。</li>
+</ul>
+</li>
+<li>搜索阶段：
+<ul>
+<li>用户通过查询语句向Lucene发送查询请求；</li>
+<li>通过IndexSearch下的IndexReader读取索引库内容，获取文档索引；</li>
+<li>得到搜索结果后，基于搜索算法对结果进行排序后返回。</li>
+</ul>
+</li>
+</ol>
+<p>索引创建及搜索流程如下图所示：<br>
+<img src="https://toomi.pages.dev/post-images/1671001110757.png" alt="" loading="lazy"></p>
+<h2 id="lucene索引构成">Lucene索引构成</h2>
+<h3 id="正向索引">正向索引</h3>
+<p>ucene的基础层次结构由索引、段、文档、域、词五个部分组成。正向索引的生成即为基于Lucene的基础层次结构一级一级处理文档并分解域存储词的过程。<br>
+<img src="https://toomi.pages.dev/post-images/1671001182580.png" alt="" loading="lazy"></p>
+<p>索引文件层级关系如图1所示：</p>
+<ul>
+<li>索引（index）：Lucene索引库包含了搜索文本的所有内容，可以通过文件或文件流的方式存储在不同的数据库或文件目录下。</li>
+<li>段（segment）：一个索引中包含多个段，段与段之间相互独立。由于Lucene进行关键词检索时需要加载索引段进行下一步搜索，如果索引段较多会增加较大的I/O开销，减慢检索速度，因此写入时会通过段合并策略对不同的段进行合并。</li>
+<li>文档(document)：Lucene会将文档写入段中，一个段中包含多个文档。</li>
+<li>域(field)：一篇文档会包含多种不同的字段，不同的字段保存在不同的域中。</li>
+<li>词(tern)：Lucene会通过分词器将域中的字符串通过词法分析和语言处理后拆分成词，Lucene通过这些关键词进行全文检索。</li>
+</ul>
+<h3 id="倒排索引">倒排索引</h3>
+<p>Lucene全文索引的核心是基于倒排索引实现的快速索引机制。</p>
+<p>倒排索引原理如图2所示，倒排索引简单来说就是基于分析器将文本内容进行分词后，记录每个词出现在哪篇文章中，从而通过用户输入的搜索词查询出包含该词的文章。<br>
+<img src="https://toomi.pages.dev/post-images/1671001302527.png" alt="" loading="lazy"></p>
+<p>问题：上述倒排索引使用时每次都需要将索引词加载到内存中，当文章数量较多，篇幅较长时，索引词可能会占用大量的存储空间，加载到内存后内存损耗较大。</p>
+<p>解决方案：从Lucene4开始，Lucene采用了FST来减少索引词带来的空间消耗。<br>
+FST(Finite StateTransducers)，中文名有限状态机转换器。其主要特点在于以下四点：</p>
+<ul>
+<li>查找词的时间复杂度为O(len(str))；</li>
+<li>通过将前缀和后缀分开存储的方式，减少了存放词所需的空间；</li>
+<li>加载时仅将前缀放入内存索引，后缀词在磁盘中进行存放，减少了内存索引使用空间的损耗；</li>
+<li>FST结构在对PrefixQuery、FuzzyQuery、RegexpQuery等查询条件查询时，查询效率高。</li>
+</ul>
+<p>具体存储方式如图3所示：<br>
+<img src="https://toomi.pages.dev/post-images/1671001346224.png" alt="" loading="lazy"></p>
+<p>倒排索引相关文件包含.tip、.tim和.doc这三个文件，其中：</p>
+<p>tip：用于保存倒排索引Term的前缀，来快速定位.tim文件中属于这个Field的Term的位置，即上图中的aab、abd、bdc。<br>
+tim：保存了不同前缀对应的相应的Term及相应的倒排表信息，倒排表通过跳表实现快速查找，通过跳表能够跳过一些元素的方式对多条件查询交集、并集、差集之类的集合运算也提高了性能。<br>
+doc：包含了文档号及词频信息，根据倒排表中的内容返回该文件中保存的文本信息。</p>
+<h2 id="原文">原文</h2>
+<p>https://segmentfault.com/a/1190000040371949</p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/wu-suo-bian-cheng-lock-free/">
+                                                    <h3 class="post-title">
+                                                        无锁编程lock-free
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

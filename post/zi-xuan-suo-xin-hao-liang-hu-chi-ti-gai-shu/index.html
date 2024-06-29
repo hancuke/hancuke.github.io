@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>自旋锁、信号量、互斥体概述 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="自旋锁（spin lock）
+自旋锁是Linux中使用非常频繁的锁，原理简单。
+内核当发生访问资源冲突的时候，可以有两种锁的解决方案选择：
+
+一个是原地等待
+一个是挂起当前进程，调度其他进程执行（睡眠）
+
+Spinlock 是内核中提供的一..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="自旋锁、信号量、互斥体概述" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="自旋锁（spin lock）
+自旋锁是Linux中使用非常频繁的锁，原理简单。
+内核当发生访问资源冲突的时候，可以有两种锁的解决方案选择：
+
+一个是原地等待
+一个是挂起当前进程，调度其他进程执行（睡眠）
+
+Spinlock 是内核中提供的一...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/zi-xuan-suo-xin-hao-liang-hu-chi-ti-gai-shu/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2022-12-29">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="自旋锁、信号量、互斥体概述">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="自旋锁、信号量、互斥体概述">
+        <meta name="twitter:description" content="自旋锁（spin lock）
+自旋锁是Linux中使用非常频繁的锁，原理简单。
+内核当发生访问资源冲突的时候，可以有两种锁的解决方案选择：
+
+一个是原地等待
+一个是挂起当前进程，调度其他进程执行（睡眠）
+
+Spinlock 是内核中提供的一...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    自旋锁、信号量、互斥体概述
+                                </h2>
+                                <span class="article-info">
+                                    2022-12-29, 2896 words, 11 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <h2 id="自旋锁spin-lock">自旋锁（spin lock）</h2>
+<p>自旋锁是Linux中使用非常频繁的锁，原理简单。<br>
+内核当发生访问资源冲突的时候，可以有两种锁的解决方案选择：</p>
+<ul>
+<li>一个是原地等待</li>
+<li>一个是挂起当前进程，调度其他进程执行（睡眠）</li>
+</ul>
+<p>Spinlock 是内核中提供的一种比较常见的锁机制，自旋锁是“原地等待”的方式解决资源冲突的，即，一个线程获取了一个自旋锁后，另外一个线程期望获取该自旋锁，获取不到，只能够原地“打转”（忙等待）。由于自旋锁的这个忙等待的特性，注定了它使用场景上的限制 —— 自旋锁不应该被长时间的持有（消耗 CPU 资源），一般应用在中断上下文。</p>
+<h3 id="原理">原理</h3>
+<p>下面以去银行办业务为例来讲解。</p>
+<ol>
+<li>银行的办事大厅一般会有几个窗口同步进行。今天很不巧，只有一个窗口提供服务。现在的银行服务都是采用取号排队，叫号服务的方式。</li>
+<li>当你去银行办理业务的时候，首先会去取号机器领取小票，上面写着你排多少号。然后你就可以排队等待了。一般还会有个显示屏，上面会显示一个数字（例如：&quot;请xxx号到1号窗口办理&quot;），代表当前可以被服务顾客的排队号码。每办理完一个顾客的业务，显示屏上面的数字都会增加1。等待的顾客都会对比自己手上写的编号和显示屏上面是否一致，如果一致的话，就可以去前台办理业务了。</li>
+<li>现在早上刚开业，顾客A是今天的第一个顾客，去取号机器领取0号（next计数）小票，然后看到显示屏上显示0（owner计数），顾客A就知道现在轮到自己办理业务了。</li>
+<li>顾客A到前台办理业务（持有锁）中，顾客B来了。同样，顾客B去取号机器拿到1号（next计数）小票。然后乖乖的坐在旁边等候。顾客A依然在办理业务中，此时顾客C也来了。顾客C去取号机器拿到2号（next计数）小票。顾客C也乖乖的找个座位继续等待。</li>
+<li>终于，顾客A的业务办完了（释放锁）。然后，显示屏上面显示1（owner计数）。顾客B和C都对比显示屏上面的数字和自己手中小票的数字是否相等。顾客B终于可以办理业务了（持有锁）。顾客C依然等待中。</li>
+<li>顾客B的业务办完了（释放锁）。然后，显示屏上面显示2（owner计数）。顾客C终于开始办理业务（持有锁）。顾客C的业务办完了（释放锁）。</li>
+<li>3个顾客都办完了业务离开了。只留下一个银行柜台服务员。</li>
+<li>最终，显示屏上面显示3（owner计数）。取号机器的下一个排队号也是3号（next计数）。无人办理业务（锁是释放状态）。</li>
+</ol>
+<p>Linux中针对每一个spin lock会有两个计数。分别是next和owner（初始值为0）。进程A申请锁时，会判断next和owner的值是否相等。如果相等就代表锁可以申请成功，否则原地自旋。直到owner和next的值相等才会退出自旋。假设进程A申请锁成功，然后会next加1。此时owner值为0，next值为1。进程B也申请锁，保存next得值到局部变量temp（temp = 1）中。由于next和owner值不相等，因此原地自旋读取owner的值，判断owner和temp是否相等，直到相等退出自旋状态。当然next的值还是加1，变成2。进程A释放锁，此时会将owner的值加1，那么此时B进程的owner和temp的值都是1，因此B进程获得锁。当B进程释放锁后，同样会将owner的值加1。最后owner和next都等于2，代表没有进程持有锁。next就是一个记录申请锁的次数，而owner是持有锁进程的计数值。</p>
+<h2 id="信号量semaphore">信号量（semaphore）</h2>
+<p>信号量又称为信号灯，它是用来协调不同进程间的数据对象的，而最主要的应用是共享内存方式的进程间通信。本质上，信号量是一个计数器，它用来记录对某个资源（如共享内存）的存取状况。它负责协调各个进程，以保证他们能够正确、合理的使用公共资源。它和spin lock最大的不同之处就是：无法获取信号量的进程可以睡眠，因此会导致系统调度。一般说来，为了获得共享资源，进程需要执行下列操作：</p>
+<ol>
+<li>测试控制该资源的信号量。</li>
+<li>若此信号量的值为正，则允许进行使用该资源。进程将信号量减1。</li>
+<li>若此信号量为0，则该资源目前不可用，进程进入睡眠状态，直至信号量值大于0，进程被唤醒，转入步骤1</li>
+<li>当进程不再使用一个信号量控制的资源时，信号量值加1。如果此时有进程正在睡眠等待此信号量，则唤醒此进程。</li>
+</ol>
+<p>信号量（semaphore）是进程间通信处理同步互斥的机制。是在多线程环境下使用的一种措施，它负责协调各个进程，以保证他们能够正确、合理的使用公共资源。</p>
+<p>它和spin lock最大的不同之处就是：<strong>无法获取信号量的进程可以睡眠，因此会导致系统调度</strong>。</p>
+<h3 id="原理-2">原理</h3>
+<p>信号量一般可以用来标记可用资源的个数。举2个生活中的例子：</p>
+<ol>
+<li>我们要坐火车从南京到新疆，这个'任务'特别的耗时，只能在车上等着车到站，但是我们没有必要一直睁着眼睛等着车到站，最好的情况就是我们上车就直接睡觉，醒来就到站，这样从人（用户）的角度来说，体验是最好的，对比于进程，程序在等待一个耗时的任务的时候，没有必须要占用CPU，可以暂停当前任务使其进入休眠状态，当等待的事件发生之后再由其他任务唤醒，这种场景采用信号量比较合适。</li>
+<li>我们在等待电梯、等待洗手间，这种场景需要等待的事件并不是很多，如果我们还要找个地方睡一觉，然后等电梯到了或者洗手间可以用了再醒来，那很显然这也没有必要，我们只需要排好队，刷一刷抖音就可以了，对比于计算机程序，比如驱动在进入中断例程，在等待某个寄存器被置位，这种场景需要等待的时间很短暂，系统开销远小于进入休眠的开销，所以这种场景采用自旋锁比较合适。</li>
+</ol>
+<h2 id="读写锁read-write-lock">读写锁（read-write lock）</h2>
+<p>不管是自旋锁还是信号量在同一时间只能有一个进程进入临界区。对于有些情况，我们是可以区分读写操作的。因此，我们希望对于读操作的进程可以并发进行。对于写操作只限于一个进程进入临界区。而这种同步机制就是读写锁。读写锁一般具有以下几种性质。</p>
+<ol>
+<li>同一时间有且仅有一个写进程进入临界区。</li>
+<li>在没有写进程进入临界区的时候，同时可以有多个读进程进入临界区。</li>
+<li>读进程和写进程不可以同时进入临界区。</li>
+</ol>
+<p>读写锁有两种，一种是信号量类型，另一种是spin lock类型。下面以spin lock类型讲解。</p>
+<h3 id="原理-3">原理</h3>
+<p>下面我们用厕所模型来理解读写锁。</p>
+<ol>
+<li>我发现公司一般都会有保洁阿姨打扫厕所。如果以男厕所为例的话，我觉得男士进入厕所就相当于读者进入临界区。因为可以有多个男士进厕所。而保洁阿姨进入男士厕所就相当于写者进入临界区。</li>
+<li>假设A男士发现保洁阿姨不在打扫厕所，就进入厕所。随后B和C同时也进入厕所。</li>
+<li>然后保洁阿姨准备打扫厕所，发现有男士在厕所里面，因此只能在门口等待。</li>
+<li>ABC都离开了厕所。保洁阿姨迅速进入厕所打扫。然后D男士去上厕所，发现保洁阿姨在里面。灰溜溜的出来了在门口等着。现在体会到了写者（保洁阿姨）具有排他性，读者（男士）可以并发进入临界区了吧。</li>
+</ol>
+<p>既然我们允许多个读者进入临界区，因此我们需要一个计数统计读者的个数。同时，由于写者永远只存在一个进入临界区，因此只需要一个bit标记是否有写进程进入临界区。所以，我们可以将两个计数合二为一。只需要1个unsigned int类型即可。最高位（bit31）代表是否有写者进入临界区，低31位（0~30bit）统计读者个数。</p>
+<figure data-type="image" tabindex="1"><img src="https://toomi.pages.dev/post-images/1672284065782.png" alt="" loading="lazy"></figure>
+<h2 id="互斥体mutex">互斥体（mutex）</h2>
+<p>互斥体实现了“互相排斥”（mutual exclusion）同步的简单形式（所以名为互斥体(mutex)）。互斥体禁止多个线程同时进入受保护的代码“临界区”（critical section）。因此，在任意时刻，只有一个线程被允许进入这样的代码保护区。</p>
+<p>任何线程在进入临界区之前，必须获取（acquire）与此区域相关联的互斥体的所有权。如果已有另一线程拥有了临界区的互斥体，其他线程就不能再进入其中。这些线程必须等待，直到当前的属主线程释放（release）该互斥体。</p>
+<p>什么时候需要使用互斥体呢？ 互斥体用于保护共享的易变代码，也就是，全局或静态数据。这样的数据必须通过互斥体进行保护，以防止它们在多个线程同时访问时损坏。 　　 前文提到的semaphore在初始化count计数的时候，可以分为计数信号量和互斥信号量（二值信号量）。mutex和初始化计数为1的二值信号量有很大的相似之处。他们都可以用做资源互斥。但是mutex却有一个特殊的地方：只有持锁者才能解锁。但是，二值信号量却可以在一个进程中获取信号量，在另一个进程中释放信号量。如果是应用在嵌入式应用的RTOS，针对mutex的实现还会考虑优先级反转问题。</p>
+<h3 id="原理-4">原理</h3>
+<p>既然mutex是一种二值信号量，因此就不需要像semaphore那样需要一个count计数。由于mutex具有“持锁者才能解锁”的特点，所以我们需要一个变量owner记录持锁进程。释放锁的时候必须是同一个进程才能释放。当然也需要一个链表头，主要用来便利睡眠等待的进程。原理和semaphore及其相似，因此在代码上也有体现。</p>
+<h2 id="原文链接">原文链接</h2>
+<p>https://zhuanlan.zhihu.com/p/197553129</p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/cong-ying-ti-guan-dian-liao-jie-memory-barrier-de-shi-zuo-he-xiao-guo/">
+                                                    <h3 class="post-title">
+                                                        從硬體觀點了解 memory barrier 的實作和效果
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

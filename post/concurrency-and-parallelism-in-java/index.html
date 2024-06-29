@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>Concurrency and parallelism in Java | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="
+In programming, concurrency is the composition of independently executing processes, while parallelism is the simultane..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="Concurrency and parallelism in Java" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="
+In programming, concurrency is the composition of independently executing processes, while parallelism is the simultane...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/concurrency-and-parallelism-in-java/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2022-11-02">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="Concurrency and parallelism in Java">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="Concurrency and parallelism in Java">
+        <meta name="twitter:description" content="
+In programming, concurrency is the composition of independently executing processes, while parallelism is the simultane...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    Concurrency and parallelism in Java
+                                </h2>
+                                <span class="article-info">
+                                    2022-11-02, 283 words, 2 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <blockquote>
+<p>In programming, concurrency is the composition of independently executing processes, while parallelism is the simultaneous execution of (possibly related) computations. Concurrency is about dealing with lots of things at once. Parallelism is about doing lots of things at once.” Source: blog.golang.org<br>
+<img src="https://toomi.pages.dev/post-images/1667357777479.png" alt="" loading="lazy"></p>
+</blockquote>
+<p><strong>Concurrency is about structure, parallelism is about execution.</strong></p>
+<h2 id="unit-of-concurrency">Unit of Concurrency</h2>
+<p>As far as I know, concurrency has three levels:</p>
+<ul>
+<li><strong>Multiprocessing</strong>: Multiple Processors/CPUs executing concurrently. This unit here is a CPU.</li>
+<li><strong>Multitasking</strong>: Multiple tasks/processes running concurrently on a single CPU. The OS executes these tasks by switching between them very frequently. This unit here is a Process.</li>
+<li><strong>Multithreading</strong>: Multiple parts of the same program running concurrently. In this case, we go a step further and divide the same program into multiple parts/threads and run those threads concurrently.</li>
+</ul>
+<h2 id="thread-in-java">Thread in Java</h2>
+<p>Creating and Managing Thread</p>
+<p>There are two options for creating a Thread in Java. Each thread is created in Java 8 will consume about 1MB as default on OS 64 bit. You can check via command line: java -XX:+PrintFlagsFinal -version | grep ThreadStackSize.</p>
+<ul>
+<li><strong>Option 1:</strong> You can create a class that inherits the Thread.java class.</li>
+<li><strong>Option 2:</strong> You can use a Runnable object.</li>
+</ul>
+<p>To create and manage Thread in Java you can use the Executors framework. Java Concurrency API defines three executor interfaces that cover everything that is needed for creating and managing threads:<br>
+-** Executor: **launch a task specified by a Runnable object.</p>
+<ul>
+<li><strong>ExecutorService:</strong> a sub-interface of Executor that adds functionality to manage the lifecycle of the tasks.</li>
+<li><strong>ScheduledExecutor:</strong> a sub-interface of ExecutorService that adds functionality to schedule the execution of the tasks.</li>
+</ul>
+<p>Most of the executor implementations use thread pools to execute tasks.<br>
+<img src="https://toomi.pages.dev/post-images/1667359246458.png" alt="" loading="lazy"></p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/xin-hao-liang-ji-guan-cheng/">
+                                                    <h3 class="post-title">
+                                                        信号量及管程
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

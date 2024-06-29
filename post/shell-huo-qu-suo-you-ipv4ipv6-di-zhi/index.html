@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>shell获取所有ipv4/ipv6地址 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="前期准备
+需要安装jq
+命令
+ubuntu@gooderver:~$ ip -j -4 addr show | jq '.[]|.addr_info|.[]|.local'
+&quot;127.0.0.1&quot;
+&quot;172.2..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="shell获取所有ipv4/ipv6地址" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="前期准备
+需要安装jq
+命令
+ubuntu@gooderver:~$ ip -j -4 addr show | jq &#39;.[]|.addr_info|.[]|.local&#39;
+&amp;quot;127.0.0.1&amp;quot;
+&amp;quot;172.2...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/shell-huo-qu-suo-you-ipv4ipv6-di-zhi/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2023-03-27">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="shell获取所有ipv4/ipv6地址">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="shell获取所有ipv4/ipv6地址">
+        <meta name="twitter:description" content="前期准备
+需要安装jq
+命令
+ubuntu@gooderver:~$ ip -j -4 addr show | jq &#39;.[]|.addr_info|.[]|.local&#39;
+&amp;quot;127.0.0.1&amp;quot;
+&amp;quot;172.2...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    shell获取所有ipv4/ipv6地址
+                                </h2>
+                                <span class="article-info">
+                                    2023-03-27, 126 words, 1 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <h2 id="前期准备">前期准备</h2>
+<p>需要安装jq</p>
+<h2 id="命令">命令</h2>
+<pre><code class="language-bash">ubuntu@gooderver:~$ ip -j -4 addr show | jq '.[]|.addr_info|.[]|.local'
+&quot;127.0.0.1&quot;
+&quot;172.24.64.162&quot;
+ubuntu@gooderver:~$ ip -j -6 addr show | jq '.[]|.addr_info|.[]|.local'
+&quot;::1&quot;
+&quot;2403:ac00:xxxx&quot;
+&quot;fe80::e654:e8ff:fea3:6a01&quot;
+ubuntu@gooderver:~$ ip -j -6 addr show | jq -r '.[]|.addr_info|.[]|.local'
+::1
+2403:ac00:xxxx
+fe80::e654:e8ff:fea3:6a01
+</code></pre>
+<h2 id="参考">参考</h2>
+<p>作者：wangbingbing<br>
+出处：https://www.cnblogs.com/wangbingbing/p/17185709.html<br>
+版权：本作品采用「署名-非商业性使用-相同方式共享 4.0 国际」许可协议进行许可。</p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/er-cha-dui/">
+                                                    <h3 class="post-title">
+                                                        二叉堆
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

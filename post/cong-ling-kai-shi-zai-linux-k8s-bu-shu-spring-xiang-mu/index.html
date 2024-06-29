@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>从零开始在linux k8s部署spring项目 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="环境准备
+
+用k3s搭建k8s环境
+安装Docker环境，主要是用于打包项目成容器镜像（image）
+在centos安装Java环境，包括maven，主要是打包spring项目，参考
+2.1. Java环境安装命令 sudo yum ins..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="从零开始在linux k8s部署spring项目" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="环境准备
+
+用k3s搭建k8s环境
+安装Docker环境，主要是用于打包项目成容器镜像（image）
+在centos安装Java环境，包括maven，主要是打包spring项目，参考
+2.1. Java环境安装命令 sudo yum ins...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/cong-ling-kai-shi-zai-linux-k8s-bu-shu-spring-xiang-mu/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2023-10-17">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="从零开始在linux k8s部署spring项目">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="从零开始在linux k8s部署spring项目">
+        <meta name="twitter:description" content="环境准备
+
+用k3s搭建k8s环境
+安装Docker环境，主要是用于打包项目成容器镜像（image）
+在centos安装Java环境，包括maven，主要是打包spring项目，参考
+2.1. Java环境安装命令 sudo yum ins...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    从零开始在linux k8s部署spring项目
+                                </h2>
+                                <span class="article-info">
+                                    2023-10-17, 751 words, 4 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <h2 id="环境准备">环境准备</h2>
+<ol>
+<li>用k3s搭建k8s环境</li>
+<li>安装Docker环境，主要是用于打包项目成容器镜像（image）</li>
+<li>在centos安装Java环境，包括maven，主要是打包spring项目，<a href="https://www.server-world.info/en/note?os=CentOS_Stream_9&amp;p=java&amp;f=3">参考</a><br>
+2.1. Java环境安装命令 <code>sudo yum install java-17-openjdk java-17-openjdk-devel</code><br>
+2.2. <code>[java-17-openjdk] </code>是jre ，<code>[java-17-openjdk-devel]</code> 是编译工具，javac<br>
+2.3.  maven 建议下载二进制包，解压，然后配置环境变量进行安装，不要用 <code>yum install </code> 的方式，因为这种方式会把额外安装 jre 版本，容易造成和项目java版本冲突</li>
+<li>spring 项目代码，<a href="https://mkyong.com/spring-boot/spring-boot-hello-world-example/">参考</a></li>
+<li>安装docker私有仓库，后续需要把打包好的docker镜像上传到仓库后，再部署到k8s集群，使用命令<code>docker run -d -p 5000:5000 --restart=always --name registry registry</code> 进行安装<a href="https://yeasy.gitbook.io/docker_practice/repository/registry">参考</a></li>
+</ol>
+<h2 id="项目打包">项目打包</h2>
+<p>通过拉取代码，用maven打包成jar，命令如下</p>
+<pre><code class="language-shell">$ git clone https://github.com/mkyong/spring-boot.git
+$ cd spring-boot-hello-world
+$ mvn spring-boot:run
+</code></pre>
+<p>将jar，打包成docker镜像，创建一个名为<code>Dockerfile</code>的文本文件，内容如下</p>
+<pre><code class="language-shell">from openjdk:17.0.2-jdk
+copy target/spring-boot-hello-world-1.0.jar /spring-boot-hello-world-1.0.jar
+CMD [&quot;java&quot;, &quot;-jar&quot;, &quot;/spring-boot-hello-world-1.0.jar&quot;]
+</code></pre>
+<p>然后再运行下面命令打包</p>
+<pre><code class="language-shell">docker build -t my-java-app .
+</code></pre>
+<p>查看生成的image镜像</p>
+<pre><code class="language-shell">docker image ls
+</code></pre>
+<p>运行docker容器，并测试外网访问</p>
+<pre><code class="language-shell"># 81是主机端口，外网访问，8080是容器端口，spring 项目监听的端口
+docker run -p 81:8080 -it --rm --name my-running-app my-java-app 
+</code></pre>
+<p>将镜像推送到私有仓库</p>
+<pre><code class="language-shell">docker push my-java-app
+</code></pre>
+<h2 id="部署到k8s">部署到k8s</h2>
+<p>构建k8s最小管理单元pod，创建名为<code>my-java-app.yaml</code>,内容如下</p>
+<pre><code class="language-shell">apiVersion: v1
+kind: Pod
+metadata:
+  name: spring-java-name
+  # 指定 label，便于检索 ，这里要记住，后面配置外网访问service的时候需要用到
+  labels:
+    app: spring-java-lable
+spec:
+  containers:
+  - name: spring-java-container
+    # 指定镜像
+    image: my-java-app:latest
+    #imagePullPolicy: Never
+    # 指定暴露端口
+    ports:
+     # 这里只是个用于标识，和容器内应用监听的端口要一致，如果不一致，以容器实际端口为准
+    - containerPort: 8080
+</code></pre>
+<p>运行<code>kubectl apply -f my-java-app.yaml</code>命令进行打包，然后运行<code>kubectl get pods</code>查看打包后的pod状态</p>
+<p>创建NodePort类型 service ，将应用暴露出来供外网访问，创建一个名为<code>java-service.yaml</code>的文本文件，内容如下</p>
+<pre><code class="language-shell">apiVersion: v1
+kind: Service
+metadata:
+  name: my-java-nodeport-service
+spec:
+  type: NodePort
+  ports:
+    - port: 8001 # Service 公开的端口，内部访问
+      targetPort: 8080 # Pod 中容器的端口
+      nodePort: 30001 # NodePort，需要在 30000-32767 范围内选择，外部访问
+  selector:
+    app: spring-java-lable # 用于选择匹配的 Pod，基于pod label，而不是pod name
+</code></pre>
+<p>运行<code> kubectl apply -f java-service.yaml</code> 命令，启动service服务，然后运行<code>kubectl get svc</code> 命令查看所有service,会看到一个TYPE 为 NodePort 的service<br>
+<img src="https://toomi.pages.dev/post-images/1697509902873.png" alt="" loading="lazy"></p>
+<p>在k8s服务器上访问CLUSTER-IP:PORT , 如<code>curl  10.43.90.53:8001</code>  或者在外网访问外放ip和端口，如<code>curl  外网ip:30001</code> 即可测试服务访问性</p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/mysql-innodb-kai-qi-shi-wu-shi-ji/">
+                                                    <h3 class="post-title">
+                                                        MySQL Innodb 开启事务时机 
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

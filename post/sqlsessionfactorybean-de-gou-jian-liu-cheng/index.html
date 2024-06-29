@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>SqlSessionFactoryBean的构建流程 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="SqlSessionFactoryBean的主要作用便是用来创建SqlSessionFactory，在它的构建过程中会解析MyBatis所需要的配置文件，将所有配置都封装到Configuration类中，最后返回SqlSessionFact..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="SqlSessionFactoryBean的构建流程" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="SqlSessionFactoryBean的主要作用便是用来创建SqlSessionFactory，在它的构建过程中会解析MyBatis所需要的配置文件，将所有配置都封装到Configuration类中，最后返回SqlSessionFact...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/sqlsessionfactorybean-de-gou-jian-liu-cheng/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2023-02-17">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="SqlSessionFactoryBean的构建流程">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="SqlSessionFactoryBean的构建流程">
+        <meta name="twitter:description" content="SqlSessionFactoryBean的主要作用便是用来创建SqlSessionFactory，在它的构建过程中会解析MyBatis所需要的配置文件，将所有配置都封装到Configuration类中，最后返回SqlSessionFact...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    SqlSessionFactoryBean的构建流程
+                                </h2>
+                                <span class="article-info">
+                                    2023-02-17, 695 words, 3 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <p>SqlSessionFactoryBean的主要作用便是用来创建SqlSessionFactory，在它的构建过程中会解析MyBatis所需要的配置文件，将所有配置都封装到Configuration类中，最后返回SqlSessionFactory实例。SqlSessionFactoryBean实现了Spring中两个用于初始化Bean的接口FactoryBean,InitializingBean</p>
+<p>InitializingBean定义如下:</p>
+<pre><code class="language-java">public interface InitializingBean {
+	/**
+	 * 此方法在BeanFactory设置了Bean配置里的所有属性后执行。
+	 */
+	void afterPropertiesSet() throws Exception;
+}
+</code></pre>
+<p>我们一般在XML中都会有这么一段配置，如下:</p>
+<pre><code class="language-java">&lt;bean id=&quot;sqlSessionFactory&quot; class=&quot;org.mybatis.spring.SqlSessionFactoryBean&quot;&gt;
+  &lt;!-- 注入连接池 --&gt;
+  &lt;property name=&quot;dataSource&quot; ref=&quot;dataSource&quot;/&gt;
+  &lt;!--主配置 --&gt;
+  &lt;property name=&quot;configuration&quot;&gt;
+    &lt;bean class=&quot;org.apache.ibatis.session.Configuration&quot;&gt;
+      &lt;property name=&quot;mapUnderscoreToCamelCase&quot; value=&quot;true&quot;/&gt;
+    &lt;/bean&gt;
+  &lt;/property&gt;
+  &lt;!-- 加载mybatis映射文件 --&gt;
+  &lt;property name=&quot;mapperLocations&quot; value=&quot;classpath:mappers/*.xml&quot;/&gt;
+&lt;/bean&gt;
+</code></pre>
+<p>上述配置的作用就是让容器创建一个ID为sqlSessionFactory的SqlSessionFactoryBean实例，并且为实例指定了datasource属性，手动指定了主配置对象，开启MyBatis下划线转驼峰的属性配置，并且指定映射文件所在的位置。</p>
+<blockquote>
+<p>虽然指定的是SqlSessionFactoryBean实例，但是因为继承了FactoryBean接口，因此我们从容器拿到的对象实际上是getObject方法返回的对象，即SqlSessionFactory实例。</p>
+</blockquote>
+<h2 id="创建流程">创建流程</h2>
+<p>首先自不用说，Spring会创建SqlSessionFactoryBean实例，设置配置的所有属性，这是第一步，接下来便会走afterPropertiesSet()方法。</p>
+<pre><code class="language-java">@Override
+public void afterPropertiesSet() throws Exception {
+    // 检查数据源
+    notNull(dataSource, &quot;Property 'dataSource' is required&quot;);
+    // 检查SqlSessionFactoryBuilder, 已经在构造方法里初始化
+    notNull(sqlSessionFactoryBuilder, &quot;Property 'sqlSessionFactoryBuilder' is required&quot;);
+    // configuration实例与configLocation只能有一个
+    state((configuration == null &amp;&amp; configLocation == null) || !(configuration != null &amp;&amp;          configLocation != null),
+        &quot;Property 'configuration' and 'configLocation' can not specified with together&quot;);
+    // 解析配置文件，创建SqlSessionFactory。这属于MyBatis本身的内容，不再展开说明。
+    this.sqlSessionFactory = buildSqlSessionFactory();
+}
+</code></pre>
+<p>创建SqlSessionFactory的过程与MyBatis不同的点主要在与transactionFactory，在创建事务工厂时不再使用MyBatis自带的JdbcTransaction类，而是使用SpringManagedTransactionFactory这个新的事务工厂类，这个事务获取到的连接全部来自于Spring管理，这样把事务全权交给Spring管理，而MyBatis本身不再涉及事务管理。如果在使用Spring时没有配置(使用)事务，那么获取到的连接取决于DataSource，无论拿到的连接是自动提交还是手动提交，MyBatis每一次方法调用都会视情况提交或回滚。当然对于自动提交而言，MyBatis的commit或者rollbakc是不会调用conn.commit()或conn.rollback。</p>
+<p>在经过afterPropertiesSet方法后，SqlSessionFactory实例便创建完毕。需要使用SqlSessionFactory实例便会调用getObject方法。</p>
+<pre><code class="language-java">@Override
+public SqlSessionFactory getObject() throws Exception {
+    if (this.sqlSessionFactory == null) {
+        afterPropertiesSet();
+    }
+    return this.sqlSessionFactory;
+}
+</code></pre>
+<h2 id="原文">原文</h2>
+<p>https://www.cnblogs.com/wt20/p/10470872.html</p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/the-ways-to-inject-beans-into-spring-container/">
+                                                    <h3 class="post-title">
+                                                        the ways to inject beans into Spring container
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

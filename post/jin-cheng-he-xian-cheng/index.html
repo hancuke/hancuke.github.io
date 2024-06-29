@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>进程和线程 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="设计进程和线程，操作系统需要思考分配资源。最重要的 3 种资源是：计算资源（CPU）、内存资源和文件资源。早期的 OS 设计中没有线程，3 种资源都分配给进程，多个进程通过分时技术交替执行，进程之间通过管道技术等进行通信。
+但是这样做的话，..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="进程和线程" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="设计进程和线程，操作系统需要思考分配资源。最重要的 3 种资源是：计算资源（CPU）、内存资源和文件资源。早期的 OS 设计中没有线程，3 种资源都分配给进程，多个进程通过分时技术交替执行，进程之间通过管道技术等进行通信。
+但是这样做的话，...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/jin-cheng-he-xian-cheng/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2023-05-04">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="进程和线程">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="进程和线程">
+        <meta name="twitter:description" content="设计进程和线程，操作系统需要思考分配资源。最重要的 3 种资源是：计算资源（CPU）、内存资源和文件资源。早期的 OS 设计中没有线程，3 种资源都分配给进程，多个进程通过分时技术交替执行，进程之间通过管道技术等进行通信。
+但是这样做的话，...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    进程和线程
+                                </h2>
+                                <span class="article-info">
+                                    2023-05-04, 1043 words, 4 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <p>设计进程和线程，操作系统需要思考分配资源。最重要的 3 种资源是：计算资源（CPU）、内存资源和文件资源。早期的 OS 设计中没有线程，3 种资源都分配给进程，多个进程通过分时技术交替执行，进程之间通过管道技术等进行通信。</p>
+<p>但是这样做的话，设计者们发现用户（程序员），一个应用往往需要开多个进程，因为应用总是有很多必须要并行做的事情。并行并不是说绝对的同时，而是说需要让这些事情看上去是同时进行的——比如图形渲染和响应用户输入。于是设计者们想到了，进程下面，需要一种程序的执行单位，<strong>仅仅被分配 CPU 资源</strong>，这就是线程。</p>
+<p>线程设计出来后，因为只被分配了计算资源（CPU），因此被称为轻量级进程。被分配的方式，就是由操作系统调度线程。操作系统创建一个进程后，进程的入口程序被分配到了一个主线程执行，这样看上去操作系统是在调度进程，其实是<strong>调度进程中的线程</strong>。</p>
+<p>这种被操作系统直接调度的线程，我们也成为内核级线程。另外，有的程序语言或者应用，用户（程序员）自己还实现了线程。相当于操作系统调度主线程，主线程的程序用算法实现子线程，这种情况我们称为用户级线程。Linux 的 PThread API 就是用户级线程，KThread API 则是内核级线程。</p>
+<h2 id="进程和线程的状态">进程和线程的状态</h2>
+<blockquote>
+<p>旧的操作系统调度进程，没有线程；现代操作系统调度线程。</p>
+</blockquote>
+<p>一个进程（线程）运行的过程，会经历以下 3 个状态：</p>
+<ul>
+<li>进程（线程）创建后，就开始排队，此时它会处在“就绪”（Ready）状态；</li>
+<li>当轮到该进程（线程）执行时，会变成“运行”（Running）状态；</li>
+<li>当一个进程（线程）将操作系统分配的时间片段用完后，会回到“就绪”（Ready）状态。</li>
+</ul>
+<p>有时候一个进程（线程）会等待磁盘读取数据，或者等待打印机响应，此时进程自己会进入“阻塞”（Block）状态。因为这时计算机的响应不能马上给出来，而是需要等待磁盘、打印机处理完成后，通过中断通知 CPU，然后 CPU 再执行一小段中断控制程序，将控制权转给操作系统，操作系统再将原来阻塞的进程（线程）置为“就绪”（Ready）状态重新排队。</p>
+<p>而且，一旦一个进程（线程）进入阻塞状态，这个进程（线程）此时就没有事情做了，但又不能让它重新排队（因为需要等待中断），所以进程（线程）中需要增加一个“阻塞”（Block）状态。</p>
+<p>注意，因为一个处于“就绪”（Ready）的进程（线程）还在排队，所以进程（线程）内的程序无法执行，也就是不会触发读取磁盘数据的操作，这时，“就绪”（Ready）状态无法变成阻塞的状态，因此下图中没有从就绪到阻塞的箭头。</p>
+<p>而处于“阻塞”（Block）状态的进程（线程）如果收到磁盘读取完的数据，它又需要重新排队，所以它也不能直接回到“运行”（Running）状态，因此下图中没有从阻塞态到运行态的箭头。<br>
+<img src="https://toomi.pages.dev/post-images/1683165980448.png" alt="" loading="lazy"></p>
+<h2 id="区别">区别</h2>
+<p>我们发现进程和线程是操作系统为了分配资源设计的两个概念，进程承接<strong>存储资源</strong>，线程承接<strong>计算资源</strong>。而进程包含线程，这样就可以做到进程间内存隔离。这是一个非常巧妙的设计，概念清晰，思路明确，你以后做架构的时候可以多参考这样的设计。 如果只有进程，或者只有线程，都不能如此简单的解决我们遇到的问题。</p>
+<h2 id="来源">来源</h2>
+<p>《重学操作系统》</p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/zi-he-zi-jie-de-qu-bie/">
+                                                    <h3 class="post-title">
+                                                        字和字节的区别
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

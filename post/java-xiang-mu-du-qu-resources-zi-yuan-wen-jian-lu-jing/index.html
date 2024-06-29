@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>Java项目读取resources资源文件路径 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="
+2023-08-18 重新修改，对 ClassLoader 重新理解
+
+文件系统路径 与 类路径(classpath)
+此处参考
+java编译器编译.java文件和java虚拟机执行.class文件时的路径和写法不一样。在没有设置任何cl..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="Java项目读取resources资源文件路径" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="
+2023-08-18 重新修改，对 ClassLoader 重新理解
+
+文件系统路径 与 类路径(classpath)
+此处参考
+java编译器编译.java文件和java虚拟机执行.class文件时的路径和写法不一样。在没有设置任何cl...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/java-xiang-mu-du-qu-resources-zi-yuan-wen-jian-lu-jing/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2022-12-08">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="Java项目读取resources资源文件路径">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="Java项目读取resources资源文件路径">
+        <meta name="twitter:description" content="
+2023-08-18 重新修改，对 ClassLoader 重新理解
+
+文件系统路径 与 类路径(classpath)
+此处参考
+java编译器编译.java文件和java虚拟机执行.class文件时的路径和写法不一样。在没有设置任何cl...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    Java项目读取resources资源文件路径
+                                </h2>
+                                <span class="article-info">
+                                    2022-12-08, 1630 words, 7 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <blockquote>
+<p>2023-08-18 重新修改，对 ClassLoader 重新理解</p>
+</blockquote>
+<h2 id="文件系统路径-与-类路径classpath">文件系统路径 与 类路径(classpath)</h2>
+<p><a href="https://www.cnblogs.com/f-ck-need-u/p/8127529.html">此处参考</a><br>
+java编译器编译.java文件和java虚拟机执行.class文件时的路径和写法不一样。在没有设置任何classpath环境变量的情况下，javac可以编译全路径的.java文件。例如：</p>
+<pre><code class="language-java">javac d:\myjava\HelloWorld.java
+</code></pre>
+<p>编译后，在.java同路径目录下生成class文件。</p>
+<blockquote>
+<p>默认java虚拟机要从classpath环境变量的路径中搜索class文件去执行，对于java虚拟机来说，<strong>这不是类文件，而是类</strong>。它只有类路径，而没有文件系统路径。而classpath环境变量正是为java虚拟机提供搜索类路径的环境。注意，虚拟机不会递归搜索classpath定义的路径。</p>
+</blockquote>
+<p>也就是说，上面的java文件可以正确编译，但却不能执行。但如果将classpath设置为<code>&quot;.;d:\myjava\&quot;</code>，则java虚拟机将先从当前路径搜索，再从<code>d:\myjava</code>下搜索class文件。</p>
+<p>于是上面的HelloWorld.java编译后，可以直接执行:</p>
+<pre><code class="language-java">java HelloWorld
+</code></pre>
+<h2 id="小结">小结</h2>
+<p>对于 <code>ClassLoader</code>来说，类路径，而没有文件系统路径。类路径都是基于 <code>classpath</code> ，没有相对路径和绝对路径之分，所以不需要在资源路径前加上斜杠 <code>/</code> ，如使用的是绝对路径（例如 /myresource.txt），那么系统会尝试从文件系统的绝对路径中查找资源，而不是从类路径中查找，这可能导致找不到资源文件。例如</p>
+<pre><code class="language-java">InputStream inputStream = getClass().getClassLoader().getResourceAsStream(&quot;myresource.txt&quot;);
+</code></pre>
+<p>但是，如果使用 Class 类 的 <code>getResourceAsStream()</code> ,是有相对路径和绝对路径，查看源代码，会发现其也是使用 ClassLoader 进行资源加载，但是会对 传入的资源名字进行处理，如果资源参数没有以 / 开头，就在前面拼接对应class的package 名字，然后再交给 ClassLoader 进行资源加载，给人产生一种相对路径的感觉</p>
+<pre><code class="language-java">   private String resolveName(String name) {
+        if (!name.startsWith(&quot;/&quot;)) {
+            Class&lt;?&gt; c = this;
+            while (c.isArray()) {
+                c = c.getComponentType();
+            }
+            String baseName = c.getPackageName(); // 获取package名字
+            if (baseName != null &amp;&amp; !baseName.isEmpty()) {
+                name = baseName.replace('.', '/') + &quot;/&quot; + name;  // 拼接package名字，在返回
+            }
+        } else {
+            name = name.substring(1);
+        }
+        return name;
+    }
+</code></pre>
+<h2 id="例子">例子</h2>
+<p>今天在Java程序中读取resources资源下的文件，由于对Java结构了解不透彻，遇到很多坑。正常在Java工程中读取某路径下的文件时，可以采用绝对路径和相对路径，绝对路径没什么好说的，相对路径，即相对于当前类的路径。在本地工程和服务器中读取文件的方式有所不同，以下图配置文件为例：<br>
+<img src="https://toomi.pages.dev/post-images/1670488319383.png" alt="" loading="lazy"></p>
+<h2 id="1-本地读取资源文件">1、本地读取资源文件</h2>
+<p>Java类中需要读取properties中的配置文件，可以采用文件（File）方式进行读取：</p>
+<pre><code class="language-java">File file = new File(&quot;src/main/resources/properties/test.properties&quot;);
+InputStream in = new FileInputStream(file);
+</code></pre>
+<p>注意：当在IDEA中运行（不部署在服务器上），可以读取到该文件；</p>
+<ul>
+<li>原因：JavaWeb项目部署服务器中，会将项目打包成Jar包或者war包，此时就不会存在 src/main/resources 目录，JVM会在编译项目时，主动将 java文件编译成 class文件 和 resources 下的静态文件放在 target/classes目录下；</li>
+<li>理解：Java文件只有编译成 class文件才会被JVM执行，本地执行时会，当前项目即为Java进程的工作空间，虽然class文件在target/classes目录下，但是target/classes不是class文件运行的目录，只是存放的目录，运行目录还是在IDEA的模块下，所以运行时会找到 src/main/resources 资源文件！</li>
+</ul>
+<h2 id="2-服务器tomcat读取资源文件">2、服务器（Tomcat）读取资源文件</h2>
+<p>当工程部署到Tomcat中时，按照上边方式，则会抛出异常：FileNotFoundException。原因：Java工程打包部署到Tomcat中时，properties的路径变到顶层（classes下），这是由Maven工程结构决定的。由Maven构建的web工程，主代码放在src/main/java路径下，资源放在src/main/resources路径下，当构建jar包 或 war包时，JVM虚拟机会自动编译java文件为class文件存放在 target/classes目录下，resource资源下的文件会原封不动的拷贝一份到 target/classes 目录下：<br>
+<img src="https://toomi.pages.dev/post-images/1670488528059.png" alt="" loading="lazy"></p>
+<p>此时读取资源文件时，采用流（Stream）的方式读取，并通过JDK中Properties类加载，可以方便的获取到配置文件中的信息：</p>
+<pre><code class="language-java">InputStream in = this.getClass().getResourceAsStream(&quot;/properties/test.properties&quot;);
+Properties properties = new Properties();
+properties.load(in);
+properties.getProperty(&quot;name&quot;);
+</code></pre>
+<h2 id="3-读取方式比较">3、读取方式比较</h2>
+<p>在Java中获取资源的时候，经常用到getResource和getResourceAsStream</p>
+<h3 id="31-classgetresourcestring-path">3.1、Class.getResource(String path)</h3>
+<p>path不以'/'开头时，默认是从此类所在的包下取资源；<br>
+path以'/'开头时，则是从项目的ClassPath根下获取资源。在这里'/'表示ClassPath的根目录。<br>
+JDK设置这样的规则，是很好理解的，path不以'/'开头时，我们就能获取与当前类所在的路径相同的资源文件，而以'/'开头时可以获取ClassPath根下任意路径的资源。<br>
+如下所示的例子：</p>
+<pre><code class="language-java">public class Test
+{
+    public static void main(String[] args)
+    {
+        System.out.println(Test.class.getResource(&quot;&quot;));
+        System.out.println(Test.class.getResource(&quot;/&quot;));
+    }
+}
+</code></pre>
+<p>运行结果为：</p>
+<pre><code class="language-txt">file:/D:/work_space/java/bin/net/swiftlet/
+file:/D:/work_space/java/bin/
+</code></pre>
+<h3 id="32-classgetclassloadergetresourcestring-path">3.2、Class.getClassLoader().getResource(String path)</h3>
+<p>path不能以'/'开头，path是指类加载器的加载范围，在资源加载的过程中，使用的逐级向上委托的形式加载的，'/'表示Boot ClassLoader，类加载器中的加载范围，因为这个类加载器是C++实现的，所以加载范围为null。如下所示：</p>
+<pre><code class="language-java">public class Test
+{
+    public static void main(String[] args)
+    {
+        System.out.println(Test.class.getClassLoader().getResource(&quot;&quot;));
+        System.out.println(Test.class.getClassLoader().getResource(&quot;/&quot;));
+    }
+}
+</code></pre>
+<p>运行结果为：</p>
+<pre><code class="language-java">file:/D:/work_space/java/bin/
+null
+</code></pre>
+<p>从上面可以看出：<br>
+class.getResource(&quot;/&quot;) == class.getClassLoader().getResource(&quot;&quot;)<br>
+其实，Class.getResource和ClassLoader.getResource本质上是一样的，都是使用ClassLoader.getResource加载资源的。下面请看一下jdk的Class源码:</p>
+<pre><code class="language-java">public java.net.URL getResource(String name)
+    {
+        name = resolveName(name);
+        ClassLoader cl = getClassLoader0();
+        if (cl==null)
+        {
+            // A system class.
+            return ClassLoader.getSystemResource(name);
+        }
+        return cl.getResource(name);
+    }
+</code></pre>
+<p>从上面就可以看才出来：Class.getResource和ClassLoader.getResource本质上是一样的。至于为什么Class.getResource(String path)中path可以'/'开头，是因为在name = resolveName(name);进行了处理：</p>
+<pre><code class="language-java">private String resolveName(String name)
+    {
+        if (name == null)
+        {
+            return name;
+        }
+        if (!name.startsWith(&quot;/&quot;))
+        {
+            Class c = this;
+            while (c.isArray()) {
+                c = c.getComponentType();
+            }
+            String baseName = c.getName();
+            int index = baseName.lastIndexOf('.');
+            if (index != -1)
+            {
+                name = baseName.substring(0, index).replace('.', '/')
+                    +&quot;/&quot;+name;
+            }
+        } else
+        {//如果是以&quot;/&quot;开头，则去掉
+            name = name.substring(1);
+        }
+        return name;
+    }
+</code></pre>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/di-li-wei-zhi-ji-suan/">
+                                                    <h3 class="post-title">
+                                                        地理位置计算
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>Mutex 與 Semaphore 区别 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="演变
+在缺乏專門硬體指令的狀況下，存在多種同步機制演算法: (但其實各自的假設)
+
+Dekker’s algorithm: 1960 年
+Lamport’s bakery algorithm: 1973 年
+Peterson’s algor..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="Mutex 與 Semaphore 区别" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="演变
+在缺乏專門硬體指令的狀況下，存在多種同步機制演算法: (但其實各自的假設)
+
+Dekker’s algorithm: 1960 年
+Lamport’s bakery algorithm: 1973 年
+Peterson’s algor...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/mutex-yu-semaphore-qu-bie/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2022-12-29">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="Mutex 與 Semaphore 区别">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="Mutex 與 Semaphore 区别">
+        <meta name="twitter:description" content="演变
+在缺乏專門硬體指令的狀況下，存在多種同步機制演算法: (但其實各自的假設)
+
+Dekker’s algorithm: 1960 年
+Lamport’s bakery algorithm: 1973 年
+Peterson’s algor...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    Mutex 與 Semaphore 区别
+                                </h2>
+                                <span class="article-info">
+                                    2022-12-29, 1499 words, 6 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <h2 id="演变">演变</h2>
+<p>在缺乏專門硬體指令的狀況下，存在多種同步機制演算法: (但其實各自的假設)</p>
+<ul>
+<li>Dekker’s algorithm: 1960 年</li>
+<li>Lamport’s bakery algorithm: 1973 年</li>
+<li>Peterson’s algorithm: 1981 年</li>
+</ul>
+<p>現代的電腦硬體都有簡單且明確的指令可達到相同的效果，不用再顧慮上述演算法的 willingness vs. turn，換言之，這些軟體的同步演算法已無實用價值。</p>
+<p>Edsger Dijkstra 提出 semaphore 概念時，被廣泛用於 CS 跟 signaling 這兩類問題。</p>
+<ul>
+<li>signaling 是 process/threads 之間要通知彼此 「某些條件已經改變」 的情境：例如 producer-consumer 類型的問題可用兩個 semaphore 來實作，一個代表 「有資料可用」，另一個代表 「有空間可放東西」。</li>
+</ul>
+<p>隨著電腦硬體逐漸提供 atomic 指令後，mutex 或稱為 lock 的機制被列入作業系統的實作考量:</p>
+<ul>
+<li>需要進入 CS 時， 用 mutex/lock —— 上鎖/解鎖永遠是同一個 thread/process;</li>
+<li>需要處理 signalling 時，用 semaphore —— 等待/通知通常是不同的 threads/processes;</li>
+</ul>
+<p>簡言之，要搶資源時用 mutex，要互相通知時用 semaphore。</p>
+<h2 id="既生瑜何生亮">既生瑜，何生亮？</h2>
+<p>先來看 semaphore 與 mutex 的差異，參照 Michael Barr 的文章 <a href="https://barrgroup.com/Embedded-Systems/How-To/RTOS-Mutex-Semaphore">Mutexes and Semaphores Demystified</a>: mutex 與 Semaphore 都用於確保 critical section (以下簡稱 CS) 的正確，讓多個執行單元運作並存取資源時，執行結果不會因為執行單元的時間先後的影響而導致錯誤。<br>
+mutex 與 semaphore 的差別在於：</p>
+<ul>
+<li>process 使用 mutex 時，process 的運作是持有 mutex，執行 CS 來存取資源，然後釋放 mutex
+<ul>
+<li>Mutex 就像是資源的一把鎖：解鈴還須繫鈴人</li>
+</ul>
+</li>
+<li>process 使用 semaphore 時，process 總是發出信號 (signal)，或者總是接收信號 (wait)，同一個 <strong>process 不會先後進行 signal 與 wait</strong>
+<ul>
+<li>換言之，process 要不擔任 producer，要不充當 consumer 的角色，不能兩者都是。semaphore 是為了保護 process 的執行同步正確;</li>
+</ul>
+</li>
+</ul>
+<p>mutex 與 semaphore 兩者設計來解決不同的問題。區分 mutex 與 binary semaphore：</p>
+<ul>
+<li>mutex 確保數個 process 在一個時間點上，只能有一個 process 存取單項資源;</li>
+<li>semaphore 讓數個 producer 與數個 consumer 在計數器的基礎上進行合作;</li>
+</ul>
+<h2 id="补充">补充</h2>
+<p>Mutex 與 semaphore 是經常被混用的觀念(尤其是 binary semaphore = mutex 這種理解)，做為系統的開發者，勢必需要釐清其中的差異。</p>
+<p>對於 mutex 來說，解鎖只能由上鎖的 thread 來完成，經常使用的情境是對於資源的保護 / 互斥。就像是對於一個房間，只存在一把鑰匙，拿到的人就可以進入房間，而其他的人必須排隊等待，直到那個人出來。</p>
+<p>semaphore 可以由原本的 thread 或是另外一個 thread 解開，因此可以讓數個 producer 與數個 consumer 在計數器的基礎上進行合作。經常的使用情境是在兩個 thread 間的同步上，當 thread 進行至某個點時，去通知 thread B 可以繼續往下執行。</p>
+<p>另一個 mutex 與 binary semaphore 的差異在於，mutex 的使用可能產生副作用: priority inversion。假設有優先權從高至低的三個 thread T1、T2、T3，其中 T1 和 T3 需要一個由 mutex 保護的資源:</p>
+<ul>
+<li>最開始沒有其他 thread 在運行，因此 T3 先執行並拿到 mutex</li>
+<li>T2 一段時間後產生，因為 T2 priority 較高，因此 interrupt 時排程器讓 T2 先執行</li>
+<li>T1 一段時間後產生，因為 T1 priority 最高，理論上該由 T1 先執行，但是因為資源被 T3 佔用了，因此 CPU 只能先讓給 T2 執行，這就是 priority inversion</li>
+</ul>
+<p>為此， mutex 實作中需要採用一些機制來防止 priority inversion。但是，因為 semaphore 是為了不同 thread 間同步而存在，實作上就不必為此煩惱。</p>
+<h2 id="mutex-與-semaphore-最大的差異">Mutex 與 Semaphore 最大的差異</h2>
+<ul>
+<li>最大的差異在於 Mutex 只能由上鎖的 thread 解鎖，而 Semaphore 沒有這個限制，可以由原本的 thread 或是另外一個 thread 解開。另外，Mutex 只能讓一個 thread 進入 critical section，Semaphore 的話則可以設定要讓幾個 thread 進入。這讓實際上使用 Mutex 跟 Semaphore 場景有很大的差別。</li>
+<li>Mutex 的兩個特性：一個是只能有持鎖人解鎖、一個是在釋放鎖之前不能退出的特性，讓 Mutex 叫常使用在 critical section 只能有一個 thread 進入，而且要避免 priority inversion 的時候；Semaphore 也能透過 binary semaphore 做到類似的事情，卻沒有辦法避免 priority inversion 出現。</li>
+<li>而 Semaphore 更常是用在同步兩個 thread 或功能上面，因為 Semaphore 實際上使用的是 signal 的 up 與 down，讓 Semaphore 可以變成是一種 notification 的作用，例如 A thread 執行到某個地方時 B thread 才能繼續下去，就可以使用  Semaphore 來達成這樣的作用。</li>
+</ul>
+<p>在 Linux kernel 中，一開始是只有 semaphore 這個 structure，直到 2.6.16 版當中才把 mutex 從 semaphore 中分離出來 (這點可以從 LDD3e* 看出來)。雖然 Mutex 與 Semaphore 兩者都是休眠鎖，但是 Linux kernel 在實作 Mutex 的時候，有用到一些加速的技巧，將上鎖分為3個步驟：</p>
+<ul>
+<li><strong>Fast path</strong>: 嘗試使用 atomic operation 直接減少 counter 數值來獲得鎖。</li>
+<li><strong>Mid path</strong>: 第一步失敗的話，嘗試使用特化的 MCS spinlock 等待然後取鎖。<br>
+當持鎖的 thread 還在運行，而且沒有存在更高 priority 的 task 時，我們可以大膽假設，持鎖 thread 很快就會把 thread 釋放出來 (看看 code 就知道了)，因此會使用一個特化的 MCS spinlock 等待鎖被釋放。特化的 MCS spinlock 可以在被 reschedule 的時候退出 MCS spinlock queue。當走到這步時，就會到 Slow path。</li>
+<li>Slow path: 鎖沒有辦法取得，只好把自己休眠了。走到這一步，mutex 才會將自己加入 wait-queue 然後休眠，等待有人 unlock 後才會被喚醒。</li>
+</ul>
+<h2 id="参考链接">参考链接</h2>
+<ul>
+<li>https://hackmd.io/@sysprog/linux-sync?type=view</li>
+</ul>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/zi-xuan-suo-xin-hao-liang-hu-chi-ti-gai-shu/">
+                                                    <h3 class="post-title">
+                                                        自旋锁、信号量、互斥体概述
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

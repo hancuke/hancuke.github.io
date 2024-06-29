@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>oracle ebs 简介 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="本文主要介绍Oracle EBS(Oracle E-Business Suite), 也成为 oracle application。 包括内容有
+
+EBS系统结构
+EBS系统导航，即在EBS界面进行操作
+EBS表单客户化
+EBS报表客户化
+..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="oracle ebs 简介" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="本文主要介绍Oracle EBS(Oracle E-Business Suite), 也成为 oracle application。 包括内容有
+
+EBS系统结构
+EBS系统导航，即在EBS界面进行操作
+EBS表单客户化
+EBS报表客户化
+...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/oracle-ebs-jian-jie/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2022-09-29">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="oracle ebs 简介">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="oracle ebs 简介">
+        <meta name="twitter:description" content="本文主要介绍Oracle EBS(Oracle E-Business Suite), 也成为 oracle application。 包括内容有
+
+EBS系统结构
+EBS系统导航，即在EBS界面进行操作
+EBS表单客户化
+EBS报表客户化
+...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    oracle ebs 简介
+                                </h2>
+                                <span class="article-info">
+                                    2022-09-29, 595 words, 3 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <p>本文主要介绍Oracle EBS(Oracle E-Business Suite), 也成为 oracle application。 包括内容有</p>
+<ul>
+<li>EBS系统结构</li>
+<li>EBS系统导航，即在EBS界面进行操作</li>
+<li>EBS表单客户化</li>
+<li>EBS报表客户化</li>
+</ul>
+<h2 id="ebs系统结构">EBS系统结构</h2>
+<p>EBS系统使用了传统的三层架构模式(客户端、服务器端、数据库端)。</p>
+<ul>
+<li>客户端：即我们所用的网页浏览器</li>
+<li>服务器端：即EBS应用服务器</li>
+<li>数据库端：即EBS数据库服务器</li>
+</ul>
+<p>一般来说。<strong>EBS数据库服务器</strong>和<strong>EBS应用服务器</strong>安装在不同的主机上。普通用户操作EBS系统主要是使用浏览器访问<strong>EBS应用服务器</strong>，在<strong>应用服务器</strong>上进行数据查询等操作，<strong>EBS应用服务器</strong>向<strong>数据库服务器</strong>提交数据操作请求，<strong>数据库服务器</strong>请处理完<strong>EBS应用服务器</strong>的请求后将结果返回<strong>应用服务器</strong>，最后<strong>应用服务器</strong>把数据返回客户端，展现在用户界面上。<br>
+<img src="https://i.loli.net/2017/09/14/59ba559a0fb40.png" alt="EBS服务价格" /></p>
+<p>举个栗子：<br>
+假设EBS有一个表单，这个表单是建立于数据库的EMP表上，普通用户可以通过浏览器登陆EBS应用服务器，导航到那个表单，进行查询就可以查询到emp表的数据。但是对于开发人员，可以直接登陆到数据库服务器，然后对数据库进行查询操作。</p>
+<h2 id="ebs基础概念">EBS基础概念</h2>
+<p>在EBS中首先接触的概念是(用户、职责、菜单、功能)。用户就是登陆EBS时使用的用户名，EBS根据用户名识别一个用户。一个用户关联一个或多个职责，一个职责关联一个或多个菜单，一个菜单关联一个或多个功能。<br>
+例如，一个人事部门职员(用户)有人资管理职责，人资管理职责包含着人员管理和招聘管理菜单，人员管理菜单下有薪水管理和合同管理功能。</p>
+<p>功能才是EBS系统的基本操作单位，其他都是一个逻辑概念，职能名称和菜单名称可以自命名，没有限制。就像职责是文件夹，菜单是子文件夹，功能才是我们能打开的文件。<br>
+<img src="https://i.loli.net/2017/09/14/59ba59bccbfc7.png" alt="职责与菜单" /></p>
+<p>当用户登录进ebs后，看见的界面类似下图</p>
+<img src="https://i.loli.net/2017/09/14/59ba5bec75b7d.png" alt="EBS登录后界面"  height="200" width="100" />
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/oracle-apex-shang-chuan-tu-pian/">
+                                                    <h3 class="post-title">
+                                                        Oracle apex 上传图片
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

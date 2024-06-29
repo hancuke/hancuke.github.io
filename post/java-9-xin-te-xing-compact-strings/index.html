@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>Java 9 新特性 - Compact Strings | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="字符串在 Java 的 String 类内部由一个包含该字符串中所有字符的 char[] 来表示，其中的每个字符 char 又是由 2 个字节组成，因为 Java 内部使用 UTF-16。举例来说，如果一个字符串含有英文字符，那么这些英文字..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="Java 9 新特性 - Compact Strings" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="字符串在 Java 的 String 类内部由一个包含该字符串中所有字符的 char[] 来表示，其中的每个字符 char 又是由 2 个字节组成，因为 Java 内部使用 UTF-16。举例来说，如果一个字符串含有英文字符，那么这些英文字...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/java-9-xin-te-xing-compact-strings/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2022-12-02">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="Java 9 新特性 - Compact Strings">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="Java 9 新特性 - Compact Strings">
+        <meta name="twitter:description" content="字符串在 Java 的 String 类内部由一个包含该字符串中所有字符的 char[] 来表示，其中的每个字符 char 又是由 2 个字节组成，因为 Java 内部使用 UTF-16。举例来说，如果一个字符串含有英文字符，那么这些英文字...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    Java 9 新特性 - Compact Strings
+                                </h2>
+                                <span class="article-info">
+                                    2022-12-02, 1863 words, 7 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <p>字符串在 Java 的 String 类内部由一个包含该字符串中所有字符的 char[] 来表示，其中的每个字符 char 又是由 2 个字节组成，因为 Java 内部使用 UTF-16。举例来说，如果一个字符串含有英文字符，那么这些英文字符的前 8 比特都将为 0，因为一个ASCII字符都能被单个字节来表示。</p>
+<p>当然有许多字符需要 16 比特，但从统计角度来说只需 8 比特的情况占大多数，例如：LATIN-1 ，因此这能成为一种改善内存占用及性能的一个机会。更重要的是：由于 JVM 存储字符串的方式导致 JVM 堆空间通常很大一部分都被字符串所占据。</p>
+<p>大多数情况下，字符串实例常占用比它实际需要的内存多一倍的空间。</p>
+<p>在此篇文章中，我们将讨论 JDK 6 引入的可选的 Compressed String 功能及 JDK 9 最新引入的 Compact String ，它们两者的设计目的都是优化字符串在 JVM 中的内存占用。</p>
+<h2 id="compressed-string-java-6">Compressed String - Java 6</h2>
+<p>JDK 6 update 21 版本中引入了一个新的虚拟机参数选项：<code>-XX:+UseCompressedStrings</code></p>
+<p>当此选项启用时，字符串将以 byte[] 的形式存储，代替原来的 char[]，因此可以节省一些内存。然而，此功能最终在 JDK 7 中被移除，主要原因在于它将带来一些无法预料的性能问题。</p>
+<h2 id="compact-string-java-9">Compact String - Java 9</h2>
+<p>Java 9 重新采纳字符串压缩这一概念。这意味着无论何时我们创建一个所有字符都能用一个字节的 LATIN-1 编码来描述的字符串，都将在内部使用字节数组的形式存储，且每个字符都只占用一个字节。另一方面，如果字符串中任一字符需要多于 8 比特位来表示时，该字符串的所有字符都统统使用两个字节的 UTF-16 编码来描述。因此基本上能如果可能，都将使用单字节来表示一个字符。</p>
+<p>现在的问题是：所有的字符串操作如何执行？ 怎样才能区分字符串是由 LATIN-1 还是 UTF-16 来编码？为了处理这些问题，字符串的内部实现进行了一些调整。引入了一个 final 修饰的成员变量 coder, 由它来保存当前字符串的编码信息。</p>
+<h2 id="java-9-中字符串的实现">Java 9 中字符串的实现</h2>
+<p>之前，字符串都是以字符数组来存储：</p>
+<pre><code class="language-java">private final char[] value;  
+</code></pre>
+<p>现在，它将使用字节数组来存储了：</p>
+<pre><code class="language-java">private final byte[] value;  
+private final byte coder;  
+</code></pre>
+<p>coder 可以被赋值为如下的常量：</p>
+<pre><code class="language-java">static final byte LATIN1 = 0;
+static final byte UTF16 = 1;
+</code></pre>
+<p>现在，大多数的字符串操作都将检查 coder 变量，从而采取特定的实现：</p>
+<pre><code class="language-java">public int indexOf(int ch, int fromIndex) {
+    return isLatin1() 
+      ? StringLatin1.indexOf(value, ch, fromIndex) 
+      : StringUTF16.indexOf(value, ch, fromIndex);
+}  
+ 
+private boolean isLatin1() {
+    return COMPACT_STRINGS &amp;&amp; coder == LATIN1;
+} 
+</code></pre>
+<h2 id="改变原因">改变原因</h2>
+<p>主要是为了节约String占用的内存。</p>
+<p>众所周知，在大多数Java程序的堆里，String占用的空间最大，并且绝大多数String只有Latin-1字符，这些Latin-1字符只需要1个字节就够了。JDK9之前，JVM因为String使用char数组存储，每个char占2个字节，所以即使字符串只需要1字节/字符，它也要按照2字节/字符进行分配，浪费了一半的内存空间。</p>
+<p>JDK9是怎么解决这个问题的呢？一个字符串出来的时候判断，它是不是只有Latin-1字符，如果是，就按照1字节/字符的规格进行分配内存，如果不是，就按照2字节/字符的规格进行分配（UTF-16编码），提高了内存使用率。</p>
+<p>举个类似的例子说就是，工厂生产的有多种型号的零件，一批零件必须装入同一种型号的包装发货，零件有大号和小号两种，而且绝大多数都是小号，之前包装的时候不管一批零件是大是小全部放到大号的包装里，造成了空间浪费，现在如果一批里面有大号就全装大号，如果没有大号就全装小号，提升了空间利用率。</p>
+<p>这种做法带来的好处是显而易见的：</p>
+<ul>
+<li>原本一个仓库装不下的零件，现在可以装下了（用更少的内存跑更大的应用）</li>
+<li>原本仓库一天往外运一次，现在可以一天半甚至两天运一次（减少GC次数）</li>
+</ul>
+<h2 id="为什么用utf-16而不用utf-8">为什么用UTF-16而不用UTF-8</h2>
+<p>这就要从这两个字符集的设计说起了。<br>
+UTF-8实际上是对空间利用效率最高的编码集，它是不定长的，可以最大限度利用内存和网络。它是小包装装得下就用小包装，小包装装就看看能不能用大包装装，大包装都装不下就用超大包装。但是这种编码集只适用于传输和存储，并不适合拿来做String的底层实现。这是为什么呢？</p>
+<p>因为String有随机访问的方法，所谓随机访问，就是charAt、subString这种方法，随便指定一个数字，String要能给出结果。如果字符串中的每个字符占用的内存是不定长的，那么进行随机访问的时候，就需要从头开始数每个字符的长度，才能找到你想要的字符。试想，如果大小包装混装，你想拿到第N个零件，你必须一个一个数包装盒，数到N，才能找到你要的零件。而如果包装是一样的大小，你就可以通过简单的计算知道你要找的零件距离你有多少远，直接过去拿就行了。</p>
+<p>但是又有人会问了，UTF-16也是变长的啊，一个字符可能在UTF-16里面占用4个字节咧。是的，是的，UTF-16是变长的，但这是在现实世界里是这样。在java的世界里，一个字符（char）就是2个字节，从\u0000到\uFFFF，占4个字节的字符，在java里是用两个char来存储的，而String的各种操作，都是以java的字符（char）为单位的，charAt是取得第几个char，subString取的也是第几个到第几个char组成的子串，甚至length返回的都是char的个数，从来没有哪个方法可以让你“通过下标取出字符串中第几个'现实意义'中的字符”，所以UTF-16在java的世界里，就可以视为一个定长的编码。还是工厂的例子：如果哪天出现了一个超大的零件咋办？简单，我这就只有大号包装，一个大号的包装都装不下的时候怎么办呢，把超大号的零件切成两份就行了，用两个大号包装去装，出厂也视为两个零件。关于这种超大零件，可以试着跑以下下面的代码体会下：</p>
+<pre><code class="language-java">public class StringTest {
+    public static void main(String[] args) {
+        System.out.println(&quot;🀎&quot;.length());
+        System.out.println(&quot;🀎&quot;.charAt(0));
+        System.out.println(&quot;🀎&quot;.charAt(1));
+    }
+}
+</code></pre>
+<h2 id="原链接">原链接</h2>
+<p>https://www.zhihu.com/question/447224628<br>
+https://reionchan.github.io/2017/09/25/java-9-compact-string/#compact-string---java-9</p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/linkedhashmap-custom-implementation-in-java/">
+                                                    <h3 class="post-title">
+                                                        LinkedHashMap custom implementation in java
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

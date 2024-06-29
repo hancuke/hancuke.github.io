@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>iptables 限速 ，限制并发数 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="对每个ip限速
+iptables -A INPUT -i eth0 -m hashlimit --hashlimit-above 128kb/s --hashlimit-mode srcip --hashlimit-name in -j D..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="iptables 限速 ，限制并发数" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="对每个ip限速
+iptables -A INPUT -i eth0 -m hashlimit --hashlimit-above 128kb/s --hashlimit-mode srcip --hashlimit-name in -j D...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/iptables-xian-su/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2023-02-27">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="iptables 限速 ，限制并发数">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="iptables 限速 ，限制并发数">
+        <meta name="twitter:description" content="对每个ip限速
+iptables -A INPUT -i eth0 -m hashlimit --hashlimit-above 128kb/s --hashlimit-mode srcip --hashlimit-name in -j D...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    iptables 限速 ，限制并发数
+                                </h2>
+                                <span class="article-info">
+                                    2023-02-27, 599 words, 3 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <p>对每个ip限速</p>
+<pre><code class="language-cmd">iptables -A INPUT -i eth0 -m hashlimit --hashlimit-above 128kb/s --hashlimit-mode srcip --hashlimit-name in -j DROP
+iptables -A OUTPUT -o eth0 -m hashlimit --hashlimit-above 128kb/s --hashlimit-mode dstip --hashlimit-name out -j DROP
+</code></pre>
+<h2 id="iptables的命令参数说明">iptables的命令参数说明</h2>
+<p>下面关于iptables命令的详细参数简单说明一下：</p>
+<ul>
+<li>-t(table)：指定表</li>
+<li>-A(append)： 追加，一般将新加的规则（策略）是追加到表中链上的末尾规则</li>
+<li>-I(insert) 插入链 后面加数字可以指定讲规则加到相应的行，默认是所有规则最前面</li>
+<li>-L(list)查看规则 可以加-n、-v参数效果查看更明显</li>
+<li>-F(flush) 清除所有规则</li>
+<li>-D(delete)删除某个规则  可以指定相应链上的规则顺序号去删除，--line-numbers可以查看</li>
+</ul>
+<h2 id="匹配数据包的一些条件参数">匹配数据包的一些条件参数：</h2>
+<ul>
+<li>-i 进入的网卡</li>
+<li>-o 出去的网卡</li>
+<li>-s ip源地址IP</li>
+<li>-d ip 目的地址IP</li>
+<li>--dport 端口号  目的端口号</li>
+<li>--sdport 端口号  源端口号</li>
+</ul>
+<h2 id="限制并发数">限制并发数</h2>
+<p>iptables的connlimit模块可限制全局的并发连接数。其用法如下：</p>
+<pre><code class="language-cmd">iptables -I INPUT -p tcp --syn --dport 8081 -m connlimit --connlimit-above 2 --connlimit-mask 0 -j DROP
+</code></pre>
+<p>命令要点：<br>
+<code>-p tcp</code>：针对tcp协议过滤；<br>
+<code>--dport 8081</code>：对8081端口起作用；<br>
+<code>-m connlimit</code>：使用connlimit模块<br>
+<code>--connlimit-above 2</code>：最多不超过2个并发连接<br>
+<code>--connlimit-mask 0</code>： 默认ip掩码是32，即限制单ip并发连接数，设置为0则限制全局连接。</p>
+<p>用上述命令配置好防火墙后，可用以下方法测试效果：</p>
+<ol>
+<li>用nc监听端口：<code>nc -l 8081 -k</code>;</li>
+<li>打开另外几个终端，测试连接：<code>nc localhost 8081</code>。</li>
+</ol>
+<p>正确配置情形下，第一个和第二个nc连接是正常的，第三个连接起会出现 broken pipe 错误,即无法连接，说明防火墙达到了预期效果（也可以用<code>netstat -nt | grep 8081</code>查看已建立连接）。</p>
+<h2 id="允许单个ip的最大连接数为-3">允许单个IP的最大连接数为 3</h2>
+<pre><code class="language-cmd">iptables -I INPUT -p tcp --dport 80 -m connlimit --connlimit-above 3 -j REJECT
+</code></pre>
+<h2 id="删除规则">删除规则</h2>
+<ol>
+<li>列出防火墙所有规则，并显示行数</li>
+</ol>
+<pre><code class="language-c">iptables -L -n --line-number  
+</code></pre>
+<ol start="2">
+<li>删除INPUT下行数为 3 的规则</li>
+</ol>
+<pre><code class="language-cmd">iptables -D INPUT 3     
+</code></pre>
+<h2 id="保存设置及重启自动恢复">保存设置及重启自动恢复</h2>
+<p>iptables设定的规则，掉电重启会清空。若需要保存，最好是使用iptables-save/restore配合重定向，示例如下：</p>
+<pre><code class="language-cmd">iptables-save &gt; /etc/iptables-rules
+iptables-restore &lt; /etc/iptables-rules
+</code></pre>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/spring-import-zhu-jie-jie-shao/">
+                                                    <h3 class="post-title">
+                                                        Spring @Import 注解介绍
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

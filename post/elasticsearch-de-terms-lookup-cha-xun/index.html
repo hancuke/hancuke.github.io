@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>Elasticsearch 的 terms lookup 查询 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="对分析工作熟练的人，想必都用过 Excel 中的 VLOOKUP 函数，参考我的另一篇博客：VLOOKUP 函数跨工作表跨文件使用方式 ，但是目前已经被官方取消【2019 年末宣布】，转而使用 XLOOKUP。此外，可能很少有人知道，在 E..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="Elasticsearch 的 terms lookup 查询" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="对分析工作熟练的人，想必都用过 Excel 中的 VLOOKUP 函数，参考我的另一篇博客：VLOOKUP 函数跨工作表跨文件使用方式 ，但是目前已经被官方取消【2019 年末宣布】，转而使用 XLOOKUP。此外，可能很少有人知道，在 E...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/elasticsearch-de-terms-lookup-cha-xun/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2022-12-14">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="Elasticsearch 的 terms lookup 查询">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="Elasticsearch 的 terms lookup 查询">
+        <meta name="twitter:description" content="对分析工作熟练的人，想必都用过 Excel 中的 VLOOKUP 函数，参考我的另一篇博客：VLOOKUP 函数跨工作表跨文件使用方式 ，但是目前已经被官方取消【2019 年末宣布】，转而使用 XLOOKUP。此外，可能很少有人知道，在 E...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    Elasticsearch 的 terms lookup 查询
+                                </h2>
+                                <span class="article-info">
+                                    2022-12-14, 1313 words, 6 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <p>对分析工作熟练的人，想必都用过 Excel 中的 VLOOKUP 函数，参考我的另一篇博客：VLOOKUP 函数跨工作表跨文件使用方式 ，但是目前已经被官方取消【2019 年末宣布】，转而使用 XLOOKUP。此外，可能很少有人知道，在 Elasticsearch 中也存在这样一个类似的查询接口：terms lookup，可以跨索引查询数据，看起来很是方便，本文简单介绍一下。开发环境基于 Elasticsearch v5.6.8。</p>
+<h2 id="接口介绍">接口介绍</h2>
+<p>在 Elasticsearch 中，是存在父子文档这种设置的，即在父索引中嵌套一个子索引，例如在主帖中嵌套用户的信息。这样查询主帖时，不仅可以同时指定用户的筛选条件，而且返回数据时可以连同用户信息一起返回，在使用层面很方便。</p>
+<p>但是，这种存储方式显然冗余了大量的用户信息，如果数据量级很大，浪费了大量的存储空间，不可取。随着业务的数据增长，这种设计方式肯定要被淘汰掉，转而选择把父子文档拆分，此时如果还想使用类似父子文档的查询特性，可以选择跨索引查询，即 terms lookup。</p>
+<p>例如查询某个用户关注列表中所有用户发表的主帖，如果是拆开查询，需要两步：先查出关注列表，再查询发表的主帖，而使用 terms lookup 查询只需要一步即可。但是这种方式有诸多的限制，下面会举例说明，我想这也是为了性能考虑。</p>
+<p>其实，terms lookup 是一个查询过滤器【filter，从 v0.90 开始引进】，只不过不需要用户指定 filter、filtered 等关键字，所以用户使用起来也无感知。</p>
+<p>参考官方文档：query-dsl-terms-query 。</p>
+<p>读者在继续往下阅读之前可以先去了解一下与 缓存 相关的知识点，例如：如何开启、如何关闭、删除缓存、自定义命名、什么场景应该使用、哪些查询不会被缓存。</p>
+<h2 id="演示示例">演示示例</h2>
+<p>我在这里使用两个典型的场景进行演示，一个可以支持，另一个不能支持。假如有 2 个索引：用户 my-index-user、主帖 my-index-post，它们之间是通过用户的 id 来进行关联的【在用户索引中字段为 item_id，在主帖索引中字段为 user_item_id】，即用户可以任意发表主帖。</p>
+<h3 id="场景一">场景一</h3>
+<p>查询某个用户的关注列表中所有用户发表的主帖。【可以支持】</p>
+<p>查询思路分两个步骤，一是利用 item_id 查询用户索引，返回关注列表 friends 中的所有 item_id；二是利用一步骤中返回的 itemt_id 列表，去匹配主帖的 user_item_id 字段，从而查询所有的主帖。</p>
+<p>转换为 terms lookup 查询为：</p>
+<pre><code class="language-json">POST my-index-post/_search
+{
+  &quot;query&quot;: {
+    &quot;bool&quot;: {
+      &quot;must&quot;: [
+        {
+          &quot;terms&quot;: {
+            &quot;user_item_id&quot;: {
+              &quot;index&quot;: &quot;my-index-user&quot;,
+              &quot;type&quot;: &quot;user&quot;,
+              &quot;id&quot;: &quot;0f42d65be1f5287e1c9c26e3728814aa&quot;,
+              &quot;path&quot;: &quot;friends&quot;
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+</code></pre>
+<p>可以看到查询出来 2743 条主帖，这样的查询方式是不是很方便呢。</p>
+<p>下面可以拆分步骤简单验证一下，先查询用户索引，把关注列表查出来：</p>
+<pre><code class="language-json">POST my-index-user/user/_search
+{
+  &quot;query&quot;: {
+    &quot;bool&quot;: {
+      &quot;must&quot;: [
+        {
+          &quot;terms&quot;: {
+            &quot;id&quot;: [
+              &quot;0f42d65be1f5287e1c9c26e3728814aa&quot;
+            ]
+          }
+        }
+      ]
+    }
+  },
+  &quot;_source&quot;: [
+    &quot;item_id&quot;,
+    &quot;friends&quot;,
+    &quot;birth_year&quot;
+  ]
+}
+</code></pre>
+<h3 id="场景二">场景二</h3>
+<p>查询出生日期是 1994 年的所有用户发表的主帖。【不可以支持】</p>
+<p>查询思路分两个步骤，一是利用 birth_year 查询用户索引，返回满足条件的所有 item_id；二是利用一步骤中返回的 itemt_id 列表，去匹配主帖的 user_item_id 字段，从而查询所有的主帖。</p>
+<p>转换为 terms lookup 查询为：</p>
+<pre><code class="language-json">POST my-index-post/_search
+{
+  &quot;query&quot;: {
+    &quot;bool&quot;: {
+      &quot;must&quot;: [
+        {
+          &quot;terms&quot;: {
+            &quot;user_item_id&quot;: {
+              &quot;index&quot;: &quot;my-index-user&quot;,
+              &quot;type&quot;: &quot;user&quot;,
+              &quot;birth_year&quot;: 1994,
+              &quot;path&quot;: &quot;item_id&quot;
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+</code></pre>
+<p>可以看到，报错了：[terms] query does not support [birth_year] within lookup element，想象很美好，现实很残酷，其实 Elasticsearch 并不支持对用户索引使用非 id 字段条件，也就是指定内层的索引条件，只能是和 id 有关的，这也是一种限制。</p>
+<h2 id="引申说明">引申说明</h2>
+<p>terms 个数限制，对于场景一来说，如果关注列表中的 item_id 过多，也会导致查询主帖的 terms 匹配失败，因为 terms 查询是有个数限制的。可以通过配置更改，设置 terms 最大个数：index.max_terms_count，默认最大个数为 65535，可以根据集群情况降低，例如设置为 10000，为了集群稳定，一般不需要设置那么大。</p>
+<p>内层返回字段需要存储，对于场景一来说，如果关注列表 friends 字段没有存储【stored_fields 属性】，只是做了索引，也是无法支持的，会报错：[terms] query does not support [friends] within lookup element。<br>
+对于场景二来说，表现的就是 terms lookup 无法支持复杂的查询条件，只能是和 id 字段有关的，这样就降低了 Elasticsearch 的计算量。</p>
+<h2 id="原链接">原链接</h2>
+<p>https://www.playpi.org/2019060601.html</p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/lucene-ji-chu-gong-zuo-liu-cheng/">
+                                                    <h3 class="post-title">
+                                                        Lucene基础工作流程
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

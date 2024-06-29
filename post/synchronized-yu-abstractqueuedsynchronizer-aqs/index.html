@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>synchronized 与 AbstractQueuedSynchronizer (AQS) | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="synchronized
+Synchronized是Java中解决并发问题的一种最常用的方法，也是最简单的一种方法。Synchronized的作用主要有三个：
+
+确保线程互斥的访问同步代码
+保证共享变量的修改能够及时可见
+有效解决重排序问题..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="synchronized 与 AbstractQueuedSynchronizer (AQS)" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="synchronized
+Synchronized是Java中解决并发问题的一种最常用的方法，也是最简单的一种方法。Synchronized的作用主要有三个：
+
+确保线程互斥的访问同步代码
+保证共享变量的修改能够及时可见
+有效解决重排序问题...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/synchronized-yu-abstractqueuedsynchronizer-aqs/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2023-01-11">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="synchronized 与 AbstractQueuedSynchronizer (AQS)">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="synchronized 与 AbstractQueuedSynchronizer (AQS)">
+        <meta name="twitter:description" content="synchronized
+Synchronized是Java中解决并发问题的一种最常用的方法，也是最简单的一种方法。Synchronized的作用主要有三个：
+
+确保线程互斥的访问同步代码
+保证共享变量的修改能够及时可见
+有效解决重排序问题...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    synchronized 与 AbstractQueuedSynchronizer (AQS)
+                                </h2>
+                                <span class="article-info">
+                                    2023-01-11, 1178 words, 5 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <h2 id="synchronized">synchronized</h2>
+<p>Synchronized是Java中解决并发问题的一种最常用的方法，也是最简单的一种方法。Synchronized的作用主要有三个：</p>
+<ol>
+<li>确保线程互斥的访问同步代码</li>
+<li>保证共享变量的修改能够及时可见</li>
+<li>有效解决重排序问题。</li>
+</ol>
+<p>从语法上讲，Synchronized总共有三种用法：</p>
+<ul>
+<li>修饰普通方法</li>
+<li>修饰静态方法</li>
+<li>修饰代码块</li>
+</ul>
+<p>synchronized基于操作系统的管程(monitor)实现，对线程的阻塞和唤醒使用的是 <code>Object</code>的<code>wait()</code>和<code>notify()</code></p>
+<h2 id="abstractqueuedsynchronizer-aqs">AbstractQueuedSynchronizer (AQS)</h2>
+<p>AQS是一种提供了原子式管理同步状态、阻塞和唤醒线程功能以及CLH队列模型的简单框架。Java中的大部分同步类（Lock、Semaphore、ReentrantLock等）都是基于AbstractQueuedSynchronizer（简称为AQS）实现的，AQS同时提供了互斥模式（exclusive）和共享模式（shared）两种不同的同步逻辑。基于AQS同步器实现参考：</p>
+<ul>
+<li>ReentrantLock</li>
+<li>ReentrantReadWriteLock</li>
+<li>Semaphore</li>
+<li>CountDownLatch</li>
+<li>ThreadPoolExecutor.Worker</li>
+</ul>
+<p>AQS是纯基于 JDK 实现，对线程的阻塞和唤醒使用的是Condition的<code>await()</code>、<code>signal()</code>方法</p>
+<h2 id="区别和联系">区别和联系</h2>
+<p>以AQS的经典实现<code>ReentrantLock</code>为例，分析其和<code>synchronized</code> 的区别，相比于synchronized，ReentrantLock需要显式的获取锁和释放锁，相对现在基本都是用JDK7和JDK8的版本，从Synchronized引入了偏向锁，轻量级锁（自旋锁）后，ReentrantLock的效率和synchronized区别基本可以持平了，在两种方法都可用的情况下，官方甚至建议使用synchronized， 其实synchronized的优化我感觉就借鉴了ReenTrantLock中的CAS技术。</p>
+<ul>
+<li><code>ReentrantLock</code>等待可中断，当持有锁的线程长时间不释放锁的时候，等待中的线程可以选择放弃等待，转而处理其他的任务。</li>
+<li>公平锁：synchronized和ReentrantLock默认都是非公平锁，但是ReentrantLock可以通过构造函数传参改变。只不过使用公平锁的话会导致性能急剧下降。</li>
+<li>绑定多个条件：ReentrantLock可以同时绑定多个Condition条件对象。</li>
+<li>ReentrantLock基于AQS(AbstractQueuedSynchronizer 抽象队列同步器)实现。synchronized 是 JVM 实现的，而 ReentrantLock 是 JDK 实现的。JVM实现依赖于操作系统在用户态和内核态进行切换，成本比较高。而AQS在用户态就把加锁问题解决，从而避免了在用户态和内核态进行切换。</li>
+<li>synchronized比较简单，ReentrantLock需要lock()和unlock()来实现，较为复杂</li>
+<li>锁的细粒度和灵活度：很明显ReenTrantLock优于synchronized</li>
+</ul>
+<h2 id="阻塞与自旋锁-挂起">阻塞与自旋锁、挂起</h2>
+<p>阻塞是指线程跳出当前执行任务，由于某种原因暂时无法继续执行任务逻辑。而自旋和挂起可以使线程处于阻塞状态，所以自旋锁与挂起是阻塞的子集关系。</p>
+<p>挂起和唤醒一个线程将会带来上下文切换的开销，而如果在一个低并发的环境下，线程频繁的挂起和唤醒将消耗大量的系统资源，与CUP密集型程序发生大量的上下文切换，从而增加调度开销降低吞吐量。因此在低并发的环境下（线程等待时间较短）通过自旋等待将可以完全避免上下文切换带来的系统开销。</p>
+<p>自旋等待会使阻塞线程与其他线程竞争CUP的时间片，占有cup资源，尽管这种开销是很小的，但是当大量的线程长时间的去竞争CUP的时间片将给操作系统带来毁灭性的灾难。有些事情如果我们不把它推向极端，我们是不会知道有多荒谬。同样的我们只有在一个极端条件下，才能发现多线程长时间自旋等待的危害。</p>
+<p>自旋等待与挂起两种方式的效率高低取决于上下文切换的开销以及成功获取锁之前需要等待的时间，如果等待时间短则适合使用自旋锁，如果等待时间长则适合使用挂起操作。---《Java并发编程实践》</p>
+<p>Doug Lea在设计AQS的线程阻塞策略使用了自旋等待和挂起两种方式，通过挂起线程前的低频自旋保证了AQS阻塞线程上下文切换开销及CUP时间片占用的最优化选择。保证在等待时间短通过自旋去占有锁而不需要挂起，而在等待时间长时将线程挂起。实现锁性能的最大化。</p>
+<h2 id="参考">参考</h2>
+<ul>
+<li>https://note.xcloudapi.com/2022/08/03/AQS%E5%8E%9F%E7%90%86%E5%8F%8A%E5%AE%9E%E6%88%98/</li>
+<li>https://fhfirehuo.github.io/Attacking-Java-Rookie/Chapter07/ReentrantLock.html</li>
+<li>https://blog.csdn.net/qq_28275283/article/details/76697120</li>
+</ul>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/juc-bao-jie-shao/">
+                                                    <h3 class="post-title">
+                                                        JUC包介绍
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

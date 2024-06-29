@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>linux文件描述符 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="file descriptor(以下简称fd)又叫文件描述符，他是一个抽象的指示符，用一个整数表示(非负整数)。它指向了由系统内核维护的一个file table中的某个条目(entry)。这个解释可能过于抽象，不过在正式详细介绍fd之前，有..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="linux文件描述符" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="file descriptor(以下简称fd)又叫文件描述符，他是一个抽象的指示符，用一个整数表示(非负整数)。它指向了由系统内核维护的一个file table中的某个条目(entry)。这个解释可能过于抽象，不过在正式详细介绍fd之前，有...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/linux-wen-jian-miao-shu-fu/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2022-10-24">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="linux文件描述符">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="linux文件描述符">
+        <meta name="twitter:description" content="file descriptor(以下简称fd)又叫文件描述符，他是一个抽象的指示符，用一个整数表示(非负整数)。它指向了由系统内核维护的一个file table中的某个条目(entry)。这个解释可能过于抽象，不过在正式详细介绍fd之前，有...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    linux文件描述符
+                                </h2>
+                                <span class="article-info">
+                                    2022-10-24, 709 words, 3 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <p>file descriptor(以下简称fd)又叫文件描述符，他是一个抽象的指示符，用一个整数表示(非负整数)。它指向了由系统内核维护的一个file table中的某个条目(entry)。这个解释可能过于抽象，不过在正式详细介绍fd之前，有必要先了解用户程序和系统内核之间的工作过程。</p>
+<p>注: 本文描述的所有场景仅限于类unix系统环境，在windows中这玩意叫file handle(臭名昭著的翻译: 句柄)。</p>
+<h2 id="user-space-kernel-space">User space &amp; Kernel space</h2>
+<p>现代操作系统会把内存划分为2个区域，分别为Use space(用户空间) 和 Kernel space(内核空间)。用户的程序在User space执行，系统内核在Kernel space中执行。</p>
+<p>用户的程序没有权限直接访问硬件资源，但系统内核可以。比如读写本地文件需要访问磁盘，创建socket需要网卡等。因此用户程序想要读写文件，必须要向内核发起读写请求，这个过程叫system call。</p>
+<p>内核收到用户程序system call时，负责访问硬件，并把结果返回给程序。</p>
+<h2 id="file-descriptor">File Descriptor</h2>
+<p>上面简单介绍了User space和Kernel space，这对于理解fd有很大的帮助。fd会存在，就是因为用户程序无法直接访问硬件，因此当程序向内核发起system call打开一个文件时，在用户进程中必须有一个东西标识着打开的文件，这个东西就是fd。</p>
+<h3 id="file-tables">file tables</h3>
+<p>和fd相关的一共有3张表，分别是file descriptor、file table、inode table，如下图所示。</p>
+<figure data-type="image" tabindex="1"><img src="https://toomi.pages.dev/post-images/1666605569548.png" alt="" loading="lazy"></figure>
+<ul>
+<li>file descriptors<br>
+file descriptors table由用户进程所有，每个进程都有一个这样的表，这里记录了进程打开的文件所代表的fd，fd的值映射到file table中的条目(entry)。</li>
+</ul>
+<p>另外，每个进程都会预留3个默认的fd: stdin、stdout、stderr;它们的值分别是0、1，2。</p>
+<ul>
+<li>file table<br>
+file table是全局唯一的表，由系统内核维护。这个表记录了所有进程打开的文件的状态(是否可读、可写等状态)，同时它也映射到inode table中的entry。</li>
+<li>inode table<br>
+inode table同样是全局唯一的，它指向了真正的文件地址(磁盘中的位置)，每个entry全局唯一。</li>
+</ul>
+<h2 id="流程">流程</h2>
+<p>当程序向内核发起system call open()，内核将会</p>
+<ol>
+<li>允许程序请求</li>
+<li>创建一个entry插入到file table，并返回file descriptor</li>
+<li>程序把fd插入到fds中。<br>
+当程序再次发起read()system call时，需要把相关的fd传给内核，内核定位到具体的文件(fd –&gt; file table –&gt; inode table)向磁盘发起读取请求，再把读取到的数据返回给程序处理</li>
+</ol>
+<h2 id="参考链接">参考链接</h2>
+<ul>
+<li>https://wiyi.org/linux-file-descriptor.html</li>
+</ul>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/redis-stream-tutorial-in-20-minutes/">
+                                                    <h3 class="post-title">
+                                                        Redis Stream Tutorial In 20 Minutes
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

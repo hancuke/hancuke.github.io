@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>MyBatis 的反射 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="
+MyBatis作为一款ORM框架，主要通过XML定义Object，这就难免用到反射，虽然JDK自带的反射已经方便使用，但是MyBatis依然结合业务功能，将反射功能封装成一个更加易用的包，这个包就在reflection中。
+一个POJO对..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="MyBatis 的反射" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="
+MyBatis作为一款ORM框架，主要通过XML定义Object，这就难免用到反射，虽然JDK自带的反射已经方便使用，但是MyBatis依然结合业务功能，将反射功能封装成一个更加易用的包，这个包就在reflection中。
+一个POJO对...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/mybatis-de-fan-she/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2023-08-22">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="MyBatis 的反射">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="MyBatis 的反射">
+        <meta name="twitter:description" content="
+MyBatis作为一款ORM框架，主要通过XML定义Object，这就难免用到反射，虽然JDK自带的反射已经方便使用，但是MyBatis依然结合业务功能，将反射功能封装成一个更加易用的包，这个包就在reflection中。
+一个POJO对...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    MyBatis 的反射
+                                </h2>
+                                <span class="article-info">
+                                    2023-08-22, 662 words, 3 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <figure data-type="image" tabindex="1"><img src="https://toomi.pages.dev/post-images/1692672776589.png" alt="" loading="lazy"></figure>
+<p>MyBatis作为一款ORM框架，主要通过XML定义Object，这就难免用到反射，虽然JDK自带的反射已经方便使用，但是MyBatis依然结合业务功能，将反射功能封装成一个更加易用的包，这个包就在reflection中。</p>
+<p>一个POJO对象拥有两类属性，对象属性以及类信息，在MyBatis中分别通过通过MetaObject和MetaClass对应上述信息。</p>
+<p>明白了上述信息，就能理解下面MyBatis反射包中几个关键类的作用：</p>
+<ul>
+<li>MetaClass : 保存了POJO的类相关信息，比如拥有的方法hasGetter()/hasSetter()</li>
+<li>MetaObject ： 保存了POJO对象的相关的信息，比如通过getter()获取值，通过setter()设置值</li>
+<li>ObjectWrapper : 用来区别不同的POJO获取属性的不同的方式，比如数组通过索引获取：nums[index],Map通过key获取，POJO通过getter()获取</li>
+<li>Relector: 这个类便是MyBatis的反射底层类，它简单的封装了JDK底层的反射，其他类都是调用此类进行反射操作。</li>
+</ul>
+<h2 id="小结">小结</h2>
+<p>这里再次复习一下，MyBatis的反射使用入口是SystemMetaObject，它包含了整个反射包的基本配置。</p>
+<p>在MyBatis的代码中，很少能看到静态类，静态工具方法等，基本都是通过对象“注入”到对应的其他对象中。这样当需要修改实现的时候，就能很好的维护。</p>
+<p>在MyBatis中，首先使用MetaObject，MetaObject内部充当了一个简单工厂方法，用来分辨是处理Map还是处理List还是Bean，</p>
+<p>ObjectWrapper根据不同的实现，使用不同的方式获取底层的值，对于Bean来说，使用的是MetaClass，</p>
+<p>MetaClass包含了对应Bean的Class的各种元属性。其中MetaClass底层使用的Reflector对象</p>
+<p>Reflector对象便是真正的反射实现者，其内部根据传入的Class，生成了各种信息，并且由于Class是通用的，因此MyBatis使用ReflectorFactory将其缓存起来。</p>
+<h2 id="reflectorfactory-测试">ReflectorFactory 测试</h2>
+<pre><code class="language-java">public class Student {
+    
+    public Integer getId() {
+        return 6;
+    }
+
+    public void setId(Integer id) {
+        System.out.println(id);
+    }
+
+    public String getUserName() {
+        return &quot;张三&quot;;
+    }
+}
+</code></pre>
+<pre><code class="language-java">@Test
+public void test02() throws Exception{
+        ReflectorFactory factory = new DefaultReflectorFactory();
+        Reflector reflector = factory.findForClass(Student.class);
+        System.out.println(&quot;可读属性:&quot;+Arrays.toString(reflector.getGetablePropertyNames()));
+        System.out.println(&quot;可写属性:&quot;+Arrays.toString(reflector.getSetablePropertyNames()));
+        System.out.println(&quot;是否具有默认的构造器:&quot; + reflector.hasDefaultConstructor());
+        System.out.println(&quot;Reflector对应的Class:&quot; + reflector.getType());
+ }
+</code></pre>
+<h2 id="systemmetaobject">SystemMetaObject</h2>
+<pre><code class="language-java">Student student = new Student();
+student.setId(1);
+MetaObject metaObject = SystemMetaObject.forObject(car);
+Integer id = (Integer) metaObject.getValue(&quot;id&quot;);
+System.out.println(&quot;  id: &quot; + id);
+</code></pre>
+<h2 id="原文">原文</h2>
+<ul>
+<li>https://dengchengchao.com/?p=1209</li>
+<li><a href="https://zhuanlan.zhihu.com/p/383638358">带你彻底搞懂MyBatis的底层实现之反射工具箱(reflector)</a></li>
+<li>https://www.cayzlh.com/wiki/mybatis-technology-insider/part11/</li>
+<li>https://jimmy2angel.github.io/2017/04/22/mybatis-mapper/</li>
+</ul>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/mybatis-ognl/">
+                                                    <h3 class="post-title">
+                                                        Mybatis OGNL
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

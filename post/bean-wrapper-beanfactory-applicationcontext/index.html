@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>Bean Wrapper 、  BeanFactory 、ApplicationContext等核心概念 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="Spring 大量引入了 Java 的 Reflection 机制，通过动态
+调用的方式避免硬编码方式的约束，并在此基础上建立了其核心组件 BeanFactory，以此作为其依赖注入
+机制的实现基础。
+org.springframework..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="Bean Wrapper 、  BeanFactory 、ApplicationContext等核心概念" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="Spring 大量引入了 Java 的 Reflection 机制，通过动态
+调用的方式避免硬编码方式的约束，并在此基础上建立了其核心组件 BeanFactory，以此作为其依赖注入
+机制的实现基础。
+org.springframework...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/bean-wrapper-beanfactory-applicationcontext/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2023-02-13">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="Bean Wrapper 、  BeanFactory 、ApplicationContext等核心概念">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="Bean Wrapper 、  BeanFactory 、ApplicationContext等核心概念">
+        <meta name="twitter:description" content="Spring 大量引入了 Java 的 Reflection 机制，通过动态
+调用的方式避免硬编码方式的约束，并在此基础上建立了其核心组件 BeanFactory，以此作为其依赖注入
+机制的实现基础。
+org.springframework...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    Bean Wrapper 、  BeanFactory 、ApplicationContext等核心概念
+                                </h2>
+                                <span class="article-info">
+                                    2023-02-13, 1217 words, 5 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <p>Spring 大量引入了 Java 的 Reflection 机制，通过动态<br>
+调用的方式避免硬编码方式的约束，并在此基础上建立了其核心组件 BeanFactory，以此作为其依赖注入<br>
+机制的实现基础。<br>
+org.springframework.beans 包中包括了这些核心组件的实现类，核心中的核心为 BeanWrapper<br>
+和 BeanFactory 类。这两个类从技术角度而言并不复杂，但对于 Spring 框架而言，却是关键所在，如果<br>
+有时间，建议对其源码进行研读，必有所获。</p>
+<h2 id="bean-wrapper">Bean Wrapper</h2>
+<p>所谓依赖注入，即在运行期由容器将依赖关系注入到组件之中。<br>
+讲的通俗点，就是在运行期，由Spring根据配置文件，将其他对象的引用通过组件的提供的setter方法进<br>
+行设定。<br>
+我们知道，如果动态设置一个对象属性，可以借助Java的Reflection机制完成：</p>
+<pre><code class="language-java">Class cls = Class.forName(&quot;net.xiaxin.beans.User&quot;);
+Method mtd = cls.getMethod(&quot;setName&quot;,new Class[]{String.class});
+Object obj = (Object)cls.newInstance();
+mtd.invoke(obj,new Object[]{&quot;Erica&quot;});
+return obj; 
+</code></pre>
+<p>上面我们通过动态加载了User类，并通过Reflection调用了User.setName方法设置其name属性。<br>
+对于这里的例子而言，出于简洁，我们将类名和方法名都以常量的方式硬编码。假设这些常量都是通过配<br>
+置文件读入，那我们就实现了一个最简单的BeanWrapper。这个BeanWrapper的功能很简单，提供一个<br>
+设置JavaBean属性的通用方法（Apache BeanUtils 类库中提供了大量针对Bean的辅助工具，如果有兴<br>
+趣可以下载一份源码加以研读）。</p>
+<p>Spring BeanWrapper基于同样的原理，提供了一个更加完善的实现。<br>
+看看如何通过Spring BeanWrapper操作一个JavaBean：</p>
+<pre><code class="language-java">Object obj = Class.forName(&quot;net.xiaxin.beans.User&quot;).newInstance();
+BeanWrapper bw = new BeanWrapperImpl(obj);
+bw.setPropertyValue(&quot;name&quot;, &quot;Erica&quot;);
+System.out.println(&quot;User name=&gt;&quot;+bw.getPropertyValue(&quot;name&quot;)); 
+</code></pre>
+<p>对比之前的代码，相信大家已经知道BeanWrapper的实现原理。<br>
+诚然，通过这样的方式设定Java Bean属性实在繁琐，但它却提供了一个通用的属性设定机制，而这<br>
+样的机制，也正是Spring依赖注入机制所依赖的基础。<br>
+通过BeanWrapper，我们可以无需在编码时就指定JavaBean的实现类和属性值，通过在配置文件<br>
+加以设定，就可以在运行期动态创建对象并设定其属性（依赖关系）。<br>
+上面的代码中，我们仅仅指定了需要设置的属性名“name”，运行期，BeanWrapper将根据Java<br>
+Bean规范，动态调用对象的“setName”方法进行属性设定。属性名可包含层次，如对于属性名“address.zipcode”，BeanWrapper会调用“getAddress().setZipcode”方法。</p>
+<h2 id="bean-factory">Bean Factory</h2>
+<p>Bean Factory，顾名思义，负责创建并维护Bean实例。<br>
+Bean Factory负责根据配置文件创建Bean实例，可以配置的项目有：<br>
+1． Bean属性值及依赖关系（对其他Bean的引用）<br>
+2． Bean创建模式（是否Singleton模式，即是否只针对指定类维持全局唯一的实例）<br>
+3． Bean初始化和销毁方法<br>
+4． Bean的依赖关系</p>
+<p>联合上面关于BeanWrapper的内容，我们可以看到，BeanWrapper实现了针对单个Bean的属性设<br>
+定操作。而BeanFactory则是针对多个Bean的管理容器，根据给定的配置文件，BeanFactory从中读取<br>
+类名、属性名/值，然后通过Reflection机制进行Bean加载和属性设定。</p>
+<h2 id="applicationcontext">ApplicationContext</h2>
+<p>BeanFactory提供了针对Java Bean的管理功能，而ApplicationContext提供了一个更为框架化的<br>
+实现（从上面的示例中可以看出，<strong>BeanFactory的使用方式更加类似一个API，而非Framework style</strong>）。<br>
+ApplicationContext覆盖了BeanFactory的所有功能，并提供了更多的特性。此外，<br>
+ApplicationContext为与现有应用框架相整合，提供了更为开放式的实现（如对于Web应用，我们可以在<br>
+web.xml中对ApplicationContext进行配置）。<br>
+相对BeanFactory而言，ApplicationContext提供了以下扩展功能：</p>
+<ol>
+<li>国际化支持<br>
+我们可以在Beans.xml文件中，对程序中的语言信息（如提示信息）进行定义，将程序中的提示<br>
+信息抽取到配置文件中加以定义，为我们进行应用的各语言版本转换提供了极大的灵活性。</li>
+<li>资源访问<br>
+支持对文件和URL的访问。</li>
+<li>事件传播<br>
+事件传播特性为系统中状态改变时的检测提供了良好支持。</li>
+<li>多实例加载<br>
+可以在同一个应用中加载多个Context实例。</li>
+</ol>
+<h3 id="小结">小结</h3>
+<p>BeanFactory 是 Spring 框架的基础设施，面向 Spring 本身；ApplicationContext 面向使用Spring 框架的开发者，几乎所有的应用场合我们都直接使用 ApplicationContext 而非底层的 BeanFactory。</p>
+<h2 id="参考">参考</h2>
+<p>http://www.kaiyuanba.cn/content/develop/SpringGuide.pdf</p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/yi-lai-zhu-ru/">
+                                                    <h3 class="post-title">
+                                                        依赖注入
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

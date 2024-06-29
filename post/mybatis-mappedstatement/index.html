@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>JDBC 与 mybatis 处理过程 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="JDBC回顾
+众所周知，Mybatis是对JDBC的封装，那底层肯定是JDBC,那是不是很有必要回顾一下jdbc。先写一段代码
+//首先加载驱动
+Class.forName(&quot;com.mysql.jdbc.Driver&quot;..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="JDBC 与 mybatis 处理过程" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="JDBC回顾
+众所周知，Mybatis是对JDBC的封装，那底层肯定是JDBC,那是不是很有必要回顾一下jdbc。先写一段代码
+//首先加载驱动
+Class.forName(&amp;quot;com.mysql.jdbc.Driver&amp;quot;...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/mybatis-mappedstatement/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2023-03-29">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="JDBC 与 mybatis 处理过程">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="JDBC 与 mybatis 处理过程">
+        <meta name="twitter:description" content="JDBC回顾
+众所周知，Mybatis是对JDBC的封装，那底层肯定是JDBC,那是不是很有必要回顾一下jdbc。先写一段代码
+//首先加载驱动
+Class.forName(&amp;quot;com.mysql.jdbc.Driver&amp;quot;...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    JDBC 与 mybatis 处理过程
+                                </h2>
+                                <span class="article-info">
+                                    2023-03-29, 3911 words, 17 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <h2 id="jdbc回顾">JDBC回顾</h2>
+<p>众所周知，Mybatis是对JDBC的封装，那底层肯定是JDBC,那是不是很有必要回顾一下jdbc。先写一段代码</p>
+<pre><code class="language-java">//首先加载驱动
+Class.forName(&quot;com.mysql.jdbc.Driver&quot;);
+//提供JDBC连接的URL
+String url=&quot;jdbc:mysql://0.0.0.0:3306/xxxx&quot;;
+String username=&quot;root&quot;;
+String password=&quot;root&quot;;
+//创建数据库的连接
+Connection con = DriverManager.getConnection(url,username,password);
+//创建一个statement执行者
+String sql=&quot;SELECT * FROM biz_spot WHERE spot_id = &quot;;
+PreparedStatement statement = con.prepareStatement(sql);
+statement.setLong(1,11L);
+//执行SQL语句
+ResultSet result = statement.executeQuery();
+//处理返回结果
+while (result.next()){
+    System.out.println(result.getString(&quot;xxx&quot;) + &quot;---&quot; + result.getString(&quot;xxx&quot;));
+}
+//关闭JDBC对象
+con.close();
+result.close();
+statement.close();
+</code></pre>
+<p>执行过程如下图所示：<br>
+<img src="https://toomi.pages.dev/post-images/1680251554759.png" alt="" loading="lazy"></p>
+<p>先来看看JDBC的Statement，statement的重要作用就是设置sql参数然后执行sql，先来看看jdbc的三种sql处理器：<br>
+<img src="https://toomi.pages.dev/post-images/1680251593585.png" alt="" loading="lazy"></p>
+<blockquote>
+<p>关于防止sql注入，Statement是直接发送静态sql执行，而PreparedStatement 发送的是sql（这边会带问号）以及若干参数组，参数需要转义进去，所有的转义操作都在数据库端执行，并不是在我们的应用层转义的。</p>
+</blockquote>
+<p>Statement 中常规方法</p>
+<ul>
+<li>addBatch: 批处理操作，将多个SQL合并在一起，最后调用executeBatch 一起发送至数据库执行</li>
+<li>setFetchSize:设置从数据库每次读取的数量单位。该举措是为了防止一次性从数据库加载数据过多，导致内存溢出。</li>
+</ul>
+<p>编码示例：</p>
+<pre><code class="language-java">	//批量执行sql
+ 	@Test
+    public void prepareBatchTest() throws SQLException {
+        String sql = &quot;INSERT INTO `users` (`name`,age) VALUES ('bob',18);&quot;;
+        Statement statement = connection.createStatement();
+        //设置最大行数
+        statement.setFetchSize(100);
+        long start = System.currentTimeMillis();
+        for (int i = 0; i &lt; 100; i++) {
+            statement.addBatch(sql);
+        }
+        // 批处理  一次发射
+        statement.executeBatch();
+        System.out.println(System.currentTimeMillis() - start);
+        statement.close();
+    }
+	//批量设置参数然后执行
+	 @Test
+    public void prepareBatchTest() throws SQLException {
+        String sql = &quot;INSERT INTO `users` (`name`,age) VALUES (?,18);&quot;;
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setFetchSize(100);
+        long start = System.currentTimeMillis();
+        for (int i = 0; i &lt; 100; i++) {
+            preparedStatement.setString(1, UUID.randomUUID().toString());
+            preparedStatement.addBatch(); // 添加批处理参数
+        }
+        preparedStatement.executeBatch(); // 批处理  一次发射
+        System.out.println(System.currentTimeMillis() - start);
+        preparedStatement.close();
+    }
+
+    // sql注入测试
+    public int selectByName(String name) throws SQLException {
+        String sql = &quot;SELECT * FROM users WHERE `name`='&quot; + name + &quot;'&quot;;
+        System.out.println(sql);
+        Statement statement = connection.createStatement();
+        statement.executeQuery(sql);
+        ResultSet resultSet = statement.getResultSet();
+        int count=0;
+        while (resultSet.next()){
+            count++;
+        }
+        statement.close();
+        return count;
+    }
+    
+
+
+    //PreparedStatement防止sql注入测试
+    public int selectByName2(String name) throws SQLException {
+        String sql = &quot;SELECT * FROM users WHERE `name`=?&quot;;
+        PreparedStatement statement = connection.prepareStatement(sql);
+        statement.setString(1,name);
+        System.out.println(statement);
+        statement.executeQuery();
+        ResultSet resultSet = statement.getResultSet();
+        int count=0;
+        while (resultSet.next()){
+            count++;
+        }
+        statement.close();
+        return count;
+    }
+    @Test
+   public void injectTest() throws SQLException {
+   		//正常情况下
+        System.out.println(selectByName(&quot;bob&quot;));
+        //sql注入
+        System.out.println(selectByName(&quot;bob' or '1'='1&quot;));
+        //sql注入并没作用
+        System.out.println(selectByName2(&quot;bob' or '1'='1&quot;));
+    }
+</code></pre>
+<h2 id="mybatis执行过程">Mybatis执行过程</h2>
+<p><img src="https://toomi.pages.dev/post-images/1680251834091.png" alt="" loading="lazy"><br>
+各个过程也是各个组件的作用：</p>
+<ul>
+<li>接口代理（MapperProxy）: 其目的是简化对MyBatis使用，底层使用动态代理实现。</li>
+<li>Sql会话: 提供增删改查API，其本身不作任何业务逻辑的处理，所有处理都交给执行器。采用了设计模式中的门面模式。</li>
+<li>执行器: 核心作用是处理SQL请求、事务管理、维护缓存以及批处理等 。执行器在的角色更像是一个管理员，接收SQL请求，然后根据缓存、批处理等逻辑来决定如何执行这个SQL请求。并交给JDBC处理器执行具体SQL。</li>
+<li>JDBC处理器：他的作用就是用于通过JDBC具体处理SQL和参数的。在会话中每调用一次CRUD，JDBC处理器就会生成一个实例与之对应（命中缓存除外）。</li>
+</ul>
+<p>各个组件的功能以及注意事项如下图：<br>
+<img src="https://toomi.pages.dev/post-images/1680251926938.png" alt="" loading="lazy"></p>
+<h2 id="executor">Executor</h2>
+<p>Executor是MyBatis执行接口,执行器的功能如下：</p>
+<ul>
+<li>基本功能：改、查，没有增删的原因是所有的增删操作都可以归结到改。</li>
+<li>缓存维护：这里的缓存主要是为一级缓存服务，功能包括创建缓存Key、清理缓存、判断缓存是否存在。</li>
+<li>事务管理：提交、回滚、关闭、批处理刷新。（一般我们都交由spring管理，不会使用mybatis的）</li>
+<li>Executor:可包含多个statement</li>
+</ul>
+<p>Executor有主要的三个实现子类。分别是：SimpleExecutor(简单执行器)、ReuseExecutor(重用执行器)、BatchExecutor(批处理执行器)。</p>
+<p>SimpleExecutor是默认执行器，它的行为是每处理一次会话当中的SQl请求都会通过对应的StatementHandler 构建一个新个Statement，这就会导致即使是相同SQL语句也无法重用Statement,所以就有了（ReuseExecutor）可重用执行器</p>
+<p>ReuseExecutor 区别在于他会将在会话期间内的Statement进行缓存，并使用SQL语句作为Key。所以当执行下一请求的时候，不在重复构建Statement，而是从缓存中取出并设置参数，然后执行。阅读源码可以知道其实里面就包含一个statementMap，执行的时候看一下是否存在，如果有了就不需要新构建statement了，这也说明为什么执行器不能跨线程调用，这会导致两个线程给同一个Statement 设置不同场景参数。</p>
+<p>BatchExecutor 顾名思议，它就是用来作批处理的。但会将所有SQL请求集中起来，最后调用Executor.flushStatements() 方法时一次性将所有请求发送至数据库。</p>
+<p>三个示例的代码：</p>
+<pre><code class="language-java">public class ExecutorTest {
+
+
+    private Configuration configuration;
+    private Connection connection;
+    private JdbcTransaction jdbcTransaction;
+    private MappedStatement ms;
+    private SqlSessionFactory factory;
+
+    @Before
+    public void init() throws SQLException {
+        // 获取构建器
+        SqlSessionFactoryBuilder factoryBuilder = new SqlSessionFactoryBuilder();
+        // 解析XML 并构造会话工厂
+        factory = factoryBuilder.build(ExecutorTest.class.getResourceAsStream(&quot;/mybatis-config.xml&quot;));
+        configuration = factory.getConfiguration();
+        jdbcTransaction = new JdbcTransaction(factory.openSession().getConnection());
+        // 获取SQL映射
+        ms = configuration.getMappedStatement(&quot;xxx.xxx.xxx.UserMapper.selectByid&quot;);
+    }
+
+    // 简单执行器测试
+    @Test
+    public void simpleTest() throws SQLException {
+        SimpleExecutor executor = new SimpleExecutor(configuration, jdbcTransaction);
+        List&lt;Object&gt; list = executor.doQuery(ms, 10, RowBounds.DEFAULT,
+                SimpleExecutor.NO_RESULT_HANDLER, ms.getBoundSql(10));
+
+        executor.doQuery(ms, 1, RowBounds.DEFAULT,
+                SimpleExecutor.NO_RESULT_HANDLER, ms.getBoundSql(1));
+        System.out.println(list.get(0));
+    }
+
+    // 重用执行器
+    @Test
+    public void ReuseTest() throws SQLException {
+        ReuseExecutor executor = new ReuseExecutor(configuration, jdbcTransaction);
+        List&lt;Object&gt; list = executor.doQuery(ms, 1, RowBounds.DEFAULT,
+                SimpleExecutor.NO_RESULT_HANDLER, ms.getBoundSql(1));
+        //  相同的SQL 会缓存对应的 PrepareStatement--&gt;缓存周期：会话
+        executor.doQuery(ms, 1, RowBounds.DEFAULT,
+                SimpleExecutor.NO_RESULT_HANDLER, ms.getBoundSql(1));
+        System.out.println(list.get(0));
+    }
+
+    // 批处理执行器
+    @Test
+    public void batchTest() throws SQLException {
+        BatchExecutor executor = new BatchExecutor(configuration, jdbcTransaction);
+        MappedStatement setName = configuration
+                .getMappedStatement(&quot;xxx.xxx.xxx.UserMapper.setName&quot;);
+        Map&lt;String,Object&gt; param = new HashMap&lt;&gt;(2);
+        param.put(&quot;arg0&quot;, 1);
+        param.put(&quot;arg1&quot;, &quot;good man&quot;);
+        //设置
+        executor.doUpdate(setName, param);
+        executor.doUpdate(setName, param);
+        executor.doFlushStatements(false);
+    }
+}
+</code></pre>
+<p>这边批处理执行器想必大家觉得和上面有所不一样吧，为什么他不写查询，其实他如果写查询的话和上面的SimpleExecutor 一样，他有批处理功能，和上面jdbc的批处理一样，他是一条sql，设置多个参数过去，然后执行。而ReuseExecutor 是设置一次参数执行一次，设置一次执行一次。还是有本质的区别</p>
+<h2 id="基础以及二级缓存执行器">基础以及二级缓存执行器</h2>
+<p>前面我们所说Executor其中有一个职责是负责缓存维护，以及事务管理。上面三个执行器并没有涉及，这部分逻辑去哪了呢？别急，缓存和事务无论采用哪种执行器，都会涉及，这属于公共逻辑。所以就完全有必要三个类之上抽象出一个基础执行器用来处理公共逻辑。</p>
+<h3 id="基础执行器">基础执行器</h3>
+<p>BaseExecutor 基础执行器主要是用于维护缓存和事务。事务是通过会话中调用commit、rollback进行管理。重点在于缓存这块它是如何处理的? (这里的缓存是指一级缓存）,它实现了Executor中的query与update方法。会话中SQL请求，正是调用的这两个方法。Query方法中处理一级缓存逻辑，即根据SQL及参数判断缓存中是否存在数据，有就走缓存。否则就会调用子类的doQuery() 方法去查询数据库,然后在设置缓存。在doUpdate() 中主要是用于清空缓存。</p>
+<h3 id="二级缓存执行器">二级缓存执行器</h3>
+<p>BaseExecutor 只有一级缓存，那二级缓存其实是在CachingExecutor，那为什么不把它和一级缓存一起处理呢？因为二级缓存和一级缓存相对独立的逻辑，而且二级缓存可以通过参数控制关闭，而一级缓存是不可以的。综上原因把二级缓存单独抽出来处理。抽取的方式采用了装饰者设计模式，即在CachingExecutor 对原有的执行器进行包装（明白点就是CachingExecutor 包含了一个Executor，这里为三大子类执行器，子类拥有父类的方法基本就是指向了父类BaseExecutor的方法），处理完二级缓存逻辑之后，把SQL执行相关的逻辑交给实际的Executor处理（交由BaseExecutor 以及其子类处理）。<br>
+CachingExecutor直接实现了Executor接口。</p>
+<h2 id="executor执行器关系图">Executor执行器关系图</h2>
+<figure data-type="image" tabindex="1"><img src="https://toomi.pages.dev/post-images/1680252263178.png" alt="" loading="lazy"></figure>
+<h2 id="会话与执行器的结构关系">会话与执行器的结构关系</h2>
+<p>从Mybatis执行过程的图中我们可以知道，SqlSession是调用Executor，从源码中可看成SqlSession实现中，其实包含一个Executor（二级缓存）。这样整个流程就串起来了，咱们以sqlsession的查询方法的selectList方法为例（因为select方法最终都会调到selectList）</p>
+<ol>
+<li>SqlSession调用selectList方法，就调用到CachingExecutor中的query方法</li>
+<li>如果配置了二级缓存CachingExecutor先执行完自己的方法（是否有缓存从缓存里面取值操作），第一次缓存没有或没开启缓存交由BaseExecutor 的query方法</li>
+<li>BaseExecutor方法执行完一级缓存后，然后交由子类doQuery方法，咱们默认为SimpleExecutor执行器</li>
+<li>SimpleExecutor执行doQuery方法</li>
+</ol>
+<p>如何创建会话以及如何将执行器包装成CachingExecutor又是另一个话题了</p>
+<ol>
+<li>SqlSessionFactory.openSession，这里需要一个configuration</li>
+<li>里面会有个方法configuration.newExecutor(tx, execType);这里会创建Executor</li>
+<li>这里首先会根据executorType判断用三大执行器的哪个默认为SimpleExecutor</li>
+<li>再使用CachingExecutor 对其包装：new CachingExecutor(executor)</li>
+</ol>
+<h2 id="会话与重用执行器以及批量执行器的关系">会话与重用执行器以及批量执行器的关系</h2>
+<p>主要为了说明一下statement 这里为jdbc的statement,</p>
+<h3 id="重用执行器">重用执行器</h3>
+<p>假如我们用会话调用两个不同的方法，然后里面的sql是一样的，这里说的一样只是参数不同，那我们会预编译几次呢？下面代码示例</p>
+<pre><code class="language-java">public interface EmployeeMapper {
+
+    List&lt;Employee&gt; getAll();
+
+    @Select(&quot;select * from employee where id= #{id}&quot;)
+    List&lt;Employee&gt; getById(@Param(&quot;id&quot;) Long id);
+
+    @Select(&quot;select * from employee where id= #{id}&quot;)
+    List&lt;Employee&gt; selectById(@Param(&quot;id&quot;) Long id);
+}
+@Test
+    public  void  reuseExecutorTest() throws IOException {
+        String resource = &quot;mybatis-config.xml&quot;;
+        InputStream inputStream = Resources.getResourceAsStream(resource);
+        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+        //使用ExecutorType.REUSE设置重用执行器ReuseExecutor
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.REUSE);
+        try {
+            EmployeeMapper employeeMapper = sqlSession.getMapper(EmployeeMapper.class);
+            employeeMapper.selectById(1L);
+            employeeMapper.getById(2L);
+        } finally {
+            sqlSession.close();
+        }
+    }
+</code></pre>
+<p>打印结果</p>
+<pre><code class="language-java">==&gt;  Preparing: select * from employee where id= ? 
+==&gt; Parameters: 1(Long)
+&lt;==    Columns: id, name
+&lt;==        Row: 1, zhangsan
+&lt;==      Total: 1
+==&gt; Parameters: 2(Long)
+&lt;==    Columns: id, name
+&lt;==        Row: 2, lisi
+&lt;==      Total: 1
+</code></pre>
+<p>从代码证明也就执行一次预编译。会话期间内所有的相同sql都只预编译一次即可</p>
+<h3 id="批量执行器">批量执行器</h3>
+<p>上面是重用执行器，预编译一次，那我们试一下批量执行器，小编前面说过，批量执行器需要使用修改的方法，那我们换一下代码：</p>
+<pre><code class="language-java">public class DemoTest {
+    SqlSessionFactory sqlSessionFactory;
+
+    @Before
+    public void init() throws IOException {
+        String resource = &quot;mybatis-config.xml&quot;;
+        InputStream inputStream = Resources.getResourceAsStream(resource);
+        sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+    }
+	@Test
+    public void batchExecutorTest() {
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH,true);
+        try {
+            EmployeeMapper employeeMapper = sqlSession.getMapper(EmployeeMapper.class);
+            employeeMapper.updateById(&quot;wangwu&quot;, 1L);
+            employeeMapper.updateById(&quot;zhaoliu&quot;,2L);
+            //需要走flushStatements才会提交，即便上面opensession中设置自动提交为true
+            List&lt;BatchResult&gt; batchResults = sqlSession.flushStatements();
+            System.out.println(batchResults.size());
+        } finally {
+            sqlSession.close();
+        }
+    }
+}
+
+public interface EmployeeMapper {
+
+   @Update(&quot;update employee set name = #{name} where id=#{id}&quot;)
+    void updateById(@Param(&quot;name&quot;)String name,@Param(&quot;id&quot;) Long id);
+
+
+    @Insert(&quot;insert into emplyee id = #{employee.id}, name=#{employee.name}&quot;)
+    void insertEmployee(@Param(&quot;employee&quot;) Employee employee);
+}
+</code></pre>
+<p>执行结果表明，这边statement预编译一次即可</p>
+<pre><code class="language-java">==&gt;  Preparing: update employee set name = ? where id=? 
+==&gt; Parameters: wangwu(String), 1(Long)
+==&gt; Parameters: zhaoliu(String), 2(Long)
+1
+</code></pre>
+<p>紧接着我们继续修改一下测试用例：</p>
+<pre><code class="language-java">@Test
+    public void batchExecutorTest() {
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH,true);
+        try {
+            EmployeeMapper employeeMapper = sqlSession.getMapper(EmployeeMapper.class);
+            //更新
+            employeeMapper.updateById(&quot;wangwu&quot;, 1L);
+            Employee employee = new Employee(3L,&quot;tom&quot;);
+            Employee employee2 = new Employee(4L,&quot;jerry&quot;);
+            //插入两次
+            employeeMapper.insertEmployee(employee);
+            employeeMapper.insertEmployee(employee2);
+            //再次更新
+            employeeMapper.updateById(&quot;zhaoliu&quot;,2L);
+            List&lt;BatchResult&gt; batchResults = sqlSession.flushStatements();
+            System.out.println(batchResults.size());
+        } finally {
+            sqlSession.close();
+        }
+    }
+</code></pre>
+<p>打印结果</p>
+<pre><code class="language-java">==&gt;  Preparing: update employee set name = ? where id=? 
+==&gt; Parameters: wangwu(String), 1(Long)
+==&gt;  Preparing: insert into employee (id,name) values (?, ?) 
+==&gt; Parameters: 3(Long), tom(String)
+==&gt; Parameters: 4(Long), jerry(String)
+==&gt;  Preparing: update employee set name = ? where id=? 
+==&gt; Parameters: zhaoliu(String), 2(Long)
+</code></pre>
+<p>从上面可有看出，相同sql语句在一起的与分开的是不一样的，只有连续相同的SQL语句并且相同的SQL映射声明，才会重用Statement，并利用其批处理功能。否则会构建一个新的Satement然后在flushStatements() 时一次执行。这么做的原因是它要保证执行顺序。跟调用顺序一致性。</p>
+<h2 id="mybatis插件">Mybatis插件</h2>
+<p>MyBatis⽀持⽤插件对四⼤核⼼对象(Executor、StatementHandler、ParameterHandler、ResultSetHandler)进⾏拦截，对mybatis来说插件就是拦截器，⽤来增强核⼼对象的功能，增强功能本质上是借助于底层的 动态代理实现的，换句话说，MyBatis中的四⼤对象都是代理对象。 MyBatis所允许拦截的⽅法如下：</p>
+<ul>
+<li>执⾏器Executor (update、query、commit、rollback等⽅法)；</li>
+<li>SQL语法构建器StatementHandler (prepare、parameterize、batch、updates query等⽅ 法)；</li>
+<li>参数处理器ParameterHandler (getParameterObject、setParameters⽅法)；</li>
+<li>结果集处理器ResultSetHandler (handleResultSets、handleOutputParameters等⽅法)；</li>
+</ul>
+<h2 id="核心组件">核心组件</h2>
+<figure data-type="image" tabindex="2"><img src="https://toomi.pages.dev/post-images/1680070010706.png" alt="" loading="lazy"></figure>
+<h2 id="核心组件概述">核心组件概述</h2>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>相关描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Configuration</td>
+<td>Mybatis 的主要配置。</td>
+</tr>
+<tr>
+<td>包含属性、设置、类型别名、类型处理器、对象工厂、环境配置和映射器等信息。</td>
+<td></td>
+</tr>
+<tr>
+<td>MappedStatement</td>
+<td>用于描述 Mapper 中的 SQL 配置信息。</td>
+</tr>
+<tr>
+<td>对 Mapper XML 配置文件中 &quot;&lt;select</td>
+<td>update</td>
+</tr>
+<tr>
+<td>SqlSession</td>
+<td>Mybatis 提供的面向用户的 API，可通过它来执行命令（增、删、改、查），获取映射器示例和管理事务。</td>
+</tr>
+<tr>
+<td>Executor</td>
+<td>Mybatis 的 SQL 执行器，Mybatis 中对数据库所有的增、删、改、查操作都是由它完成的。</td>
+</tr>
+<tr>
+<td>StatementHandler</td>
+<td>封装了对 JDBC Statement 对象的操作。</td>
+</tr>
+<tr>
+<td>ParameterHandler</td>
+<td>用于为 PreparedStatement 和 CallableStatement 对象参数占位符设置值。</td>
+</tr>
+<tr>
+<td>ResultSetHandler</td>
+<td>封装了对 JDBC 中的 ResultSet 对象操作，将 SELECT 查询结果抓换成 Java 对象。</td>
+</tr>
+<tr>
+<td>TypeHandler</td>
+<td>MyBatis 中的类型处理器，用于处理 Java 类型和 JDBC 类型之间的映射。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="sqlsourc">SqlSourc</h2>
+<p>SqlSource接口很简单，只有一个getBound方法:</p>
+<pre><code class="language-java">public interface SqlSource {
+
+  BoundSql getBoundSql(Object parameterObject);
+
+}
+</code></pre>
+<p>它有很多实现，需要我们重点关注的是StaticSqlSource，RawSqlSource和DynamicSqlSource。在正式学习他们前，我们先了解一下Mybatis动态SQL和静态SQL的区别。</p>
+<p>动态SQL表示这个SQL节点中含有<code>${}</code>  (不是<code>#{}</code>) 或是其他动态的标签（比如，if，trim，foreach，choose，bind节点等），需要在运行时根据传入的条件才能确定SQL，因此对于动态SQL的MappedStatement的解析过程应该是在运行时。</p>
+<p>而静态SQL是不含以上这个节点的SQL，能直接解析得到含有<strong>占位符形式</strong>的SQL语句，而不需要根据传入的条件确定SQL，因此可以在加载时就完成解析。所在在执行效率上要高于动态SQL。</p>
+<p>而DynamicSqlSource和RawSqlSource就分别对应了动态SQL和静态SQL，它们都封装了StaticSqlSource。即前两个中<code>getBoundSql</code>方法是委托给StaticSqlSource对象。</p>
+<h2 id="参考">参考</h2>
+<ul>
+<li>https://www.cnblogs.com/insaneXs/p/9083003.html</li>
+<li>https://www.bmabk.com/index.php/post/13564.html</li>
+<li>https://wch853.github.io/posts/mybatis/MyBatis%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E5%9F%BA%E7%A1%80%E6%94%AF%E6%8C%81%E6%A8%A1%E5%9D%97.html#%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2</li>
+</ul>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/shell-huo-qu-suo-you-ipv4ipv6-di-zhi/">
+                                                    <h3 class="post-title">
+                                                        shell获取所有ipv4/ipv6地址
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

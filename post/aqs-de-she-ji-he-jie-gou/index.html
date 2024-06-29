@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>AQS的设计和结构 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="设计思想
+同步器的核心方法是acquire和release操作，其背后的思想也比较简洁明确。acquire操作是这样的：
+　while (当前同步器的状态不允许获取操作) {
+        　　如果当前线程不在队列中，则将其插入队列
+  ..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="AQS的设计和结构" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="设计思想
+同步器的核心方法是acquire和release操作，其背后的思想也比较简洁明确。acquire操作是这样的：
+　while (当前同步器的状态不允许获取操作) {
+        　　如果当前线程不在队列中，则将其插入队列
+  ...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/aqs-de-she-ji-he-jie-gou/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2023-04-20">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="AQS的设计和结构">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="AQS的设计和结构">
+        <meta name="twitter:description" content="设计思想
+同步器的核心方法是acquire和release操作，其背后的思想也比较简洁明确。acquire操作是这样的：
+　while (当前同步器的状态不允许获取操作) {
+        　　如果当前线程不在队列中，则将其插入队列
+  ...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    AQS的设计和结构
+                                </h2>
+                                <span class="article-info">
+                                    2023-04-20, 1961 words, 7 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <h2 id="设计思想">设计思想</h2>
+<p>同步器的核心方法是<code>acquire</code>和<code>release</code>操作，其背后的思想也比较简洁明确。acquire操作是这样的：</p>
+<pre><code class="language-c">　while (当前同步器的状态不允许获取操作) {
+        　　如果当前线程不在队列中，则将其插入队列
+        　　阻塞当前线程
+
+　　}
+　　如果线程位于队列中，则将其移出队列
+</code></pre>
+<p>release操作是这样的：</p>
+<pre><code class="language-c">更新同步器的状态
+if (新的状态允许某个被阻塞的线程获取成功){
+    解除队列中一个或多个线程的阻塞状态
+}
+</code></pre>
+<p>从这两个操作中的思想中我们可以提取出三大关键操作：<strong>同步器的状态变更</strong>、<strong>线程阻塞和释放</strong>、<strong>插入和移出队列</strong>。所以为了实现这两个操作，需要协调三大关键操作引申出来的三个基本组件：</p>
+<ul>
+<li>同步器状态的原子性管理</li>
+<li>线程阻塞与解除阻塞</li>
+<li>队列的管理</li>
+</ul>
+<p>由这三个基本组件，我们来看j.u.c是怎么设计的。</p>
+<h3 id="同步状态">同步状态</h3>
+<p>AQS类使用单个int（32位）来保存同步状态，并暴露出getState、setState以及compareAndSet操作来读取和更新这个同步状态。其中属性state被声明为volatile，并且通过使用CAS指令来实现compareAndSetState，使得当且仅当同步状态拥有一个一致的期望值的时候，才会被原子地设置成新值，这样就达到了同步状态的原子性管理，确保了同步状态的原子性、可见性和有序性。</p>
+<p>基于AQS的具体实现类（如锁、信号量等）必须根据暴露出的状态相关的方法定义tryAcquire和tryRelease方法，以控制acquire和release操作。当同步状态满足时，tryAcquire方法必须返回true，而当新的同步状态允许后续acquire时，tryRelease方法也必须返回true。这些方法都接受一个int类型的参数用于传递想要的状态。</p>
+<h3 id="阻塞">阻塞</h3>
+<p>直到JSR166，阻塞线程和解除线程阻塞都是基于Java的内置管程，没有其它非基于Java内置管程的API可以用来达到阻塞线程和解除线程阻塞。唯一可以选择的是Thread.suspend和Thread.resume，但是它们都有无法解决的竞态问题，所以也没法用，目前该方法基本已被抛弃。具体不能用的原因可以官方给出的<a href="https://docs.oracle.com/javase/8/docs/technotes/guides/concurrency/threadPrimitiveDeprecation.html">答复</a>。</p>
+<p>j.u.c.locks包提供了LockSupport类来解决这个问题。方法LockSupport.park阻塞当前线程直到有个LockSupport.unpark方法被调用。unpark的调用是没有被计数的，因此在一个park调用前多次调用unpark方法只会解除一个park操作。另外，它们作用于每个线程而不是每个同步器。一个线程在一个新的同步器上调用park操作可能会立即返回，因为在此之前可以有多余的unpark操作。但是，在缺少一个unpark操作时，下一次调用park就会阻塞。虽然可以显式地取消多余的unpark调用，但并不值得这样做。在需要的时候多次调用park会更高效。park方法同样支持可选的相对或绝对的超时设置，以及与JVM的Thread.interrupt结合 ，可通过中断来unpark一个线程。</p>
+<h3 id="队列">队列</h3>
+<p>整个框架的核心就是如何管理线程阻塞队列，该队列是严格的FIFO队列，因此不支持线程优先级的同步。同步队列的最佳选择是自身没有使用底层锁来构造的非阻塞数据结构，业界主要有两种选择，一种是MCS锁，另一种是CLH锁。其中CLH一般用于自旋，但是相比MCS，CLH更容易实现取消和超时，所以同步队列选择了CLH作为实现的基础。</p>
+<p>CLH队列实际并不那么像队列，它的出队和入队与实际的业务使用场景密切相关。它是一个链表队列，通过AQS的两个字段head（头节点）和tail（尾节点）来存取，这两个字段是volatile类型，初始化的时候都指向了一个空节点。如下图：<br>
+<img src="https://toomi.pages.dev/post-images/1682001915079.png" alt="" loading="lazy"></p>
+<p>入队操作：CLH队列是FIFO队列，故新的节点到来的时候，是要插入到当前队列的尾节点之后。试想一下，当一个线程成功地获取了同步状态，其他线程将无法获取到同步状态，转而被构造成为节点并加入到同步队列中，而这个加入队列的过程必须要保证线程安全，因此同步器提供了一个CAS方法，它需要传递当前线程“认为”的尾节点和当前节点，只有设置成功后，当前节点才正式与之前的尾节点建立关联。入队操作示意图大致如下：<br>
+<img src="https://toomi.pages.dev/post-images/1682001972838.png" alt="" loading="lazy"></p>
+<p>出队操作：因为遵循FIFO规则，所以能成功获取到AQS同步状态的必定是首节点，首节点的线程在释放同步状态时，会唤醒后续节点，而后续节点会在获取AQS同步状态成功的时候将自己设置为首节点。设置首节点是由获取同步成功的线程来完成的，由于只能有一个线程可以获取到同步状态，所以设置首节点的方法不需要像入队这样的CAS操作，只需要将首节点设置为原首节点的后续节点同时断开原节点、后续节点的引用即可。出队操作示意图大致如下：<br>
+<img src="https://toomi.pages.dev/post-images/1682002060560.png" alt="" loading="lazy"></p>
+<h3 id="条件队列">条件队列</h3>
+<p>上一节的队列其实是AQS的同步队列，这一节的队列是条件队列，队列的管理除了有同步队列，还有条件队列。AQS只有一个同步队列，但是可以有多个条件队列。AQS框架提供了一个ConditionObject类，给维护独占同步的类以及实现Lock接口的类使用。</p>
+<p>ConditionObject类实现了Condition接口，Condition接口提供了类似Object管程式的方法，如await、signal和signalAll操作，还扩展了带有超时、检测和监控的方法。ConditionObject类有效地将条件与其它同步操作结合到了一起。该类只支持Java风格的管程访问规则，这些规则中，当且仅当当前线程持有锁且要操作的条件（condition）属于该锁时，条件操作才是合法的。这样，一个ConditionObject关联到一个ReentrantLock上就表现的跟内置的管程（通过Object.wait等）一样了。两者的不同仅仅在于方法的名称、额外的功能以及用户可以为每个锁声明多个条件。</p>
+<p>ConditionObject类和AQS共用了内部节点，有自己单独的条件队列。signal操作是通过将节点从条件队列转移到同步队列中来实现的，没有必要在需要唤醒的线程重新获取到锁之前将其唤醒。signal操作大致示意图如下：<br>
+<img src="https://toomi.pages.dev/post-images/1682066353434.png" alt="" loading="lazy"></p>
+<p>await操作就是当前线程节点从同步队列进入条件队列进行等待，大致示意图如下：<br>
+<img src="https://toomi.pages.dev/post-images/1682066392885.png" alt="" loading="lazy"></p>
+<p>实现这些操作主要复杂在，因超时或Thread.interrupt导致取消了条件等待时，该如何处理。await和signal几乎同时发生就会有竞态问题，最终的结果遵照内置管程相关的规范。JSR133修订以后，就要求如果中断发生在signal操作之前，await方法必须在重新获取到锁后，抛出InterruptedException。但是，如果中断发生在signal后，await必须返回且不抛异常，同时设置线程的中断状态。</p>
+<h2 id="原文">原文</h2>
+<p>https://www.cnblogs.com/iou123lg/p/9464385.html</p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/java-xian-cheng-chuang-jian-guo-cheng-zhong-de-ge-chong-xi-jie/">
+                                                    <h3 class="post-title">
+                                                        Java线程创建过程中的各种细节
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>spring 解析 yaml 配置文件 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="properties 和 yml 区别
+properties 和 yml 都是 Spring Boot 支持的两种配置文件，它们可以看作是 Spring Boot 在不同时期的两款“产品”。在 Spring Boot 时代已经不需要使用 X..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="spring 解析 yaml 配置文件" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="properties 和 yml 区别
+properties 和 yml 都是 Spring Boot 支持的两种配置文件，它们可以看作是 Spring Boot 在不同时期的两款“产品”。在 Spring Boot 时代已经不需要使用 X...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/spring-jie-xi-yaml-pei-zhi-wen-jian/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2023-08-18">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="spring 解析 yaml 配置文件">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="spring 解析 yaml 配置文件">
+        <meta name="twitter:description" content="properties 和 yml 区别
+properties 和 yml 都是 Spring Boot 支持的两种配置文件，它们可以看作是 Spring Boot 在不同时期的两款“产品”。在 Spring Boot 时代已经不需要使用 X...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    spring 解析 yaml 配置文件
+                                </h2>
+                                <span class="article-info">
+                                    2023-08-18, 460 words, 2 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <h2 id="properties-和-yml-区别">properties 和 yml 区别</h2>
+<p>properties 和 yml 都是 Spring Boot 支持的两种配置文件，它们可以看作是 Spring Boot 在不同时期的两款“产品”。在 Spring Boot 时代已经不需要使用 XML 文件格式来配置项目了，取而代之的是 properties 或 yml 文件。</p>
+<p>properties 配置文件属于早期，也是目前创建 Spring Boot（2.x）项目时默认的配置文件格式，而 yml 可以看做是对 properties 配置文件的升级，属于 Spring Boot 的“新版”配置文件。</p>
+<p>properties 翻译成中文是“属性”的意思，所以它在创建之初，就是用来在 Spring Boot 中设置属性的。<br>
+yml 是 YAML 是缩写，它的全称 Yet Another Markup Language，翻译成中文是“另一种标记语言”。</p>
+<p>所以从二者的定义可以看出：它们的定位和层次是完全不同的，properties 只是用来设置一些属性配置的，而 yml 的格局和愿景更大，它的定位是“另一种标记语言”，所以从格局上来讲 yml 就甩 properties 好几条街。</p>
+<h2 id="properties-解析">Properties 解析</h2>
+<p>参考 mybatis 测试用例 ，<a href="https://github1s.com/mybatis/mybatis-3/blob/master/src/test/java/org/apache/ibatis/BaseDataTest.java#L42">链接</a></p>
+<pre><code class="language-java">Properties props = Resources.getResourceAsProperties(&quot;org/apache/ibatis/databases/blog/blog-derby.properties&quot;);
+System.out.println(props.getProperty(&quot;driver&quot;)); 
+</code></pre>
+<h2 id="yml-解析">yml 解析</h2>
+<p>在 Spring Framework 中，解析 YAML 文件通常使用 <code>YamlPropertiesFactoryBean</code>  工具类。这个工具类允许您将 YAML 文件中的配置属性解析为 Spring 的 <code>Properties</code> 对象，以便在应用程序中使用。</p>
+<pre><code class="language-java">import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
+import org.springframework.core.io.ClassPathResource;
+
+import java.util.Properties;
+
+public class YamlParser {
+
+    public static Properties parseYamlFile(String yamlFilePath) {
+        YamlPropertiesFactoryBean factory = new YamlPropertiesFactoryBean();
+        factory.setResources(new ClassPathResource(yamlFilePath)); // 指定 YAML 文件路径
+        return factory.getObject();
+    }
+
+    public static void main(String[] args) {
+        Properties properties = parseYamlFile(&quot;application.yml&quot;); // 传入 YAML 文件名
+        if (properties != null) {
+            System.out.println(&quot;Parsed properties from YAML file:&quot;);
+            properties.forEach((key, value) -&gt; System.out.println(key + &quot; = &quot; + value));
+        } else {
+            System.out.println(&quot;Failed to parse YAML file.&quot;);
+        }
+    }
+}
+
+</code></pre>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/ssl-de-wo-shou-ji-zhi/">
+                                                    <h3 class="post-title">
+                                                        SSL的握手机制
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

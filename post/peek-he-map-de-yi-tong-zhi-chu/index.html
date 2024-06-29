@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>peek和map的异同之处 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="
+两个函数都是中间操作，都非常的‘懒’，没有对Stream的终止操作，两个函数都不会工作。
+peek函数的存在仅仅是为了debug，而map是Stream的一个核心函数，两个函数的地位不同。
+两个函数的参数（peek是Consumer，ma..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="peek和map的异同之处" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="
+两个函数都是中间操作，都非常的‘懒’，没有对Stream的终止操作，两个函数都不会工作。
+peek函数的存在仅仅是为了debug，而map是Stream的一个核心函数，两个函数的地位不同。
+两个函数的参数（peek是Consumer，ma...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/peek-he-map-de-yi-tong-zhi-chu/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2022-11-23">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="peek和map的异同之处">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="peek和map的异同之处">
+        <meta name="twitter:description" content="
+两个函数都是中间操作，都非常的‘懒’，没有对Stream的终止操作，两个函数都不会工作。
+peek函数的存在仅仅是为了debug，而map是Stream的一个核心函数，两个函数的地位不同。
+两个函数的参数（peek是Consumer，ma...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    peek和map的异同之处
+                                </h2>
+                                <span class="article-info">
+                                    2022-11-23, 599 words, 3 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <ul>
+<li>两个函数都是中间操作，都非常的‘懒’，没有对Stream的终止操作，两个函数都不会工作。</li>
+<li>peek函数的存在仅仅是为了debug，而map是Stream的一个核心函数，两个函数的地位不同。</li>
+<li>两个函数的参数（peek是Consumer，map是Function）起作用的时机不同。map的Function在生成新的Stream之前被执行，新Stream中的元素是上游Stream中元素经Function作用后的值。peek函数的Consumer工作在生成Stream之后。</li>
+</ul>
+<h2 id="一个有代表性的样例">一个有代表性的样例</h2>
+<p>以下面一段函数（来自peek函数的官方注释）为例解释peek和map两个函数工作机制的不同：</p>
+<pre><code class="language-java">List&lt;String&gt; list = Stream.of(&quot;one&quot;, &quot;two&quot;, &quot;three&quot;, &quot;four&quot;)
+        .filter(e -&gt; e.length() &gt; 3)
+        .peek(e -&gt; System.out.println(&quot;Filtered value: &quot; + e))
+        .map(String::toUpperCase)
+        .peek(e -&gt; System.out.println(&quot;Mapped value: &quot; + e))
+        .collect(Collectors.toList());
+System.out.println(list);
+</code></pre>
+<p>输出如下：</p>
+<pre><code class="language-java">Filtered value: three
+Mapped value: THREE
+Filtered value: four
+Mapped value: FOUR
+[THREE, FOUR]
+</code></pre>
+<p>工作示意图如下：<br>
+<img src="https://toomi.pages.dev/post-images/1669171207931.png" alt="" loading="lazy"></p>
+<p>工作流程概述：</p>
+<ol>
+<li>初始Stream包含四个字符串:one，two，three和four</li>
+<li>Stream遇到的第一个中间操作是filter，filter的谓词是只保留长度大于3的字符串，经过谓词过滤后filter返回是一个仅包含两个字符串three和four的Stream1，谓词工作在Stream1生成之前。</li>
+<li>Stream遇到的第二个中间操作是peek，peek的Consumer是打印Stream中的字符串，peek直接生成一个和上游Stream1包含相同元素的Stream2，peek函数的Consumer工作在生成Stream2之后。</li>
+<li>Stream遇到的第三个中间操作是map，map的Function将字符串转换为全大写，Function作用于上游Stream2的每一个元素，并生成新的Stream3。</li>
+<li>Stream遇到的第四个中间操作是peek，peek的Consumer依然只是打印Stream4中的字符串，Consumer依然工作在Stream4生成之后。</li>
+</ol>
+<p>map函数对Stream中元素执行的是映射操作，会以新的元素(map的结果)填充新的Stream，严格的讲map不是修改原来的元素。peek只能消费Stream中的元素，是否可以更该Stream中的元素，取决于Stream中的元素是否是不可变对象。如果是不可变对象，则不可修改Stream中的元素；如果是可变对象，则可以修改对象的值，但是无法修改对象的引用。</p>
+<h2 id="来源">来源：</h2>
+<p>作者：大哥你先走<br>
+链接：https://www.jianshu.com/p/4fabc8a7abca</p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/mutable-and-immutable-objects/">
+                                                    <h3 class="post-title">
+                                                        Mutable and Immutable Objects
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

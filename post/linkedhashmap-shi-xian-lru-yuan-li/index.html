@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>LinkedHashMap实现lru原理 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="lru全称是least recently used，即最近最少使用。该算法一般应用于内存缓存场景，提供了在缓存数据规模增大时限制数据集合大小，优先保留热点数据的方案。lru在数据规模到达集合上限时会优先清理上次访问时间距当前最久的数据，这样..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="LinkedHashMap实现lru原理" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="lru全称是least recently used，即最近最少使用。该算法一般应用于内存缓存场景，提供了在缓存数据规模增大时限制数据集合大小，优先保留热点数据的方案。lru在数据规模到达集合上限时会优先清理上次访问时间距当前最久的数据，这样...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/linkedhashmap-shi-xian-lru-yuan-li/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2023-08-28">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="LinkedHashMap实现lru原理">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="LinkedHashMap实现lru原理">
+        <meta name="twitter:description" content="lru全称是least recently used，即最近最少使用。该算法一般应用于内存缓存场景，提供了在缓存数据规模增大时限制数据集合大小，优先保留热点数据的方案。lru在数据规模到达集合上限时会优先清理上次访问时间距当前最久的数据，这样...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    LinkedHashMap实现lru原理
+                                </h2>
+                                <span class="article-info">
+                                    2023-08-28, 800 words, 4 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <p>lru全称是least recently used，即最近最少使用。该算法一般应用于内存缓存场景，提供了在缓存数据规模增大时限制数据集合大小，优先保留热点数据的方案。lru在数据规模到达集合上限时会优先清理上次访问时间距当前最久的数据，这样的好处在于能够保证热点数据更长时间驻留，有利于提供系统的整体访问性能，减少从外存或磁盘读取数据的次数。</p>
+<h2 id="linkedhashmap">LinkedHashMap</h2>
+<p>JDK自带集合工具中已经为我们提供了lru算法的解决方案，即LinkedHashMap。LinkedHashMap继承于HashMap，在原有hash数组的基础上追加了一个双向链表结构。我们知道，数组长于随机访问，短于增删数据，而链表正好相反，增删数据方便，但只能顺序访问。因此，这里其实结合了数组和链表各自的优势，实现高效的随机访问和元素增删，典型的空间换时间。</p>
+<p>LinkedHashMap比HashMap多出两个私有属性。首先是布尔型的accessOrder，当其为true，则当前为lru算法模式，否则为传统模式，即按照插入顺序遍历读取。其次是header，作为链表的头节点构建链表。</p>
+<p>header的声明类型Entry继承自HashMap的Entry，其主要实现逻辑是覆写了recordAccess方法，我们来看下源码:</p>
+<pre><code class="language-java">void recordAccess(HashMap&lt;K,V&gt; m) {
+    LinkedHashMap&lt;K,V&gt; lm = (LinkedHashMap&lt;K,V&gt;)m;
+    if (lm.accessOrder) {
+        lm.modCount++;
+        remove();
+        addBefore(lm.header);
+    }
+}
+private void remove() {
+    before.after = after;
+    after.before = before;
+}
+private void addBefore(Entry&lt;K,V&gt; existingEntry) {
+    after  = existingEntry;
+    before = existingEntry.before;
+    before.after = this;
+    after.before = this;
+}
+</code></pre>
+<p>当accessOrder设置为true，则将当前访问节点首先从原来位置移除，然后置为头节点。这一系列操作实现将最近访问的节点移动到头部，保证了在达到容量上限需要移除元素时能够最后被移除。因此，这里也是实现lru算法的核心逻辑。</p>
+<p>在查询或插入时，会执行recordAccess方法进行访问元素位置的调整。特别的是，插入时执行父类方法put，然后执行子类重写的recordAccess方法进行元素调整，是一个模板方法模式。另外LinkedHashMap重写了addEntry方法，这个算是对HashMap逻辑的覆盖。</p>
+<pre><code class="language-java">void addEntry(int hash, K key, V value, int bucketIndex) {
+    createEntry(hash, key, value, bucketIndex);
+    // Remove eldest entry if instructed, else grow capacity if appropriate
+    Entry&lt;K,V&gt; eldest = header.after;
+    if (removeEldestEntry(eldest)) {
+        removeEntryForKey(eldest.key);
+    } else {
+        if (size &gt;= threshold)
+            resize(2 * table.length);
+    }
+}
+</code></pre>
+<p>这里createEntry将元素加入链表头部。然后检查是否需要删除最老的元素，存在两个问题：一是header.after表示的是链表尾部，这是双向链表的环形结构决定的；二是removeEldestEntry是一个空的实现，默认返回false。在使用时需要我们覆写逻辑,以决定什么时候可以进行老旧数据的删除逻辑。一个简单的实现如下:</p>
+<pre><code class="language-java">private static final int MAX_ENTRIES = 100;
+protected boolean removeEldestEntry(Map.Entry eldest) {
+    return size() &gt; MAX_ENTRIES;
+}
+</code></pre>
+<h2 id="原文">原文</h2>
+<p>https://cescme.github.io/2017/03/08/LinkedHashMap%E5%AE%9E%E7%8E%B0lru%E5%8E%9F%E7%90%86/</p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/zhuan-zai-wen-jian-xi-tong-de-yuan-li/">
+                                                    <h3 class="post-title">
+                                                        文件系统的原理
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

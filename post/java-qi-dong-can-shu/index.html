@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>Java 启动参数 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="启动方式
+用java命令启动Java程序，有两种方式：
+
+通过指定入口类： java SomeClass  。 这里的SomeClass是main()方法所在的类。其一般格式为java [ options ] SomeClass[ argu..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="Java 启动参数" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="启动方式
+用java命令启动Java程序，有两种方式：
+
+通过指定入口类： java SomeClass  。 这里的SomeClass是main()方法所在的类。其一般格式为java [ options ] SomeClass[ argu...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/java-qi-dong-can-shu/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2022-12-16">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="Java 启动参数">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="Java 启动参数">
+        <meta name="twitter:description" content="启动方式
+用java命令启动Java程序，有两种方式：
+
+通过指定入口类： java SomeClass  。 这里的SomeClass是main()方法所在的类。其一般格式为java [ options ] SomeClass[ argu...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    Java 启动参数
+                                </h2>
+                                <span class="article-info">
+                                    2022-12-16, 1727 words, 7 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <h2 id="启动方式">启动方式</h2>
+<p>用java命令启动Java程序，有两种方式：</p>
+<ul>
+<li>通过指定入口类：<code> java SomeClass</code>  。 这里的SomeClass是main()方法所在的类。其一般格式为<code>java [ options ] SomeClass[ arguments ]</code>。</li>
+<li>指定入口类所在jar包：<code>java -jar SomeJar.jar</code>。这里的SomeJar.jar是入口类所在的jar包。其一般格式为 <code>java [ options ] -jar SomeJar.jar [ arguments ]</code>。</li>
+</ul>
+<p>在一般格式中：</p>
+<ul>
+<li>[ options ]：配置 Java 的虚拟机选项（或称 系统参数）</li>
+<li>[ arguments ]：配置 Java 程序参数（或称 运行参数）</li>
+</ul>
+<p>例如：</p>
+<pre><code class="language-java">java -Dfile.encoding=UTF-8 -Dusername=Joe Test hi a b c d
+</code></pre>
+<h2 id="启动参数的类型">启动参数的类型</h2>
+<p>在启动Java程序时，可以指定两类参数，分别叫做虚拟机选项（VM options）和程序参数（program arguments）。<br>
+虚拟机选项是指由JVM支持、用于设置虚拟机启动过程的参数。<br>
+程序参数是指用户自定义的参数，在代码中可以通过main()方法的String[] args获取。</p>
+<h2 id="虚拟机选项vm-options">虚拟机选项（VM options）</h2>
+<p>虚拟机选项分为3类，分别是：</p>
+<ul>
+<li>标准参数（-）：所有的JVM实现都必须实现这些参数的功能，而且向后兼容。</li>
+<li>非标准参数（-X）：默认JVM实现这些参数的功能，但是并不保证所有JVM实现都满足，且不保证向后兼容。</li>
+<li>非Stable参数（-XX）：此类参数各个JVM实现会有所不同，将来可能会随时取消，需要慎重使用。</li>
+</ul>
+<h3 id="标准参数">标准参数</h3>
+<p>标准参数是指以-开头的参数。常见的标准参数如：</p>
+<ul>
+<li>-client / -server: 指定虚拟机以client模式（Windows下的默认模式）还是server模式（Linux下的默认模式）启动。</li>
+<li>-jar：指定以jar包的形式执行一个应用程序。要这样执行一个应用程序，必须让jar包的manifest文件中声明初始加载的Main-class，该类中必须有public static void main(String[] args)方法。</li>
+<li>-verbose 或 -verbose:class：输出JVM载入类的相关信息，当JVM报告说找不到类或者类冲突时可此进行诊断。</li>
+<li>-verbose:gc：输出每次GC的相关情况。</li>
+<li>-verbose:jni：输出native方法调用的相关情况，一般用于诊断jni调用错误信息。</li>
+<li>-X：输出非标准的参数列表及其描述。</li>
+<li>-? 或 -help：输出java标准参数列表及其描述。</li>
+<li>-version：输出java的版本信息，比如jdk版本、vendor、model。</li>
+<li>-javaagent:jarpath[=options]：指定jvm启动时装入java语言设备代理。Jarpath文件中的mainfest文件必须有Agent-Class属性，代理类必须实现方法public static void premain(String agentArgs, Instrumentation inst)（和main方法类似）。当JVM初始化时，将按代理类的说明顺序调用premain方法。具体参见java.lang.instrument软件包的描述。</li>
+<li>-enableassertions[:&quot;...&quot; | : ] 或 -ea[:&quot;...&quot; | : ]：用来设置JVM是否启动断言机制（从JDK 1.4开始支持），缺省时JVM关闭断言机制。</li>
+<li>-disableassertions[:&quot;...&quot; | :&lt;class ; ] 或 -da[:&quot;...&quot; | : ]：用来设置JVM关闭断言处理，一般用于相同package内某些class不需要断言的场景。</li>
+<li>-enablesystemassertions 或 -esa：激活系统类的断言。</li>
+<li>-disablesystemassertions 或 -dsa：关闭系统类的断言。</li>
+</ul>
+<h3 id="类加载路径">类加载路径</h3>
+<p>JVM的类加载路径通过-classpath <classpath>或-cp <classpath>指定，多个路径之间用分号分隔，如：</p>
+<pre><code class="language-shell">-classpath &quot;D:\Program Files\Java\jdk1.8.0_231\jre\lib\charsets.jar;D:\Program Files\Java\jdk1.8.0_231\jre\lib\deploy.jar&quot;
+</code></pre>
+<p>使用-classpath后，JVM 将不再使用CLASSPATH中的类加载路径。（如果-classpath和CLASSPATH都没有设置，则JVM使用当前路径(.)作为类加载路径。）<br>
+JVM 搜索类的方式和顺序为：</p>
+<ol>
+<li>Bootstrap：Bootstrap中的路径是JVM自带的jar或zip文件，JVM首先搜索这些包文件，用System.getProperty(&quot;sun.boot.class.path&quot;)可得到其值。</li>
+<li>Extension：Extension是位于JRE_HOME/lib/ext目录下的jar文件，JVM在搜索完Bootstrap后就搜索该目录下的jar文件，用System.getProperty(&quot;java.ext.dirs&quot;)可得到其值。</li>
+<li>User：User搜索顺序为当前路径、CLASSPATH、-classpath。用System.getProperty(&quot;java.class.path&quot;)可得到其值。</li>
+</ol>
+<h3 id="系统属性参数">系统属性参数</h3>
+<p>系统属性参数以-D<propertyName>=value形式定义，运行在此虚拟机之上的应用程序可用System.getProperty(&quot;propertyName&quot;)得到value的值。<br>
+多个系统属性参数之间用空格隔开。如果value中有空格，则需要用双引号将该值括起来，如-Dname=”space string”。<br>
+参数可以是 Java 默认的，此类参数由 JVM 虚拟机自动识别并生效，例如-Dfile.encoding=UTF-8用于指定文件编码格式；<br>
+也可以是用户自定义的，例如-Dusername=Joe，程序中可以读取该参数值，执行相关逻辑。<br>
+如-Dspring.profiles.active=dev可以在SpringBoot启动中指定系统变量，用于多环境(开发、测试、预发、线上)的区分。</p>
+<p>关于标准参数更详细的说明可以参看<a href="https://www.cnblogs.com/fengjunhua/p/8780261.html">这篇文章</a>。</p>
+<h3 id="非标准参数">非标准参数</h3>
+<p>非标准参数又称为扩展参数，是指以-X开头的参数，可以通过java -X打印出所有的非标准参数。<br>
+常见的非标准参数如：</p>
+<ul>
+<li>-Xms：指定JVM堆的初始大小（memory of start?），如-Xms3550m。</li>
+<li>-Xmx：指定JVM堆的最大值（memory of maximum?），如-Xmx3550m。</li>
+<li>-Xmn：指定JVM堆中新生代的大小（memory of nursery），如-Xmn2g。</li>
+<li>-Xss：设置单个线程栈的大小（stack size），一般默认为512k。等同于-XX:NewSize。</li>
+<li>-Xprof：跟踪正运行的程序，并将跟踪数据在标准输出输出；适合于开发环境调试。</li>
+<li>-Xloggc:：与-verbose:gc功能类似，只是将每次GC事件的相关情况记录到一个文件中。若与verbose命令同时出现在命令行中，则以-Xloggc为准。</li>
+<li>-Xint：设置JVM以解释模式运行，所有的字节码将被直接执行，而不会编译成本地码。<br>
+更详细的说明可以参看<a href="https://www.cnblogs.com/fengjunhua/p/8780296.html">这篇文章</a>。</li>
+</ul>
+<h3 id="非stable参数">非Stable参数</h3>
+<p>非Stable参数是指以-XX开头的参数。<br>
+这类参数在JVM中可能是不健壮的，SUN也不推荐使用，后续可能会在没有通知的情况下就直接取消了。<br>
+但这些参数中有些的确很有用，比如我们经常会见到的-XX:PermSize、-XX:MaxPermSize。<br>
+这些参数可以大致分成三类：</p>
+<ul>
+<li>行为参数（Behavioral Options）：用于改变jvm的一些基础行为</li>
+<li>性能调优（Performance Tuning）：用于jvm的性能调优</li>
+<li>调试参数（Debugging Options）：一般用于打开跟踪、打印、输出等jvm参数，用于显示jvm更加详细的信息</li>
+</ul>
+<p>更详细的说明可以参看<a href="https://www.cnblogs.com/fengjunhua/p/8780333.html">这篇文章</a>。</p>
+<h3 id="程序参数program-arguments">程序参数（program arguments）</h3>
+<p>用户自定义的参数。在代码中通过main()方法的String[] args获取后，用户在代码中按约定的格式对其进行解析，得到所需的参数值。</p>
+<p>最终，我们来看一个包含各类参数的java启动命令：</p>
+<pre><code class="language-java">java -jar -server -Xmx3550m -XX:+HeapDumpOnOutOfMemoryError -XX:+PrintGCDetails -XX:+PrintGCDateStamps 
+-Dserver.connection-timeout=60000 -Dspring.profiles.active=online SomeJar.jar argument1 argument2
+</code></pre>
+<h2 id="原文">原文</h2>
+<ul>
+<li>https://www.cnblogs.com/haycheng/p/12781261.html</li>
+</ul>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/javaagent-shi-yong/">
+                                                    <h3 class="post-title">
+                                                        javaagent使用
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

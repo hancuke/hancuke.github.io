@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>Java自旋锁、CLH锁及MCS锁原理及实现 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="1. 背景
+1.1. SMP(Symmetric Multi-Processor)
+
+对称多处理器结构，它是相对非对称多处理技术而言的、应用十分广泛的并行技术。
+操作系统将任务队列对称地分布于多个CPU之上，从而极大地提高了整个系统的数据处..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="Java自旋锁、CLH锁及MCS锁原理及实现" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="1. 背景
+1.1. SMP(Symmetric Multi-Processor)
+
+对称多处理器结构，它是相对非对称多处理技术而言的、应用十分广泛的并行技术。
+操作系统将任务队列对称地分布于多个CPU之上，从而极大地提高了整个系统的数据处...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/java-zi-xuan-suo-clh-suo-ji-mcs-suo-yuan-li-ji-shi-xian/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2023-01-11">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="Java自旋锁、CLH锁及MCS锁原理及实现">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="Java自旋锁、CLH锁及MCS锁原理及实现">
+        <meta name="twitter:description" content="1. 背景
+1.1. SMP(Symmetric Multi-Processor)
+
+对称多处理器结构，它是相对非对称多处理技术而言的、应用十分广泛的并行技术。
+操作系统将任务队列对称地分布于多个CPU之上，从而极大地提高了整个系统的数据处...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    Java自旋锁、CLH锁及MCS锁原理及实现
+                                </h2>
+                                <span class="article-info">
+                                    2023-01-11, 2031 words, 9 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <h2 id="1-背景">1. 背景</h2>
+<h3 id="11-smpsymmetric-multi-processor">1.1. SMP(Symmetric Multi-Processor)</h3>
+<ul>
+<li>对称多处理器结构，它是相对非对称多处理技术而言的、应用十分广泛的并行技术。</li>
+<li>操作系统将任务队列对称地分布于多个CPU之上，从而极大地提高了整个系统的数据处理能力。</li>
+<li>但是随着CPU数量的增加，每个CPU都要访问相同的内存资源，共享资源可能会成为系统瓶颈，导致CPU资源浪费。<br>
+<img src="https://toomi.pages.dev/post-images/1673430414623.png" alt="" loading="lazy"></li>
+</ul>
+<h3 id="12-numanon-uniform-memory-access">1.2. NUMA(Non-Uniform Memory Access)</h3>
+<ul>
+<li>非一致存储访问，将CPU分为CPU模块，每个CPU模块由多个CPU组成，并且具有独立的本地内存、I/O槽口等，模块之间可以通过互联模块相互访问。</li>
+<li>访问本地内存（本CPU模块的内存）的速度将远远高于访问远程内存(其他CPU模块的内存)的速度，这也是非一致存储访问的由来。</li>
+<li>NUMA较好地解决SMP的扩展问题，当CPU数量增加时，因为访问远地内存的延时远远超过本地内存，系统性能无法线性增加。<br>
+<img src="https://toomi.pages.dev/post-images/1673430458731.png" alt="" loading="lazy"></li>
+</ul>
+<h2 id="2-实现原理">2. 实现原理</h2>
+<h3 id="21-自旋锁spin-lock">2.1 自旋锁（Spin Lock）</h3>
+<p>自旋锁是指当一个线程尝试获取某个锁时，如果该锁已被其他线程占用，就一直循环检测锁是否被释放，而不是进入线程挂起或睡眠状态。<br>
+自旋锁适用于锁保护的临界区很小的情况，临界区很小的话，锁占用的时间就很短。<br>
+简单自旋锁实现示例：</p>
+<pre><code class="language-java">public class SimpleSpinLock implements Lock {
+
+    //利用CAS操作，解决多线程并发操作导致数据不一致的问题
+    private final AtomicReference&lt;Thread&gt; owner = new AtomicReference&lt;&gt;();
+
+    @Override
+    public void lock() {
+        Thread currentThread = Thread.currentThread();
+        // 如果锁未被占用，则设置当前线程为锁的拥有者
+        while (!owner.compareAndSet(null, currentThread)) {
+        }
+    }
+
+    @Override
+    public void unlock() {
+        Thread currentThread = Thread.currentThread();
+        // 只有锁的拥有者才能释放锁
+        owner.compareAndSet(currentThread, null);
+    }
+
+    ...
+}
+</code></pre>
+<p>缺点如下：</p>
+<ul>
+<li>独占，不支持重入</li>
+<li>CAS操作需要系统底层硬件的配合</li>
+<li>保证各个CPU的缓存（L1、L2、L3、跨CPU Socket、主存）的数据一致性，通讯开销很大，在多处理器系统上更严重</li>
+<li>没法保证公平性，不保证等待线程按照FIFO顺序获得锁</li>
+</ul>
+<h3 id="22-自旋可重入锁">2.2 自旋可重入锁</h3>
+<p>在自旋锁基础上加入计数器，支持可重入<br>
+实现示例：</p>
+<pre><code class="language-java">public class ReentrantSpinLock implements Lock {
+
+    //利用CAS操作，解决多线程并发操作导致数据不一致的问题
+    private AtomicReference&lt;Thread&gt; owner = new AtomicReference&lt;&gt;();
+    //加入计数器，支持可重入
+    private int count = 0;
+
+    @Override
+    public void lock() {
+        Thread currentThread = Thread.currentThread();
+        //如果锁被当前线程占用，则计数器+1
+        if (currentThread == owner.get()) {
+            count++;
+            return;
+        }
+        // 如果锁未被占用，则设置当前线程为锁的拥有者
+        while (!owner.compareAndSet(null, currentThread)) {
+        }
+    }
+
+    @Override
+    public void unlock() {
+        Thread currentThread = Thread.currentThread();
+        if (currentThread == owner.get()) {
+            //count大于0，说明锁被占用多次，执行-1
+            if (count &gt; 0) {
+                count--;
+            } else {
+                //执行锁释放
+                owner.compareAndSet(currentThread, null);
+            }
+        }
+    }
+
+    ...
+}
+</code></pre>
+<h3 id="23-排队自旋锁">2.3 排队自旋锁</h3>
+<p>为了解决上面的公平性问题，类似于现实中银行柜台的排队叫号：锁拥有一个服务号，表示正在服务的线程，还有一个排队号<br>
+每个线程尝试获取锁之前先拿一个排队号，然后不断轮询锁的当前服务号是否是自己的排队号，如果是，则表示自己拥有了锁，不是则继续轮询<br>
+实现示例：</p>
+<pre><code class="language-java">public class TicketLock {
+
+    private AtomicLong serviceNum = new AtomicLong();//服务号
+    private AtomicLong ticketNum = new AtomicLong();//排队号
+
+    public long lock() {
+        //首先原子性地获得一个排队号
+        long myTicketNum = ticketNum.getAndIncrement();
+        // 只要当前服务号不是自己的就不断轮询
+        while (serviceNum.get() != myTicketNum) {
+        }
+        return myTicketNum;
+    }
+
+    public void unlock(long myTicketNum) {
+        // 只有当前拥有者才能释放锁
+        serviceNum.compareAndSet(myTicketNum, myTicketNum + 1);
+    }
+
+}
+</code></pre>
+<p>缺点:</p>
+<ul>
+<li>独占，不可重入</li>
+<li>虽然解决了公平性的问题，但是多处理器系统上，每个进程/线程占用的处理器都在读写同一个变量serviceNum ，每次读写操作都必须在多个处理器缓存之间进行缓存同步，这会导致繁重的系统总线和内存的流量，大大降低系统整体的性能</li>
+</ul>
+<h3 id="24-clh锁">2.4 CLH锁</h3>
+<p>自旋公平锁（保证FIFO），独占锁，不可重入<br>
+CLH的发明人是：Craig，Landin and Hagersten，基于名称简写而来<br>
+CLH锁是一种基于单向链表的高性能、公平的自旋锁<br>
+申请加锁的线程通过前驱节点的变量进行自旋，在前置节点解锁后，当前节点会结束自旋，并进行加锁。<br>
+在SMP架构下，CLH更具有优势，在NUMA架构下，如果当前节点与前驱节点不在同一CPU模块下，跨CPU模块会带来额外的系统开销，而MCS锁更适用于NUMA架构。<br>
+<img src="https://toomi.pages.dev/post-images/1673430711057.png" alt="" loading="lazy"></p>
+<p>实现示例如下：</p>
+<pre><code class="language-java">public class ClhSpinLock implements Lock {
+
+    private final ThreadLocal&lt;Node&gt; prev;
+    private final ThreadLocal&lt;Node&gt; node;
+    private final AtomicReference&lt;Node&gt; tail;
+
+    public ClhSpinLock() {
+        this.node = ThreadLocal.withInitial(Node::new);
+        this.prev = ThreadLocal.withInitial(() -&gt; null);
+        this.tail = new AtomicReference&lt;Node&gt;(new Node());
+    }
+
+    /**
+     * 1.初始状态 tail指向一个node(head)节点
+     * +------+
+     * | head | &lt;---- tail
+     * +------+
+     *
+     * 2.lock-thread加入等待队列: tail指向新的Node，同时Prev指向tail之前指向的节点
+     * +----------+
+     * | Thread-A |
+     * | := Node  | &lt;---- tail
+     * | := Prev  | -----&gt; +------+
+     * +----------+        | head |
+     *                     +------+
+     *
+     *             +----------+            +----------+
+     *             | Thread-B |            | Thread-A |
+     * tail ----&gt;  | := Node  |     --&gt;    | := Node  |
+     *             | := Prev  | ----|      | := Prev  | -----&gt;  +------+
+     *             +----------+            +----------+         | head |
+     *                                                          +------+
+     * 3.寻找当前node的prev-node然后开始自旋
+     *
+     */
+    @Override
+    public void lock() {
+        final Node node = this.node.get();
+        node.locked = true;
+        // 将tail设置为当前线程的节点，并获取到上一个节点，此操作为原子性操作
+        Node pred = this.tail.getAndSet(node);
+        this.prev.set(pred);
+        // 在前驱节点的locked字段上自旋等待
+        while (pred.locked) {
+        }
+    }
+
+    @Override
+    public void unlock() {
+        final Node node = this.node.get();
+        // 将当前线程节点的locked属性设置为false，使下一个节点成功获取锁
+        node.locked = false;
+        this.node.set(this.prev.get());
+    }
+
+    ...
+
+    private static class Node {
+
+        private volatile boolean locked;
+    }
+}
+</code></pre>
+<h3 id="25-mcs锁">2.5 MCS锁</h3>
+<p>自旋公平锁（保证FIFO），独占锁，不可重入<br>
+MCS 来自于其发明人名字的首字母： John Mellor-Crummey和Michael Scott<br>
+MSC与CLH最大的不同并不是链表是显示还是隐式，而是线程自旋的规则不同，CLH是在前趋结点的locked域上自旋等待，而MCS是在自己的结点的locked域上自旋等待<br>
+它解决了CLH在NUMA系统架构中获取locked域状态内存过远的问题<br>
+实现示例如下：</p>
+<pre><code class="language-java">public class McsSpinLock implements Lock {
+
+    private final ThreadLocal&lt;Node&gt; current;
+    private final AtomicReference&lt;Node&gt; tail;
+
+    public McsSpinLock() {
+        this.current = ThreadLocal.withInitial(Node::new);
+        this.tail = new AtomicReference&lt;&gt;();
+    }
+
+    @Override
+    public void lock() {
+        Node node = current.get();
+        Node pred = tail.getAndSet(node);
+        // pred的初始值为null，所以第一个加锁线程，直接跳过判断，加锁成功
+        if (pred != null) {
+            pred.next = node;
+            // 在当前节点的locked字段上自旋等待
+            while (node.locked) {
+            }
+        }
+    }
+
+
+    @Override
+    public void unlock() {
+        Node node = current.get();
+        if (node.next == null) {
+            // 如果设置成功，说明在此之前没有线程进行lock操作，直接return即可；
+            // 如果失败，则说明在此之前有线程进行lock操作，需要自旋等待那个线程将自身节点设置为本线程节点的next，
+            // 然后进行后面的操作。
+            if (tail.compareAndSet(node, null)) {
+                return;
+            }
+            while (node.next == null) {
+            }
+        }
+        // 通知下一个线程，使下一个线程加锁成功
+        node.next.locked = false;
+        // 解锁后需要将节点之间的关联断开，否则会产生内存泄露ø
+        node.next = null;
+    }
+
+    ...
+
+    static class Node {
+
+        volatile boolean locked = true;
+        volatile Node next;
+    }
+}
+</code></pre>
+<h3 id="3-clh锁与mcs锁比较">3、 CLH锁与MCS锁比较</h3>
+<p><img src="https://toomi.pages.dev/post-images/1673430797059.png" alt="" loading="lazy"><br>
+对比说明</p>
+<ul>
+<li>从代码实现来看，CLH比MCS要简单得多</li>
+<li>从自旋的条件来看，CLH是在前驱节点的属性上自旋，而MCS是在本地属性变量上自旋</li>
+<li>从链表队列来看，CLH的队列是隐式的，CLHNode并不实际持有下一个节点；MCS的队列是物理存在的</li>
+<li>CLH锁释放时只需要改变自己的属性，MCS锁释放则需要改变后继节点的属性</li>
+</ul>
+<h2 id="原文">原文</h2>
+<ul>
+<li>https://note.xcloudapi.com/2022/08/26/Java%E8%87%AA%E6%97%8B%E9%94%81%E3%80%81CLH%E9%94%81%E5%8F%8AMCS%E9%94%81%E5%8E%9F%E7%90%86%E5%8F%8A%E5%AE%9E%E7%8E%B0/</li>
+</ul>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/synchronized-yu-abstractqueuedsynchronizer-aqs/">
+                                                    <h3 class="post-title">
+                                                        synchronized 与 AbstractQueuedSynchronizer (AQS)
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

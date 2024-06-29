@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>java深拷贝 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="Java 实现对象深拷贝的方式有两种
+
+序列化
+实现类的clone方法
+下文介绍通过序列化实现通用对象深拷贝
+
+引入依赖
+需要依赖外部工具包 Apache Commons Lang
+&lt;dependency&gt;
+    &lt;gr..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="java深拷贝" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="Java 实现对象深拷贝的方式有两种
+
+序列化
+实现类的clone方法
+下文介绍通过序列化实现通用对象深拷贝
+
+引入依赖
+需要依赖外部工具包 Apache Commons Lang
+&amp;lt;dependency&amp;gt;
+    &amp;lt;gr...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/java-shen-kao-bei/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2022-10-21">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="java深拷贝">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="java深拷贝">
+        <meta name="twitter:description" content="Java 实现对象深拷贝的方式有两种
+
+序列化
+实现类的clone方法
+下文介绍通过序列化实现通用对象深拷贝
+
+引入依赖
+需要依赖外部工具包 Apache Commons Lang
+&amp;lt;dependency&amp;gt;
+    &amp;lt;gr...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    java深拷贝
+                                </h2>
+                                <span class="article-info">
+                                    2022-10-21, 409 words, 3 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <p>Java 实现对象深拷贝的方式有两种</p>
+<ol>
+<li>序列化</li>
+<li>实现类的clone方法<br>
+下文介绍通过序列化实现通用对象深拷贝</li>
+</ol>
+<h3 id="引入依赖">引入依赖</h3>
+<p>需要依赖外部工具包 Apache Commons Lang</p>
+<pre><code class="language-xml">&lt;dependency&gt;
+    &lt;groupId&gt;commons-lang&lt;/groupId&gt;
+    &lt;artifactId&gt;commons-lang&lt;/artifactId&gt;
+    &lt;version&gt;2.6&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre>
+<h3 id="范例">范例</h3>
+<ol>
+<li>类对象,都需要实现<code>Serializable</code></li>
+</ol>
+<pre><code class="language-java">public class Account implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    private List&lt;Email&gt; emails;
+
+    public void setEmails(List&lt;Email&gt; emails) {
+        this.emails = emails;
+    }
+
+    public List&lt;Email&gt; getEmails() {
+        return emails;
+    }
+}
+
+
+public class Email implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    private String email;
+
+    public Email() {
+    }
+
+    public Email(String email) {
+        this.email = email;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    @Override
+    public String toString() {
+        return email;
+    }
+
+    // generated by Eclipse
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((email == null) ? 0 : email.hashCode());
+        return result;
+    }
+
+    // generated by Eclipse
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Email other = (Email) obj;
+        if (email == null) {
+            if (other.email != null)
+                return false;
+        } else if (!email.equals(other.email))
+            return false;
+        return true;
+    }
+} 
+
+</code></pre>
+<ol start="2">
+<li>测试用例</li>
+</ol>
+<pre><code class="language-java">    @Test
+    public void copy() {
+         // 构建复杂对象1
+        Account accountForm = new Account(); 
+        List&lt;Email&gt; emailsSrc = new ArrayList&lt;Email&gt;(); 
+        emailsSrc.add(new Email(&quot;a@example.com&quot;));
+        emailsSrc.add(new Email(&quot;b@example.com&quot;));
+        emailsSrc.add(new Email(&quot;c@example.com&quot;)); 
+        accountForm.setEmails(emailsSrc);
+        // 深复制出新对象2
+        Account account = SerializationUtils.clone(accountForm);
+        // 修改原来的对象1属性值
+        emailsSrc.get(0).setEmail(&quot;toomi&quot;);
+
+        // 后面能比对,原始对象1的属性被修改
+        assert(accountForm.getEmails().get(0).getEmail().equals(&quot;toomi&quot;));
+        // 复制出来的对象2属性没有修改，复制不是内存地址引用，前后对象是独立的
+        assert(account.getEmails().get(0).getEmail().equals(&quot;a@example.com&quot;));
+    }
+</code></pre>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/http-ban-ben-yan-bian/">
+                                                    <h3 class="post-title">
+                                                        http版本演变
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

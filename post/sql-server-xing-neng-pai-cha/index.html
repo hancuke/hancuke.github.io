@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>sql server 性能排查 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="排查方向
+
+cpu使用率
+内存使用率
+磁盘队列
+
+磁盘
+
+通过【扩展事件】查看历史事件, 路径为 管理 --&gt; 扩展事件 --&gt; system_health --&gt; package0.event_file 查看
+
+通过上方..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="sql server 性能排查" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="排查方向
+
+cpu使用率
+内存使用率
+磁盘队列
+
+磁盘
+
+通过【扩展事件】查看历史事件, 路径为 管理 --&amp;gt; 扩展事件 --&amp;gt; system_health --&amp;gt; package0.event_file 查看
+
+通过上方...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/sql-server-xing-neng-pai-cha/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2023-03-03">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="sql server 性能排查">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="sql server 性能排查">
+        <meta name="twitter:description" content="排查方向
+
+cpu使用率
+内存使用率
+磁盘队列
+
+磁盘
+
+通过【扩展事件】查看历史事件, 路径为 管理 --&amp;gt; 扩展事件 --&amp;gt; system_health --&amp;gt; package0.event_file 查看
+
+通过上方...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    sql server 性能排查
+                                </h2>
+                                <span class="article-info">
+                                    2023-03-03, 1430 words, 6 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <h2 id="排查方向">排查方向</h2>
+<ol>
+<li>cpu使用率</li>
+<li>内存使用率</li>
+<li>磁盘队列</li>
+</ol>
+<h2 id="磁盘">磁盘</h2>
+<ol>
+<li>通过【扩展事件】查看历史事件, 路径为 管理 --&gt; 扩展事件 --&gt; system_health --&gt; package0.event_file 查看<br>
+<img src="https://toomi.pages.dev/post-images/1677832040578.png" alt="" loading="lazy"></li>
+<li>通过上方工具栏进行事件名称显示，或者筛选<br>
+<img src="https://toomi.pages.dev/post-images/1677832127709.png" alt="" loading="lazy"></li>
+</ol>
+<h3 id="查看当前执行的语句以及其等待时间">查看当前执行的语句，以及其等待时间</h3>
+<pre><code class="language-sql">SELECT r.session_id, r.wait_type, r.wait_time as wait_time_ms ,t.*
+  FROM sys.dm_exec_requests r JOIN sys.dm_exec_sessions s   
+  ON r.session_id = s.session_id  
+  cross apply sys.dm_exec_sql_text(r.sql_handle) t
+    WHERE wait_type in ('PAGEIOLATCH_SH', 'PAGEIOLATCH_EX', 'WRITELOG',  
+  'IO_COMPLETION', 'ASYNC_IO_COMPLETION', 'BACKUPIO') 
+      AND is_user_process = 1 
+</code></pre>
+<figure data-type="image" tabindex="1"><img src="https://toomi.pages.dev/post-images/1677832300805.png" alt="" loading="lazy"></figure>
+<blockquote>
+<p>10-15 毫秒/传输数字是我们根据 Windows 和 SQL Server 工程师多年来的集体经验选择的非常近似的阈值。 通常，当数字超过此大致阈值时，SQL Server用户开始看到其工作负载中的延迟并报告这些延迟。 最终，I/O 子系统的预期吞吐量由制造商、型号、配置、工作负载以及可能的其他多个因素定义。</p>
+</blockquote>
+<p>查看历史io数据</p>
+<pre><code class="language-sql">SELECT TOP 100  qs.last_execution_time, SUBSTRING(qt.TEXT, (qs.statement_start_offset/2)+1,
+((CASE qs.statement_end_offset
+WHEN -1 THEN DATALENGTH(qt.TEXT)
+ELSE qs.statement_end_offset
+END - qs.statement_start_offset)/2)+1),
+qs.execution_count,
+qs.total_logical_reads, qs.last_logical_reads,
+qs.total_logical_writes, qs.last_logical_writes,
+qs.total_worker_time,
+qs.last_worker_time,
+qs.total_elapsed_time/1000000 total_elapsed_time_in_S,
+qs.last_elapsed_time/1000000 last_elapsed_time_in_S,
+qs.last_execution_time,
+qp.query_plan
+FROM sys.dm_exec_query_stats qs
+CROSS APPLY sys.dm_exec_sql_text(qs.sql_handle) qt
+CROSS APPLY sys.dm_exec_query_plan(qs.plan_handle) qp
+where qs.last_execution_time &lt;= '2023-03-04 13:54:35.523'
+  -- ORDER BY qs.total_logical_reads DESC -- logical reads
+ ORDER BY qs.last_execution_time DESC  
+-- ORDER BY qs.total_worker_time DESC -- CPU time
+</code></pre>
+<h3 id="有关-io-相关等待类型的信息">有关 I/O 相关等待类型的信息</h3>
+<p>以下是在报告磁盘 I/O 问题时SQL Server观察到的常见等待类型的说明。</p>
+<h4 id="pageiolatch_ex">PAGEIOLATCH_EX</h4>
+<p>当任务在 I/O 请求中等待数据或索引页的闩锁 (缓冲区) 时发生。 闩锁请求处于独占模式。 当缓冲区写入磁盘时，将使用独占模式。 长时间等待可能表示磁盘子系统存在问题。</p>
+<h4 id="pageiolatch_up">PAGEIOLATCH_UP</h4>
+<p>当任务在 I/O 请求中等待缓冲区的闩锁时发生。 闩锁请求处于更新模式。 长时间等待可能表示磁盘子系统存在问题。</p>
+<h4 id="writelog">WRITELOG</h4>
+<p>在任务等待事务日志刷新完成时发生。 当日志管理器将其临时内容写入磁盘时，会发生刷新。 导致日志刷新的常见操作是事务提交和检查点。</p>
+<p>长时间等待的 WRITELOG 常见原因包括：</p>
+<ul>
+<li>事务日志磁盘延迟：这是最常见的等待原因 WRITELOG 。 通常，建议<strong>将数据和日志文件保存在单独的卷上</strong>。 事务日志写入是连续写入，而从数据文件读取或写入数据是随机的。 在一个驱动器卷上混合数据和日志文件 (尤其是传统的旋转磁盘驱动器) 将导致磁盘头移动过多。</li>
+<li>VLF 过多：) VLF (虚拟日志文件过多，可能会导致 WRITELOG 等待。 过多的 VLF 可能会导致其他类型的问题，例如长时间恢复。</li>
+<li><strong>过多的小事务</strong>：虽然大型事务可能会导致阻塞，但过多的小事务可能会导致另一组问题。 如果不显式开始事务，则任何插入、删除或更新都将导致事务 (我们调用此自动事务) 。 如果在一个循环中执行 1，000 次插入，则会生成 1，000 个事务。 此示例中的每个事务都需要提交，这会导致事务日志刷新和 1，000 个事务刷新。 如果可能，请将单个更新、删除或插入到更大的事务中，以减少事务日志刷新并提高 性能。 此操作可以减少 WRITELOG 等待时间。</li>
+<li>计划问题会导致日志编写器线程无法以足够快的速度进行计划：在 2016 SQL Server 之前，单个日志编写器线程执行所有日志写入。 如果线程计划 (例如 CPU) 过高时出现问题，则日志编写器线程和日志刷新都可能会延迟。 在 2016 SQL Server，最多添加了四个日志编写器线程，以提高日志写入吞吐量。 请参阅 SQL 2016 - 它只是运行得更快：多个日志编写器辅助角色。 在 2019 SQL Server，最多添加了 8 个日志编写器线程，这进一步提高了吞吐量。 此外，在 2019 SQL Server，每个常规工作线程可以直接执行日志写入，而不是发布到日志编写器线程。 通过这些改进， WRITELOG 计划问题很少触发等待。</li>
+</ul>
+<h4 id="async_io_completion">ASYNC_IO_COMPLETION</h4>
+<p>发生以下某些 I/O 活动时发生：</p>
+<ul>
+<li>大容量插入提供程序 (“插入批量”) 在执行 I/O 时使用此等待类型。</li>
+<li>读取 LogShipping 中的撤消文件，并定向异步 I/O 进行日志传送。</li>
+<li>在数据备份期间从数据文件读取实际数据。</li>
+</ul>
+<h4 id="io_completion">IO_COMPLETION</h4>
+<p>在等待 I/O 操作完成时发生。 此等待类型通常涉及与数据页无关的 I/O， (缓冲区) 。 示例包括：</p>
+<ul>
+<li>在溢出期间从/向磁盘读取和写入排序/哈希结果 (检查 tempdb 存储) 的性能。</li>
+<li>将预先的假脱机读取和写入磁盘 (检查 tempdb 存储) 。</li>
+<li>在导致从磁盘读取日志的任何操作（例如，恢复) ）期间， (从事务日志读取日志块。</li>
+<li>尚未设置数据库时，从磁盘读取页面。</li>
+<li>将页面复制到数据库快照 (写入时复制) 。</li>
+<li>关闭数据库文件和文件解压缩。</li>
+</ul>
+<h4 id="backupio">BACKUPIO</h4>
+<p>当备份任务正在等待数据或正在等待缓冲区存储数据时发生。 此类型并不常见，除非任务正在等待磁带装载。</p>
+<h2 id="参考文档">参考文档</h2>
+<p>https://learn.microsoft.com/zh-cn/troubleshoot/sql/database-engine/performance/troubleshoot-sql-io-performance#io_completion</p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/gen-ju-di-qu-feng-jin-ip/">
+                                                    <h3 class="post-title">
+                                                        根据地区封禁ip
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>Redis Stream Tutorial In 20 Minutes | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="1. Introduction
+There is a key new feature in redis 5: stream.
+Stream is a storage structure in the log form, and you ca..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="Redis Stream Tutorial In 20 Minutes" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="1. Introduction
+There is a key new feature in redis 5: stream.
+Stream is a storage structure in the log form, and you ca...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/redis-stream-tutorial-in-20-minutes/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2022-10-22">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="Redis Stream Tutorial In 20 Minutes">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="Redis Stream Tutorial In 20 Minutes">
+        <meta name="twitter:description" content="1. Introduction
+There is a key new feature in redis 5: stream.
+Stream is a storage structure in the log form, and you ca...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    Redis Stream Tutorial In 20 Minutes
+                                </h2>
+                                <span class="article-info">
+                                    2022-10-22, 675 words, 5 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <h2 id="1-introduction">1. Introduction</h2>
+<p>There is a key new feature in redis 5: stream.</p>
+<p>Stream is a storage structure in the log form, and you can append data into it. It will generate a timestamp ID for each data. And stream also has a convenient model or reading data.</p>
+<p>So stream is suitable for message queues and time series storage.</p>
+<h2 id="2-usage">2. Usage</h2>
+<h3 id="21-adding-elements-to-stream">2.1 Adding elements to stream</h3>
+<pre><code class="language-cmd">redis:6379&gt; XADD mystream * sensor-id 1234 temperature 19.8
+1531989605376-0
+</code></pre>
+<p>What we can know from the above are:</p>
+<ul>
+<li>mystream is the key of stream;</li>
+<li>the parameter at the location of * is the element ID, and * indicates that an element ID is generated by the system automatically;</li>
+<li>the added element contains 2 key-value pairs, sensor-id 1234 and temperature 19.8;</li>
+<li>the returned value is the ID of the newly added element, consisting of a timestamp and an incrementing number.</li>
+</ul>
+<p>You can also get the number of elements in the Stream:</p>
+<pre><code class="language-cmd">redis:6379&gt; XLEN mystream
+(integer) 1
+</code></pre>
+<h3 id="22-range-query">2.2 Range query</h3>
+<p>When we want to use a range query, we need to specify the start and end IDs, which is equivalent to giving a time range:</p>
+<pre><code class="language-cmd">redis:6379&gt; XRANGE mystream 1531989605376 1531989605377
+1) 1) 1531989605376-0
+  2) 1) &quot;sensor-id&quot;
+     2) &quot;1234&quot;
+     3) &quot;temperature&quot;
+     4) &quot;19.8&quot;
+</code></pre>
+<p>You can use - for the smallest ID and + for the biggest ID:</p>
+<pre><code class="language-cmd">redis:6379&gt; XRANGE mystream - +
+1) 1) 1531989605376-0
+  2) 1) &quot;sensor-id&quot;
+     2) &quot;1234&quot;
+     3) &quot;temperature&quot;
+     4) &quot;19.8&quot;
+</code></pre>
+<p>When there are too many elements returned, you can limit the number of returned results, which is just like the paging when querying the database and specify it by the COUNT parameter:</p>
+<pre><code class="language-cmd">redis:6379&gt; XRANGE mystream - + COUNT 2
+1) 1) 1531989605376-0
+  2) 1) &quot;sensor-id&quot;
+     2) &quot;1234&quot;
+     3) &quot;temperature&quot;
+     4) &quot;19.8&quot;
+</code></pre>
+<p>You can also use the XREVRANGE command to reverse the query, and the usage is the same as XRANGE.</p>
+<h3 id="23-listening-for-new-elements-of-stream">2.3 Listening for new elements of stream</h3>
+<pre><code class="language-cmd">redis:6379&gt; XREAD COUNT 2 STREAMS mystream 0
+1) 1) &quot;mystream&quot;
+  2) 1) 1) 1531989605376-0
+        2) 1) &quot;sensor-id&quot;
+           2) &quot;1234&quot;
+           3) &quot;temperature&quot;
+           4) &quot;19.8&quot;
+</code></pre>
+<p>The mystream after STREAMS specifies the key of the target stream; 0 is the smallest ID, and we need to obtain the elements that is greater than the specified ID in the specified stream; COUNT refers to the number of the elements we want to obtain.</p>
+<p>Multiple streams can be specified together, such as STREAMS mystream otherstream 0 0.</p>
+<h4 id="231-blocking-listener">2.3.1 Blocking listener</h4>
+<p>If you execute the following in client 1:</p>
+<pre><code class="language-cmd">redis:6379&gt; XREAD BLOCK 0 STREAMS mystream $
+</code></pre>
+<p>it will enter the waiting state.<br>
+And if you add elements to client 2:</p>
+<pre><code class="language-cmd">redis:6379&gt; XADD mystream * test 1
+</code></pre>
+<p>the elements just added will be displayed in client 1:</p>
+<pre><code class="language-cmd">1) 1) &quot;mystream&quot;
+  2) 1) 1) 1531994510562-0
+        2) 1) &quot;test&quot;
+           2) &quot;1&quot;
+</code></pre>
+<p>0 is the specified timeout, so 0 means never timeout here; $ means the maximum ID in the stream.</p>
+<h3 id="24-consumer-group">2.4  Consumer Group</h3>
+<p>When the amount of stream is very large, or when the consumer processing is very time consuming, it'll under greater pressure if there is only one consumer. Thus redis stream provides the concept of the consumer group, allowing multiple consumers to process the same stream to implement load balancing.</p>
+<p>For example, if there are 3 consumers C1, C2, and C3, and there are 7 message elements in the stream, then the allocation for the consumers is:</p>
+<pre><code class="language-cmd">1 -&gt; C1
+2 -&gt; C2
+3 -&gt; C3
+4 -&gt; C1
+5 -&gt; C2
+6 -&gt; C3
+7 -&gt; C1
+</code></pre>
+<h2 id="原文连接">原文连接</h2>
+<p>https://web.archive.org/web/20190217140100/https://www.tutorialdocs.com/article/redis-stream-tutorial.html<br>
+https://dev.to/bajena/removing-n-oldest-entries-from-a-redis-stream-5aob</p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/tu-pian-ya-suo-gong-ju/">
+                                                    <h3 class="post-title">
+                                                        图片压缩工具
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

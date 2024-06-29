@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>油猴Tampermonkey爬虫捞取阿里法拍 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="
+在对应网页，点击油猴，添加新脚本
+
+在编辑器添加如下代码
+
+// ==UserScript==
+// @name         淘宝item
+// @namespace    http://tampermonkey.net/
+// @v..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="油猴Tampermonkey爬虫捞取阿里法拍" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="
+在对应网页，点击油猴，添加新脚本
+
+在编辑器添加如下代码
+
+// ==UserScript==
+// @name         淘宝item
+// @namespace    http://tampermonkey.net/
+// @v...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/you-hou-tampermonkey-pa-chong-lao-qu-a-li-fa-pai/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2023-05-31">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="油猴Tampermonkey爬虫捞取阿里法拍">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="油猴Tampermonkey爬虫捞取阿里法拍">
+        <meta name="twitter:description" content="
+在对应网页，点击油猴，添加新脚本
+
+在编辑器添加如下代码
+
+// ==UserScript==
+// @name         淘宝item
+// @namespace    http://tampermonkey.net/
+// @v...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    油猴Tampermonkey爬虫捞取阿里法拍
+                                </h2>
+                                <span class="article-info">
+                                    2023-05-31, 692 words, 4 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <ol>
+<li>在对应网页，点击油猴，添加新脚本<br>
+<img src="https://toomi.pages.dev/post-images/1685527172375.png" alt="" loading="lazy"></li>
+<li>在编辑器添加如下代码</li>
+</ol>
+<pre><code class="language-js">// ==UserScript==
+// @name         淘宝item
+// @namespace    http://tampermonkey.net/
+// @version      0.1
+// @description  try to take over the world!
+// @author       You
+// @match        https://sf-item.taobao.com/sf_item/713690244794.htm?spm=a213w.7398504.paiList.16.13154827Z13a5f&amp;track_id=a7eb667b-ee7a-436a-ba80-e9fab9215720
+// @icon         https://www.google.com/s2/favicons?sz=64&amp;domain=taobao.com
+// @require      https://cdn.bootcss.com/jquery/2.2.1/jquery.js
+// @grant        GM_xmlhttpRequest
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    async function sleep(ms = 0) {
+        return new Promise(r =&gt; setTimeout(r, ms));
+    }
+
+    let urlList = [];
+
+
+    var obj = {};
+
+    function lp_send_data(data) {
+        GM_xmlhttpRequest({
+            method: &quot;POST&quot;,
+            url: &quot;http://127.0.0.1:8080/doData&quot;,
+            headers: {&quot;Content-Type&quot;: &quot;application/json;charset=UTF-8&quot;},
+            data: data,
+            onload: function(response) {
+              //  window.close();
+            }
+        });
+    }
+
+
+    function getData(){
+        // 房产
+
+        obj.标题 = $('h1').text().replace(/\s*/g,&quot;&quot;);
+        // 标的物介绍
+        let bdwjs = $('#J_ItemDetailContent').text() ;
+
+        // 竞买公告
+        let jmgg = $('#NoticeDetail').text() ;
+        // 竞买须知
+        let jmxz = $('#ItemNotice').text() ;
+        // 尾款支付说明
+        let wkzfsm = $('#J_CasePayInfo').text();
+        // 竞买记录
+        let jmjl = $('#J_Confirmation').text();
+
+
+
+        getMianJi(bdwjs);
+        getMianJi(jmgg) ;
+        getShiJian(jmgg);
+        getAddr(bdwjs);
+        getBuyer(jmjl);
+        getPrice();
+
+        obj.url = window.location.href;
+        console.log(obj)
+        lp_send_data(JSON.stringify(obj));
+
+
+    }
+
+
+    function getPrice(){
+        $('#J_HoverShow td').each((idx,ele)=&gt;{
+            var bmj = $(ele).find(&quot;span.pay-mark&quot;).first().text();
+            if(bmj.includes(&quot;变卖价&quot;) || bmj.includes(&quot;起拍价&quot;)){
+                obj.起拍价 = $(ele).find(&quot;span.J_Price&quot;).contents()[0].nodeValue;
+            }
+
+            if(bmj.includes(&quot;评估价&quot;)){
+                obj.评估价 = $(ele).find(&quot;span.J_Price&quot;).contents()[0].nodeValue;
+            }
+        })
+
+    }
+
+    function getAddr(source){
+        const regex = /位置\s+(.*?)\s+地图/g;
+        const match = regex.exec(source);
+
+        if (match) {
+            obj.地址 = match[1];
+        }
+
+    }
+
+    function getBuyer(source){
+        var regex = /姓名(.*)通过竞买号/g;
+        var match = regex.exec(source);
+
+        if (match) {
+            obj.成交人 = match[1];
+        }
+        match = source.match(/¥(\d+(,\d{3})*(\.\d+)?)\b/);
+        if (match) {
+            obj.成交价 = parseFloat(match[1].replace(/,/g, ''))
+
+        }
+
+    }
+
+    // 开始拍卖时间
+    function getShiJian(source){
+        var regex = /(\d{4}年\d{1,2}月\d{1,2}日.*?\d{1,2}时).*?\s*(\d{4}年\d{1,2}月\d{1,2}日.*?\d{1,2}时)/;
+        var match = source.match(regex);
+
+        if (match) {
+            const startTime = match[1];
+            const endTime = match[2];
+            obj.起拍时间 = startTime;
+            obj.结束时间 = endTime;
+        }else{
+            regex = /(\d{4}年\d{1,2}月\d{1,2}日.*?).*?\s*(\d{4}年\d{1,2}月\d{1,2}日.*?)/;;
+            match = source.match(regex);
+            if (match) {
+                const startTime = match[1];
+                const endTime = match[2];
+                obj.起拍时间 = startTime;
+                obj.结束时间 = endTime;
+            }
+
+        }
+
+        regex = /看样时间.*?(\d{4}年\d{1,2}月\d{1,2}日).*/;
+        match = source.match(regex);
+        if (match) {
+            obj.看样时间 = match[1];
+        }
+
+    }
+
+    function getMianJi(source){
+        var regex = /建筑面积.*?(\d+\.?\d+).*?/;
+        var result = source.match(regex);
+        if(result){
+            obj.建筑面积 = result[1];;
+        }
+
+        regex = /套内建筑面积.*?(\d+\.?\d).*?/;
+        result = source.match(regex);
+        if(result){
+            obj.套内面积 = result[1];
+        }
+
+        regex = /土地面积.*?(\d+\.?\d).*?/;
+        result = source.match(regex);
+        if(result){
+            obj.土地面积 = result[1];
+        }
+
+
+        //  console.log(`建筑面积：${buildingArea} 平方米，套内面积：${innerArea} 平方米`);
+
+
+    }
+
+    async function doList(){
+        $(&quot;.tab-menu li&quot;).each((idx,item)=&gt;{
+            urlList.push(item);
+        });
+
+        for (let i = 0; i &lt; urlList.length; i++) {
+            $(urlList[i]).click();
+            await sleep(1000);
+        }
+        getData();
+    }
+
+
+// 页面加载完成后，再执行脚本
+    window.addEventListener('load', function (evt) {
+
+        doList();
+
+    }, false);
+    // Your code here...
+})();
+</code></pre>
+<h2 id="关键代码段">关键代码段</h2>
+<ol>
+<li>引用Jquery <code>@require      https://cdn.bootcss.com/jquery/2.2.1/jquery.js</code></li>
+<li>授权发起异步请求 <code>@grant        GM_xmlhttpRequest</code></li>
+</ol>
+<h2 id="参考">参考</h2>
+<p>https://pylab.me/blog/post/python_spider_with_tampermonkey_s1</p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/you-hou-tampermonkey-pa-chong/">
+                                                    <h3 class="post-title">
+                                                        油猴Tampermonkey爬虫
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

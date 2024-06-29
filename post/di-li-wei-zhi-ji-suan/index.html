@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>地理位置计算 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="Java 获取指定范围内的经纬度, 用的是正方形范围，而不是圆形
+
+import javax.validation.constraints.NotNull;
+
+/**
+ * 经纬度信息
+ */
+public class GeoService..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="地理位置计算" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="Java 获取指定范围内的经纬度, 用的是正方形范围，而不是圆形
+
+import javax.validation.constraints.NotNull;
+
+/**
+ * 经纬度信息
+ */
+public class GeoService...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/di-li-wei-zhi-ji-suan/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2022-12-07">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="地理位置计算">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="地理位置计算">
+        <meta name="twitter:description" content="Java 获取指定范围内的经纬度, 用的是正方形范围，而不是圆形
+
+import javax.validation.constraints.NotNull;
+
+/**
+ * 经纬度信息
+ */
+public class GeoService...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    地理位置计算
+                                </h2>
+                                <span class="article-info">
+                                    2022-12-07, 532 words, 3 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <p>Java 获取指定范围内的经纬度, 用的是正方形范围，而不是圆形</p>
+<pre><code class="language-java">
+import javax.validation.constraints.NotNull;
+
+/**
+ * 经纬度信息
+ */
+public class GeoService {
+
+    /**
+     * 当前定位的纬度
+     */
+    Double latitude;
+    // 当前定位经度
+    Double longitude;
+
+    /**
+     * 每米的经度
+     */
+    private final double longitudeMi = 0.00001141;
+    /**
+     * 每米的纬度
+     */
+    private final double latitudeMi = 0.00000899;
+
+
+    private static final double EARTH_RADIUS = 6378137;//赤道半径
+
+    private static double rad(double d) {
+        return d * Math.PI / 180.0;
+    }
+
+    /**
+     * 获取当前定位与另一个坐标的距离
+     *
+     * @param latitude
+     * @param longitude
+     * @return
+     */
+    public double getDistance(double latitude, double longitude) {
+        if (this.latitude &lt;=0 ){
+            return 0;
+        }
+        double radLat1 = rad(this.latitude);
+        double radLat2 = rad(latitude);
+        double a = radLat1 - radLat2;
+        double b = rad(this.longitude) - rad(longitude);
+        double s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(a / 2), 2) + Math.cos(radLat1) * Math.cos(radLat2) * Math.pow(Math.sin(b / 2), 2)));
+        s = s * EARTH_RADIUS;
+        return s;//单位 米
+    }
+
+
+    public GeoService(@NotNull double latitude, @NotNull double longitude) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
+
+    /**
+     * 获取指定范围的经度左偏移量
+     *
+     * @param distance
+     * @return
+     */
+    public double getLongitudeLeft(int distance) {
+        return longitude - this.longitudeMi * distance;
+    }
+
+    /**
+     * 获取指定范围的经度右偏移量
+     *
+     * @param distance
+     * @return
+     */
+    public double getLongitudeRight(int distance) {
+        return longitude + this.longitudeMi * distance;
+    }
+    /**
+     * 获取指定范围的纬度左偏移量
+     *
+     * @param distance
+     * @return
+     */
+    public double getLatitudeLeft(int distance) {
+        return latitude - this.latitudeMi * distance;
+    }
+
+    public double getLatitudeRight(int distance) {
+        return latitude + this.latitudeMi * distance;
+    }
+
+}
+</code></pre>
+<p>javascript 腾讯地图转百度地图坐标</p>
+<pre><code class="language-javascript">/**
+* 坐标转换，百度地图坐标转换成腾讯地图坐标
+* lng 腾讯经度（pointy）
+* lat 腾讯纬度（pointx）
+* 经度&gt;纬度
+*/
+function bMapToQQMap(lng, lat) {
+
+    if (lng == null || lng == '' || lat == null || lat == '')
+        return [lng, lat];
+
+    var x_pi = 3.14159265358979324;
+    var x = parseFloat(lng) - 0.0065;
+    var y = parseFloat(lat) - 0.006;
+    var z = Math.sqrt(x * x + y * y) - 0.00002 * Math.sin(y * x_pi);
+    var theta = Math.atan2(y, x) - 0.000003 * Math.cos(x * x_pi);
+    var lng = (z * Math.cos(theta)).toFixed(7);
+    var lat = (z * Math.sin(theta)).toFixed(7);
+
+    return [lng, lat];
+
+}
+
+/**
+* 坐标转换，腾讯地图转换成百度地图坐标
+* lng 腾讯经度（pointy）
+* lat 腾讯纬度（pointx）
+* 经度&gt;纬度
+*/
+
+function qqMapToBMap(lng, lat) {
+
+    if (lng == null || lng == '' || lat == null || lat == '')
+        return [lng, lat];
+
+    var x_pi = 3.14159265358979324;
+    var x = parseFloat(lng);
+    var y = parseFloat(lat);
+    var z = Math.sqrt(x * x + y * y) + 0.00002 * Math.sin(y * x_pi);
+    var theta = Math.atan2(y, x) + 0.000003 * Math.cos(x * x_pi);
+    var lng = (z * Math.cos(theta) + 0.0065).toFixed(5);
+    var lat = (z * Math.sin(theta) + 0.006).toFixed(5);
+    return [lng, lat];
+
+}
+</code></pre>
+<p>参考<br>
+https://www.cnblogs.com/zyulike/p/11812534.html</p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/java-9-xin-te-xing-compact-strings/">
+                                                    <h3 class="post-title">
+                                                        Java 9 新特性 - Compact Strings
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

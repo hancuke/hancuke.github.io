@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>AbstractQueuedSynchronizer implementation  (principle - 1) | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="Preface
+AbstractQueuedSynchronizer is the basic framework for implementing concurrency tools in the JDK, and a deeper un..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="AbstractQueuedSynchronizer implementation  (principle - 1)" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="Preface
+AbstractQueuedSynchronizer is the basic framework for implementing concurrency tools in the JDK, and a deeper un...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/abstractqueuedsynchronizer-implementation-principle-1/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2022-12-15">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="AbstractQueuedSynchronizer implementation  (principle - 1)">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="AbstractQueuedSynchronizer implementation  (principle - 1)">
+        <meta name="twitter:description" content="Preface
+AbstractQueuedSynchronizer is the basic framework for implementing concurrency tools in the JDK, and a deeper un...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    AbstractQueuedSynchronizer implementation  (principle - 1)
+                                </h2>
+                                <span class="article-info">
+                                    2022-12-15, 523 words, 4 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <h2 id="preface">Preface</h2>
+<p><strong>AbstractQueuedSynchronizer</strong> is the basic framework for implementing concurrency tools in the JDK, and a deeper understanding of it will help us to better use its features and related tools. We hope you will read this article carefully and gain something from it.</p>
+<p>In Java, access to shared resources by multiple threads is controlled by lock. We know that the lock function can be implemented by the synchronized keyword, which can implicitly acquire locks, that is, we do not need to care about the process of acquiring and releasing locks by using this keyword, but while it provides convenience, it also means that its flexibility is reduced. For example, there is a scenario where lock A is acquired first, then lock B is acquired, when lock B is acquired, lock A is released and lock C is acquired, when lock C is acquired, then lock B is released and lock D is acquired, and so on. After Java SE 5, a new Lock interface and a series of implementation classes were added to provide the same functionality as the synchronized keyword, which requires us to display the lock acquisition and release, in addition to providing synchronization features such as interruptible lock acquisition operations and timeout lock acquisition. Most of the Lock interface implementation classes provided in the JDK aggregate a subclass of the synchronizer AQS to achieve multi-threaded access control, so let’s take a look at the basic framework for building locks and other synchronization components - AQS ( AbstractQueuedSynchronizer)</p>
+<h2 id="aqs-basic-data-structure">AQS basic data structure</h2>
+<h3 id="synchronized-queues">Synchronized Queues</h3>
+<p>When a thread fails to obtain the synchronization status, the synchronizer encapsulates the current thread and the current waiting status into an internally defined node Node and then adds it to the queue. When the synchronization state is released, the first node in the synchronization queue is woken up and allowed to try to get the synchronization state again. The basic structure of the synchronization queue is as follows.<br>
+<img src="https://toomi.pages.dev/post-images/1671096657736.png" alt="" loading="lazy"></p>
+<h2 id="queue-node">Queue Node</h2>
+<p>The synchronous queue uses the static internal class Node in the synchronizer to hold references to threads that get synchronized state, the wait state of the thread, the predecessor node and the successor node.<br>
+<img src="https://toomi.pages.dev/post-images/1671096706437.png" alt="" loading="lazy"></p>
+<p>The names and specific meanings of the attributes of the Node nodes in the synchronous queue are shown in the following table.</p>
+<table>
+<thead>
+<tr>
+<th>attribute type and name</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>volatile int waitStatus</td>
+<td>The wait status of the current node in the queue</td>
+</tr>
+<tr>
+<td>volatile Node prev</td>
+<td>The predecessor node that is assigned when the node is added to the synchronization queue (using the tail-add method)</td>
+</tr>
+<tr>
+<td>volatile Node next</td>
+<td>the successor node</td>
+</tr>
+<tr>
+<td>volatile Thread thread</td>
+<td>The thread that gets the synchronization status</td>
+</tr>
+<tr>
+<td>Node nextWaiter</td>
+<td>waits for the successor node in the queue, or if the current node is shared, this field is a SHARED constant</td>
+</tr>
+</tbody>
+</table>
+<p>Each node thread has two lock modes, SHARED means that the thread waits for the lock in shared mode and EXCLUSIVE means that the thread waits for the lock in exclusive mode. Also the wait status waitStatus of each node can only take enumerated values from the following table.</p>
+<h2 id="source">source</h2>
+<p>https://www.javai.net/post/202204/java-aqs-principle-1/</p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/elasticsearch-de-terms-lookup-cha-xun/">
+                                                    <h3 class="post-title">
+                                                        Elasticsearch 的 terms lookup 查询
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

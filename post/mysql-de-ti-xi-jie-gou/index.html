@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>MySQL的体系结构 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="整体架构
+
+从Mysql官网提供的体系结构图中可以看出来出来，整个mysql分为以下几部分
+
+MyISAM不支持事务(不支持ACID),InnoDB支持事务(支持ACID)
+使用DML语句时，MyISAM锁级别是表锁，同一时间只支持一个se..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="MySQL的体系结构" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="整体架构
+
+从Mysql官网提供的体系结构图中可以看出来出来，整个mysql分为以下几部分
+
+MyISAM不支持事务(不支持ACID),InnoDB支持事务(支持ACID)
+使用DML语句时，MyISAM锁级别是表锁，同一时间只支持一个se...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/mysql-de-ti-xi-jie-gou/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2022-11-17">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="MySQL的体系结构">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="MySQL的体系结构">
+        <meta name="twitter:description" content="整体架构
+
+从Mysql官网提供的体系结构图中可以看出来出来，整个mysql分为以下几部分
+
+MyISAM不支持事务(不支持ACID),InnoDB支持事务(支持ACID)
+使用DML语句时，MyISAM锁级别是表锁，同一时间只支持一个se...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    MySQL的体系结构
+                                </h2>
+                                <span class="article-info">
+                                    2022-11-17, 688 words, 3 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <h2 id="整体架构">整体架构</h2>
+<p><img src="https://toomi.pages.dev/post-images/1668649013263.png" alt="mysql架构" loading="lazy"><br>
+从Mysql官网提供的体系结构图中可以看出来出来，整个mysql分为以下几部分</p>
+<ol>
+<li>MyISAM不支持事务(不支持ACID),InnoDB支持事务(支持ACID)</li>
+<li>使用DML语句时，MyISAM锁级别是表锁，同一时间只支持一个session修改表,而InnoDB是行锁,粒度更细，并发更高</li>
+<li>MyISAM不支持外键,InnoDB支持</li>
+<li>MyISAM写入速度慢,查询速度快，InnoDB写入快，查询慢(相对)</li>
+<li>InnoDB因为支持事务，所以更可靠，MyISAM无法保证数据完整性</li>
+<li>MyISAM只存储索引，不缓存数据，支持全文索引,InnoDB缓存索引以及数据,不支持全文索引(5.6之前)</li>
+</ol>
+<p>所以在选择哪个引擎的时候要根据实际业务选择，比如某个业务只会插入一次数据，后面的都只有查询,那么我就建议使用MyISAM，如果需要支持事务那就用InnoDB。</p>
+<h2 id="innodb引擎">InnoDB引擎</h2>
+<p>由于我们平时使用多的还是InnoDB引擎，所以这里主要剖析下InnoDB的存储结构(MyISAM和InnoDB在存储结构上是类似的)<br>
+<img src="https://toomi.pages.dev/post-images/1668649153668.png" alt="" loading="lazy"></p>
+<blockquote>
+<p>5.7和8.0有些许不一致，主要是系统表空间的一些内容会移动到单独的表空间中去</p>
+</blockquote>
+<p>为了保证数据不丢失,我们的数据必须要落盘,但是如果每次增删改查都去操作磁盘，那效率太低了，所以mysql会在内存中抽象出一份数据结构和磁盘一一对应，这样我们每次的增删改查就会优先操作内存中的数据。</p>
+<p>咱们插入的数据是存储在磁盘的,而平时我们通过Navicate或者shell查询出来的数据，展现形式为表格，并不代表我们的数据也是这样直接这样存储在磁盘上的，磁盘上的数据有自己的格式。</p>
+<p>比如我们将数据存在在文件是这样存储的</p>
+<pre><code class="language-js">user.id=1
+user.name=think123
+user.age=18
+</code></pre>
+<h2 id="内存结构">内存结构</h2>
+<p>将内存中数据刷新到磁盘并不是一条数据一条数据从内存刷新到磁盘的，为了效率，InnoDB将数据划分为若干个页，以页作为磁盘和内存之间交互的基本单位，InnoDB中页的⼤⼩⼀般为 16KB,和磁盘上默认的页大小一致。</p>
+<p>也就是在⼀般情况下，⼀次少从磁盘中读取16KB的内容到内存中，⼀次少把内存中的16KB内容刷新到磁盘中。</p>
+<p>而内存数据结构主要分为 Buffer Pool(缓冲池) 和 Log Buffer(日志缓冲)，它们管理的都是页，而页中存储的是数据。</p>
+<h2 id="原文">原文</h2>
+<p>https://z.itpub.net/article/detail/3E097E5138AA4A892D4BA75704C34B07</p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/data-structures-and-algorithms/">
+                                                    <h3 class="post-title">
+                                                        Data Structures and Algorithms
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

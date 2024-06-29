@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>Oracle apex 上传图片 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="apex文件上传流程如下:
+
+创建类型为 file browser 的页面项
+提交页面后,apex自动将文件上传到临时表 APEX_APPLICATION_TEMP_FILES 中
+将临时表APEX_APPLICATION_TEMP_FIL..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="Oracle apex 上传图片" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="apex文件上传流程如下:
+
+创建类型为 file browser 的页面项
+提交页面后,apex自动将文件上传到临时表 APEX_APPLICATION_TEMP_FILES 中
+将临时表APEX_APPLICATION_TEMP_FIL...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/oracle-apex-shang-chuan-tu-pian/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2022-09-29">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="Oracle apex 上传图片">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="Oracle apex 上传图片">
+        <meta name="twitter:description" content="apex文件上传流程如下:
+
+创建类型为 file browser 的页面项
+提交页面后,apex自动将文件上传到临时表 APEX_APPLICATION_TEMP_FILES 中
+将临时表APEX_APPLICATION_TEMP_FIL...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    Oracle apex 上传图片
+                                </h2>
+                                <span class="article-info">
+                                    2022-09-29, 468 words, 3 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <p>apex文件上传流程如下:</p>
+<ol>
+<li>创建类型为 file browser 的页面项</li>
+<li>提交页面后,apex自动将文件上传到临时表 APEX_APPLICATION_TEMP_FILES 中</li>
+<li>将临时表APEX_APPLICATION_TEMP_FILES 中的数据报存到自己的正式表中</li>
+</ol>
+<h2 id="创建自定义表">创建自定义表</h2>
+<p>创建一个自定义的表,用于保存上传的文件</p>
+<pre><code class="language-sql">create table bhsc_files 
+as select * 
+from APEX_APPLICATION_TEMP_FILES
+ where 1=2;
+</code></pre>
+<h2 id="创建页面项page-item">创建页面项(page item)</h2>
+<ol>
+<li>创建页面项,type为 <code>file browser</code></li>
+</ol>
+<figure data-type="image" tabindex="1"><img src="https://i.loli.net/2019/03/01/5c78abcf727b5.png" alt="page item type" loading="lazy"></figure>
+<ol start="2">
+<li>Storage Type 设为 <code>Table APEX_APPLICATION_TEMP_FILES</code></li>
+</ol>
+<figure data-type="image" tabindex="2"><img src="https://i.loli.net/2019/03/01/5c78aca54a015.png" alt="storage type" loading="lazy"></figure>
+<ol start="3">
+<li>Purge File at 设为 <code>End of Request</code></li>
+</ol>
+<figure data-type="image" tabindex="3"><img src="https://i.loli.net/2019/03/01/5c78ace454cfe.png" alt="purge file" loading="lazy"></figure>
+<h2 id="创建页面processing">创建页面Processing</h2>
+<p>下一步就是需要将APEX_APPLICATION_TEMP_FILES表中的数据保存起来,创建一个processing,语句如下</p>
+<pre><code class="language-sql">begin
+insert into bhsc_files  select * from APEX_APPLICATION_TEMP_FILES;
+end;
+</code></pre>
+<figure data-type="image" tabindex="4"><img src="https://i.loli.net/2019/03/01/5c78ae3c42f3a.png" alt="保存文件" loading="lazy"></figure>
+<h2 id="创建提交页面的button">创建提交页面的button</h2>
+<p>最后创建一个提交页面的按钮,提交页面后就保存到数据库了。</p>
+<h2 id="附件下载">附件下载</h2>
+<ol>
+<li>跳转到共享组件(shared components) --&gt; Application Processes</li>
+</ol>
+<figure data-type="image" tabindex="5"><img src="https://i.loli.net/2019/03/05/5c7e33016e39c.png" alt="创建应用过程" loading="lazy"></figure>
+<ol start="2">
+<li>
+<p>创建一个名为 <code>APP_FILE_ID</code>的Application item , scope为 <code>Application</code>,Session State Protection为 <code>Unrestricted</code></p>
+</li>
+<li>
+<p>创建一个名为 <code>APP_DOWNLOAD_FILE</code>,Process Point为 <code>Ajax Callback</code>的过程，代码如下：</p>
+</li>
+</ol>
+<pre><code class="language-sql">begin
+    for c1 in (select * from bhsc_files  
+                where id = :APP_FILE_ID) loop
+        sys.htp.init;
+        sys.owa_util.mime_header( c1.mime_type, FALSE );
+        sys.htp.p('Content-length: ' || sys.dbms_lob.getlength( c1.blob_content));
+        sys.htp.p('Content-Disposition: attachment; filename=&quot;' || c1.filename || '&quot;' );
+        sys.htp.p('Cache-Control: max-age=3600');  -- tell the browser to cache for one hour, adjust as necessary
+        sys.owa_util.http_header_close;
+        sys.wpg_docload.download_file( c1.blob_content );
+     
+        apex_application.stop_apex_engine;
+    end loop;
+end;
+</code></pre>
+<figure data-type="image" tabindex="6"><img src="https://i.loli.net/2019/03/05/5c7e33bd8914a.png" alt="创建Application Processes" loading="lazy"></figure>
+<ol start="4">
+<li>在页面上创建一个区域(region)，类型为 classic report,语句如下：</li>
+</ol>
+<pre><code class="language-sql">select id,name,filename,null download_link from bhsc_files  
+</code></pre>
+<ol start="5">
+<li>设置download_link字段的类型为 <code>link</code>,target为 <code>page in this application</code>,page为 <code>0</code>,set item设置 <code>APP_FILE_ID</code>为 <code>#ID#</code>,advanced那里设置request值为 <code>APPLICATION_PROCESS=APP_DOWNLOAD_FILE</code> 具体信息如下</li>
+</ol>
+<figure data-type="image" tabindex="7"><img src="https://i.loli.net/2019/03/05/5c7e38e6bd414.png" alt="下载" loading="lazy"></figure>
+<h2 id="附件删除">附件删除</h2>
+<p>附件删除的步骤与附件下载相同，一样是创建一个名为 <code>APP_DELETE_FILE</code>的Application Processes,代码如下</p>
+<pre><code class="language-sql">begin
+    for c1 in (select * from bhsc_files
+                where id = :APP_FILE_ID) loop
+        delete from bhsc_files where  id = :APP_FILE_ID;
+    end loop;
+end;
+</code></pre>
+<p>在下载报表那里加多一个字段，字段设置为link，request值为 <code>APPLICATION_PROCESS=APP_DELETE_FILE</code></p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/i-am-back/">
+                                                    <h3 class="post-title">
+                                                        i am back 
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

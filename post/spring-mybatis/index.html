@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>spring mybatis | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="Mybatis执行SQL的完整过程
+一切的执行从MapperProxy开始，MapperProxy是MapperProxyFactory使用SqlSession创建出来的。所以MapperProxy中包含SqlSession
+
+可以看到Ma..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="spring mybatis" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="Mybatis执行SQL的完整过程
+一切的执行从MapperProxy开始，MapperProxy是MapperProxyFactory使用SqlSession创建出来的。所以MapperProxy中包含SqlSession
+
+可以看到Ma...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/spring-mybatis/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2023-03-16">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="spring mybatis">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="spring mybatis">
+        <meta name="twitter:description" content="Mybatis执行SQL的完整过程
+一切的执行从MapperProxy开始，MapperProxy是MapperProxyFactory使用SqlSession创建出来的。所以MapperProxy中包含SqlSession
+
+可以看到Ma...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    spring mybatis
+                                </h2>
+                                <span class="article-info">
+                                    2023-03-16, 1039 words, 5 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <h2 id="mybatis执行sql的完整过程">Mybatis执行SQL的完整过程</h2>
+<p>一切的执行从MapperProxy开始，MapperProxy是MapperProxyFactory使用SqlSession创建出来的。所以MapperProxy中包含SqlSession<br>
+<img src="https://toomi.pages.dev/post-images/1678956593580.png" alt="" loading="lazy"></p>
+<p>可以看到MapperProxy调用invoke方法，进而调用<code>MapperMethod</code>的<code>execute()</code>，这些<code>MapperMethod</code> 就是和你要执行的命令相关，比如执行select语句，则会通过 <code>SqlSession</code>的select()方法，最终调用到<code>Executor</code>的<code>query</code>方法。Executor会再协调另外三个核心组件。</p>
+<ul>
+<li>MapperProxyFactory用来创建MapperProxy，这个factory其实主要就是完成了InvokeHandler的bindTarget的功能。而MapperProxy只需要完成invoke方法的功能。</li>
+<li>MapperProxy包含SqlSession</li>
+<li>SqlSesion包含四大组件Executor，StatementHandler，ParameterHandler，ResultHandler。还包含Configuration</li>
+<li>Configuration可以创建四大组件，同时Configuration还包含InterceptorChain，通过调用interceptorChain的pluginAll()方法，完成针对四大组件的插件的动态代理链的创建。</li>
+</ul>
+<h2 id="mapperproxy">MapperProxy</h2>
+<ul>
+<li>因为Mapper接口不能直接被实例化，Mybatis利用JDK动态代理，创建MapperProxy间接实例化Mapper对象。</li>
+<li>MapperProxy还可以缓存MapperMethod对象</li>
+</ul>
+<h2 id="mappermethod">MapperMethod</h2>
+<ul>
+<li>负责解析Mapper接口的方法，并封装成MapperMethod对象</li>
+<li>将Sql命令的执行路由到恰当的SqlSesison方法上</li>
+</ul>
+<h2 id="插件的构建">插件的构建</h2>
+<p>谈原理首先要知道StatementHandler，ParameterHandler，Result Handler都是代理，他们是Configuration创建，在创建过程中会调用interceptorChain.pluginAll()方法，为四大组件组装插件（再底层是通过Plugin.wrap(target,XX, new Plugin( interceptor))来来创建的）。</p>
+<h2 id="插件链是何时构建的">插件链是何时构建的</h2>
+<p>在执行SqlSession的query或者update方法时，SqlSession会通过Configuration创建Executor代理，在创建过程中就调用interceptor的pluginAll方法组装插件。然后executor在调用doQuery（）方法的时候，也会调用Configuration的newStatementHandler方法创建StatemenHandler（和上面描述的一样，这个handler就是个代理，也是通过interceptorChain的pluginAll方法构建插件）</p>
+<h2 id="插件如何执行">插件如何执行</h2>
+<p>以statementhandler的prepare方法的插件为例，正如前面所说，statementhandler是一个proxy，执行他的prepare方法，将调用invokeHandler的invoke方法，而invokeHandler就是Plugin.wrap(target, xxx, new Plugin(interceptor))中的第三个参数，所以很自然invokeHanlder的invoke的方法最终就会调用interceptor对象的intercept方法。</p>
+<h2 id="例子">例子</h2>
+<pre><code class="language-java">package org.example;
+
+import javax.sql.DataSource;
+import org.apache.ibatis.mapping.Environment;
+import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.apache.ibatis.transaction.TransactionFactory;
+import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
+import org.example.mapper.StudentMapper;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
+
+public class WithoutSpringRunner {
+    public static void main(String[] args) {
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName(&quot;com.mysql.cj.jdbc.Driver&quot;);
+        dataSource.setUrl(&quot;jdbc:mysql://129.1.1.194:3386/erp?useSSL=false&amp;serverTimezone=GMT%2B8&quot;);
+        dataSource.setUsername(&quot;erp&quot;);
+        dataSource.setPassword(&quot;xxxxxx&quot;);
+
+
+        TransactionFactory transactionFactory =
+                new JdbcTransactionFactory();
+        Environment environment =
+                new Environment(&quot;development&quot;, transactionFactory, dataSource);
+        Configuration configuration = new Configuration(environment);
+         configuration.addMapper(StudentMapper.class);
+        SqlSessionFactory sqlSessionFactory =
+                new SqlSessionFactoryBuilder().build(configuration);
+
+        try (SqlSession session = sqlSessionFactory.openSession()) {
+            StudentMapper userMapper = session.getMapper(StudentMapper.class);
+            //这里能够执行findAll说明userMapper是一个实例，那一定是在getMapper中发生了实例化
+            userMapper.getAllStudent().forEach(System.out::println);
+        }
+    }
+} 
+</code></pre>
+<p>从上面的例子的getMapper()方法中点进去，一直往里跟，最后会走到org.apache.ibatis.binding.MapperRegistry#getMapper这个方法。</p>
+<pre><code class="language-java">  public &lt;T&gt; T getMapper(Class&lt;T&gt; type, SqlSession sqlSession) {
+    final MapperProxyFactory&lt;T&gt; mapperProxyFactory = (MapperProxyFactory&lt;T&gt;) knownMappers.get(type);
+    if (mapperProxyFactory == null) {
+      throw new BindingException(&quot;Type &quot; + type + &quot; is not known to the MapperRegistry.&quot;);
+    }
+    try {
+      return mapperProxyFactory.newInstance(sqlSession);
+    } catch (Exception e) {
+      throw new BindingException(&quot;Error getting mapper instance. Cause: &quot; + e, e);
+    }
+  }
+</code></pre>
+<p>这里可以看到我们的UserMapper是从knownMappers这个map里拿出来的，那必然是有地方放进去的，发现是通过configuration.addMapper(UserMapper.class);这行代码将UserMapper放到knownMappers中。这里实际调用的是org.apache.ibatis.binding.MapperRegistry#addMapper</p>
+<pre><code class="language-java">  public &lt;T&gt; void addMapper(Class&lt;T&gt; type) {
+    if (type.isInterface()) {
+      if (hasMapper(type)) {
+        throw new BindingException(&quot;Type &quot; + type + &quot; is already known to the MapperRegistry.&quot;);
+      }
+      boolean loadCompleted = false;
+      try {
+        knownMappers.put(type, new MapperProxyFactory&lt;&gt;(type));
+        // It's important that the type is added before the parser is run
+        // otherwise the binding may automatically be attempted by the
+        // mapper parser. If the type is already known, it won't try.
+        MapperAnnotationBuilder parser = new MapperAnnotationBuilder(config, type);
+        parser.parse();
+        loadCompleted = true;
+      } finally {
+        if (!loadCompleted) {
+          knownMappers.remove(type);
+        }
+      }
+    }
+  }
+</code></pre>
+<p>可以看到mybatis为我们的mapper封装了一个MapperProxyFactory对象，我们的mapper接口信息最终存在了这个对象的mapperInterface属性中，在getMapper()时，通过jdk动态代理生成代理对象，这个代理对象里面完成了对JDBC的封装，执行了真正的数据库操作。</p>
+<h2 id="原文">原文</h2>
+<p>https://www.cnblogs.com/baichunyu/p/11208524.html<br>
+https://github.com/oneone1995/blog/issues/12</p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/beanfactorypostprocessor-he-beanpostprocessor-de-qu-bie/">
+                                                    <h3 class="post-title">
+                                                        Spring 容器启动
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

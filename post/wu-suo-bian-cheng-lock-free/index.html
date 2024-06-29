@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>无锁编程lock-free | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="什么是lock-free，简单的说就是不直接使用锁，减少锁在系统中占用的开销。相比于基于锁的算法而言，Lock-free 算法具有明显的特征：某个线程在执行数据访问时挂起不会阻碍其他的线程继续执行（某个线程持有锁之后挂起，导致其他的线程没有..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="无锁编程lock-free" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="什么是lock-free，简单的说就是不直接使用锁，减少锁在系统中占用的开销。相比于基于锁的算法而言，Lock-free 算法具有明显的特征：某个线程在执行数据访问时挂起不会阻碍其他的线程继续执行（某个线程持有锁之后挂起，导致其他的线程没有...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/wu-suo-bian-cheng-lock-free/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2022-12-13">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="无锁编程lock-free">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="无锁编程lock-free">
+        <meta name="twitter:description" content="什么是lock-free，简单的说就是不直接使用锁，减少锁在系统中占用的开销。相比于基于锁的算法而言，Lock-free 算法具有明显的特征：某个线程在执行数据访问时挂起不会阻碍其他的线程继续执行（某个线程持有锁之后挂起，导致其他的线程没有...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    无锁编程lock-free
+                                </h2>
+                                <span class="article-info">
+                                    2022-12-13, 618 words, 3 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <p>什么是lock-free，简单的说就是不直接使用锁，减少锁在系统中占用的开销。相比于基于锁的算法而言，Lock-free 算法具有明显的特征：某个线程在执行数据访问时挂起不会阻碍其他的线程继续执行（某个线程持有锁之后挂起，导致其他的线程没有办法申请锁）。这意味着在任意时刻，多个 lock-free 线程可以同时访问同一数据而不产生数据竞争。</p>
+<p>上面的定义保证了 lock-free 程序中的一组线程中至少有一个可以顺利的执行而不产生阻塞，从而确保整个程序的顺利执行。lock-free中常见的就是使用cas来代替加锁。</p>
+<h2 id="1-非阻塞数据结构non-blocking-data-structures">1. 非阻塞数据结构（Non-Blocking Data Structures）</h2>
+<p>在算法上实现非阻塞难度大，可以利用特定的数据结构实现，非阻塞数据结构可以氛围以下三类</p>
+<h3 id="11-obstruction-free">1.1. Obstruction-Free</h3>
+<p>当其他所有线程都挂起（suspended）的时候，可以保证有一个线程可以完成对共享资源的操作<br>
+Obstruction-freedom is the weakest form of a non-blocking data structure. Here, <strong>we only require that a thread is guaranteed to proceed if all other threads are suspended.</strong></p>
+<p>More precisely, a thread won't continue to starve if all other threads are suspended. This is different from using locks in that sense, that if the thread was waiting for a lock and a thread that holds the lock is suspended, the waiting thread would wait forever.</p>
+<h3 id="12-lock-free">1.2. Lock-Free</h3>
+<p>在任意时间，至少有一个线程可以完成对共享资源的操作。<br>
+A data structure provides lock-freedom if, <strong>at any time, at least one thread can proceed.</strong> All other threads may be starving. The difference to obstruction-freedom is that there is at least one non-starving thread even if no threads are suspended.</p>
+<h3 id="13-wait-free">1.3 Wait-Free</h3>
+<p>所有线程都能保证在有限的步骤或时间内，完成对共享资源的操作<br>
+A data structure is wait-free if it's lock-free and every thread is guaranteed to proceed after a finite number of steps, that is, threads will not starve for an “unreasonably large” number of steps.</p>
+<h3 id="14-summary">1.4 Summary</h3>
+<p>Let's summarize these definitions in graphical representation:<br>
+<img src="https://toomi.pages.dev/post-images/1670989255772.png" alt="" loading="lazy"></p>
+<ul>
+<li>The first part of the image shows obstruction-freedom as Thread 1 (top thread) can proceed (green arrow) as soon we suspend the other threads (at the bottom in yellow).</li>
+<li>The middle part shows lock-freedom. At least Thread 1 can progress while others may be starving (red arrow).</li>
+<li>The last part shows wait-freedom. Here, we guarantee that Thread 1 can continue (green arrow) after a certain period of starvation (red arrows).</li>
+</ul>
+<h2 id="参考链接">参考链接</h2>
+<p>https://www.jianshu.com/p/d6eb7b58731f<br>
+https://www.baeldung.com/lock-free-programming<br>
+https://www.cnblogs.com/gaochundong/p/lock_free_programming.html</p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/sql-server-huo-qu-identity-lie-zhi/">
+                                                    <h3 class="post-title">
+                                                        sql server 获取IDENTITY列值
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

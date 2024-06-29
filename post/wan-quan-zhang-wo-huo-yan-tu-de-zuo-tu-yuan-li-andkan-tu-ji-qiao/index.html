@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>完全掌握火焰图的作图原理&amp;看图技巧 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="概要
+有好长一段时间，兴趣爱好都落在了程序性能观测这个领域。之所以有兴趣，一来是解决一下工作中的问题，在这平淡的生活中寻找一丝快乐；二来也是想以史为鉴，以后在自己的代码里尽可能不要犯同样的错。
+当局者迷，会体现在生活中的方方面面，正如写程序..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="完全掌握火焰图的作图原理&amp;看图技巧" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="概要
+有好长一段时间，兴趣爱好都落在了程序性能观测这个领域。之所以有兴趣，一来是解决一下工作中的问题，在这平淡的生活中寻找一丝快乐；二来也是想以史为鉴，以后在自己的代码里尽可能不要犯同样的错。
+当局者迷，会体现在生活中的方方面面，正如写程序...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/wan-quan-zhang-wo-huo-yan-tu-de-zuo-tu-yuan-li-andkan-tu-ji-qiao/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2022-11-26">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="完全掌握火焰图的作图原理&amp;看图技巧">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="完全掌握火焰图的作图原理&amp;看图技巧">
+        <meta name="twitter:description" content="概要
+有好长一段时间，兴趣爱好都落在了程序性能观测这个领域。之所以有兴趣，一来是解决一下工作中的问题，在这平淡的生活中寻找一丝快乐；二来也是想以史为鉴，以后在自己的代码里尽可能不要犯同样的错。
+当局者迷，会体现在生活中的方方面面，正如写程序...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    完全掌握火焰图的作图原理&amp;看图技巧
+                                </h2>
+                                <span class="article-info">
+                                    2022-11-26, 1691 words, 7 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <h2 id="概要">概要</h2>
+<p>有好长一段时间，兴趣爱好都落在了程序性能观测这个领域。之所以有兴趣，一来是解决一下工作中的问题，在这平淡的生活中寻找一丝快乐；二来也是想以史为鉴，以后在自己的代码里尽可能不要犯同样的错。</p>
+<p>当局者迷，会体现在生活中的方方面面，正如写程序的人不知道程序的哪个函数会成为热点一样，我以前上来就是一张火焰图，也没有交代这个怎么得来的，现在准备把这一块补一下。</p>
+<h2 id="造场景">造场景</h2>
+<p>火焰图可用来分析程序中的热点函数，找出那些执行耗时比较长的函数(大多数情况下这些函数是性能问题的根源所在)，为后面的代码优化指明方向。</p>
+<p>要想讲清楚这个(火焰图)，目前没有想到合适的方法；如若把我走过的弯路和正道都讲一遍，就认识而言也算得上比较全面了。</p>
+<p>扯远了，要讲的毕竟不是什么屠龙之术。trace 是要真刀真枪干的，还是先把环境搞起来。看下面这段 cpp 我就用它做原型了。</p>
+<pre><code class="language-c">#include &lt;iostream&gt;
+
+
+void foo() {
+    int j = 0;
+    for(int i=0; i&lt; 1000; i++)
+    {
+        j = i * 10 + 1;
+    }
+}
+
+void bar() {
+    int j = 0;
+    for(int i=0; i&lt; 2000; i++)
+    {
+        j = i * 10 + 1;
+    }
+}
+
+int main(int, char**) {
+    while(true)
+    {
+        foo();
+        bar();
+    }
+}
+</code></pre>
+<p>程序的逻辑非常直接， main 函数会不断地调用 foo 和 bar 这两个函数。其实仔细看 foo 和 bar 的逻辑几乎一样，foo 会给 j 赋值 1k 次，而 bar 会给 j  赋值 2k 次。如果说 foo 的开销是 1 那么 bar 的开销就应该是 2 ，整个 main 的开销差不多就是 3 。</p>
+<p>把程序编译安装到 /usr/bin/fires 后面这个程序就是我的实验环境了。注意这个安装路径我们会在后面的 trace 里面用到它。</p>
+<h2 id="性能测试">性能测试</h2>
+<p>前面的分析得知，如果说 main 函数运行了 3s ，那么应该是有 1s 花在了 foo 函数上，有 2s 花在了 bar 函数上。至于是不是这个比例还要用数字说话，这个数据确认起来也相对简单，我们只要把<strong>程序运行起来把各个函数的耗时统计一下，就行了</strong>。</p>
+<h3 id="1-在后台运行程序">1. 在后台运行程序</h3>
+<pre><code class="language-shell">nohup /usr/bin/fires &amp; top 
+Tasks: 128 total,   2 running, 126 sleeping,   0 stopped,   0 zombie
+%Cpu(s): 50.2 us,  0.0 sy,  0.0 ni, 49.8 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st
+MiB Mem :   7685.1 total,    712.8 free,   3708.5 used,   3263.9 buff/cache
+MiB Swap:      0.0 total,      0.0 free,      0.0 used.   3573.2 avail Mem 
+
+    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND 
+2509283 root      20   0    5828   2000   1832 R 100.0   0.0   0:10.55 fires   
+2369444 root      20   0   51936  11068   4480 S   0.4   0.1   2:16.32 redis-s+
+      1 root      20   0  169420  11492   7248 S   0.0   0.1   2:51.53 systemd 
+      2 root      20   0       0      0      0 S   0.0   0.0   0:01.45 kthreadd
+</code></pre>
+<p>可以看到当程序运行起来之后它自己独占了一个核，并且把这个核心跑到了 100% 。</p>
+<h3 id="2-统计函数的执行耗时">2. 统计函数的执行耗时</h3>
+<p>统计 foo | bar  函数的执行耗时，这里我就直接用 ebpf 来追踪，foo 函数的耗时统计代码如果。</p>
+<pre><code class="language-shell">#!/usr/bin/bpftrace
+
+BEGIN {
+    printf(&quot;start trace fires user-function foo calls .... Hit Ctrl-C to end.\n&quot;);
+    @btrace_begin[$1] = nsecs;
+    @counts[$1] = 0;
+    @duration[$1] = 0;
+}
+
+uprobe:/usr/bin/fires:foo {
+    @start[$1] = nsecs;
+    @counts[$1] = @counts[$1] + 1;
+}
+
+
+uretprobe:/usr/bin/fires:foo /@start[$1]/ {
+    $temp = nsecs;
+    if($temp &gt; @start[$1]) {
+        @duration[$1] = @duration[$1] + (int64)($temp - @start[$1] );
+    }
+}
+
+
+END {
+    @btrace_end[$1] = nsecs;
+    printf(&quot;\ntrace %d (s) \n&quot;, (@btrace_end[$1] - @btrace_begin[$1])/1e9);
+    printf(&quot;function foo called %d times, spend %d ms&quot;, @counts[$1], (int64)(@duration[$1] / 1e6));
+    delete(@btrace_begin[$1]);
+    delete(@btrace_end[$1]);
+    delete(@start[$1]);
+    delete(@counts[$1]);
+    delete(@duration[$1]);
+
+}
+</code></pre>
+<p>foo 的耗时统计(追踪了 9s ，发现 foo 总共执行了 3.2s )</p>
+<pre><code class="language-shell">./trace-foo.bt                                                                           ~
+Attaching 4 probes...
+start trace fires user-function foo calls .... Hit Ctrl-C to end.
+
+trace 9 (s) 
+function foo called 982712 times, spend 3266 ms
+</code></pre>
+<p>bar 的耗时统计(追踪了 6s ，发现 bar 总共执行了 4.1s)</p>
+<pre><code class="language-shell">./trace-bar.bt                                                                                    ~
+Attaching 4 probes...
+start trace fires user-function bar calls .... Hit Ctrl-C to end.
+
+trace 6 (s) 
+function bar called 708620 times, spend 4069 ms
+</code></pre>
+<p>trace 的结果，基本上和分析源码得出来的结论差不多。foo 的开销大概是总时间的 1/3 ，bar 的开销大概是总时间的 2/3 。也就是说我们通过 trace 看到了程序执行中最为耗时的调用 “bar 函数”。</p>
+<p>对于一个像 MySQL 这么大的项目我们不可能，每一个函数都去 trace 来发现问题，这么做的工作量就太大了。</p>
+<h2 id="火焰图的理论基础">火焰图的理论基础</h2>
+<p>数学啊！它有时能把复杂的事情搞简单，如果我们不想全量 trace 的话，我们可以像《统计学》一样抽样啊！</p>
+<p>函数的调用在计算机里面是通过压栈来完成的，一个函数执行完成之后就会从栈中弹出，对于我们这个程序的函数调用栈只有以下两种可能。要么它在执行 foo ，要么它在执行 bar 。<br>
+<img src="https://toomi.pages.dev/post-images/1669447470091.png" alt="" loading="lazy"></p>
+<p>如果我们在程序运行的过程中，去抽样&amp;统计函数调用栈各个情况和它的占比，只要样本数据够多，执行 foo 的情况差不多会占 33.3%，执行 bar 的情况差不多会占 66.6%.</p>
+<p>这能说明什么呢？你去采样了 100 次，有 66 次是 bar 占着 cpu 在干活，说明主要的耗时就在 bar 这个函数上呀。如果有办法把 bar 运行时间降下来，那节约的是时间，提升的是性能。在想到解决办法之前，更加重要的一步是发现问题的根源，火焰图可以帮我们发现这类问题。</p>
+<p>如果在这里直接上火焰图的话，那就是忘了初心了。现在我打算用 excel 手工一步步把画火焰图画出来，假设我们采样了 3 次，那么我们的结果有可能是像下面这样的。<br>
+<img src="https://toomi.pages.dev/post-images/1669447512283.png" alt="" loading="lazy"></p>
+<p>三个分裂的图，这样不够直观。现在处理一下把它合成一张图，在整理的过程中，还要尽可能把同一个函数多个样本点放在一起；在这里我把两个 bar 合并在一起。<br>
+<img src="https://toomi.pages.dev/post-images/1669447543140.png" alt="" loading="lazy"></p>
+<p>一个手工用 excel 搞的火焰图就这样出来了。</p>
+<h2 id="总结">总结</h2>
+<p>关于火焰图怎么看</p>
+<p>第一步：从下往上看，找到最宽的那条，它就是主要矛盾。如果看不出什么问题，不要留恋，我们要再往上看。</p>
+<p>第二步：重复第一步，直到看到了最上面。</p>
+<h2 id="原文链接">原文链接</h2>
+<p>蒋乐兴-初代庄主</p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/java-shou-xie-zhan/">
+                                                    <h3 class="post-title">
+                                                        java手写栈
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

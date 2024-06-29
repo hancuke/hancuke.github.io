@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>sql server 获取IDENTITY列值 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="插入了数据，有时还需要获取刚才生成的序列值另作他用，返回给前端也好，或者插入其他将来需要关联的表。
+记得曾经有个面试题：假设当前表IDENTITY列最大值为N，在存储过程中，对这个表插入1行数据，获取到的IDENTITY列值有时小于或者大于..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="sql server 获取IDENTITY列值" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="插入了数据，有时还需要获取刚才生成的序列值另作他用，返回给前端也好，或者插入其他将来需要关联的表。
+记得曾经有个面试题：假设当前表IDENTITY列最大值为N，在存储过程中，对这个表插入1行数据，获取到的IDENTITY列值有时小于或者大于...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/sql-server-huo-qu-identity-lie-zhi/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2022-12-09">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="sql server 获取IDENTITY列值">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="sql server 获取IDENTITY列值">
+        <meta name="twitter:description" content="插入了数据，有时还需要获取刚才生成的序列值另作他用，返回给前端也好，或者插入其他将来需要关联的表。
+记得曾经有个面试题：假设当前表IDENTITY列最大值为N，在存储过程中，对这个表插入1行数据，获取到的IDENTITY列值有时小于或者大于...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    sql server 获取IDENTITY列值
+                                </h2>
+                                <span class="article-info">
+                                    2022-12-09, 410 words, 2 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <p>插入了数据，有时还需要获取刚才生成的序列值另作他用，返回给前端也好，或者插入其他将来需要关联的表。<br>
+记得曾经有个面试题：假设当前表IDENTITY列最大值为N，在存储过程中，对这个表插入1行数据，获取到的IDENTITY列值有时小于或者大于N+1，可能是什么原因？<br>
+获取IDENTITY列值有三种方式：</p>
+<ul>
+<li><strong>IDENT_CURRENT( 'table_name' )</strong> 返回为任何会话和任何作用域中的特定表最后生成的标识值。</li>
+<li><strong>@@IDENTITY</strong> 返回为当前会话的所有作用域中的任何表最后生成的标识值。</li>
+<li><strong>SCOPE_IDENTITY()</strong> 返回为当前会话和当前作用域中的任何表最后生成的标识值。</li>
+</ul>
+<p>IDENT_CURRENT( 'table_name' ) 针对特定表，是全局的。@@IDENTITY和SCOPE_IDENTITY()针对所有表，区别在于作用域，也就是上下文：</p>
+<ul>
+<li>如果当前INSERT语句上有函数，触发器等(不同作用域的)对象返回的IDENTITY值，那么@@IDENTITY会取所有表上的最后1个，而不是当前表上的；</li>
+<li>SCOPE_IDENTITY()会取当前作用域所有表上最后1个IDENTITY值，被调用的函数，触发器已经超出了作用域/上下文。所以在使用INSERT后，接着使用SCOPE_IDENTITY()获取IDENTITY列值，就不会有问题了：</li>
+</ul>
+<pre><code class="language-sql">insert test values('z');
+select SCOPE_IDENTITY() as curr_value
+</code></pre>
+<p>一个GO语句/批处理，也是一个上下文的分界点，但是SQL语句是顺序执行的，所以一个会话里，只要在INSERT之后用SCOPE_IDENTITY()来获取IDENTITY值是没问题的。</p>
+<h2 id="原链接">原链接</h2>
+<p>https://www.cnblogs.com/seusoftware/p/3804333.html</p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/java-lei-jia-zai-qi-ji-jia-zai-fan-wei/">
+                                                    <h3 class="post-title">
+                                                        Java类加载器及加载范围
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

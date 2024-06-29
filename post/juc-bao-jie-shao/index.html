@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>JUC包介绍 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="多线程这块知识的学习，真正的难点不在于多线程程序的逻辑有多复杂，而在于理清J.U.C包中各个多线程工具类之间的关系、特点及其使用场景（从整体到局部、高屋建瓴）
+J.U.C包简介
+J.U.C并发包，即java.util.concurrent包..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="JUC包介绍" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="多线程这块知识的学习，真正的难点不在于多线程程序的逻辑有多复杂，而在于理清J.U.C包中各个多线程工具类之间的关系、特点及其使用场景（从整体到局部、高屋建瓴）
+J.U.C包简介
+J.U.C并发包，即java.util.concurrent包...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/juc-bao-jie-shao/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2023-01-10">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="JUC包介绍">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="JUC包介绍">
+        <meta name="twitter:description" content="多线程这块知识的学习，真正的难点不在于多线程程序的逻辑有多复杂，而在于理清J.U.C包中各个多线程工具类之间的关系、特点及其使用场景（从整体到局部、高屋建瓴）
+J.U.C包简介
+J.U.C并发包，即java.util.concurrent包...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    JUC包介绍
+                                </h2>
+                                <span class="article-info">
+                                    2023-01-10, 1024 words, 4 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <p>多线程这块知识的学习，真正的难点不在于多线程程序的逻辑有多复杂，而在于理清J.U.C包中各个多线程工具类之间的关系、特点及其使用场景（从整体到局部、高屋建瓴）</p>
+<h2 id="juc包简介">J.U.C包简介</h2>
+<p>J.U.C并发包，即<code>java.util.concurrent</code>包，是JDK的核心工具包，是JDK1.5之后，由 Doug Lea实现并引入。<br>
+整个<code>java.util.concurrent</code>包，按照功能可以大致划分如下：</p>
+<ul>
+<li>juc-locks 锁框架</li>
+<li>juc-atomic 原子类框架</li>
+<li>juc-sync 同步器框架</li>
+<li>juc-collections 集合框架</li>
+<li>juc-executors 执行器框架</li>
+</ul>
+<figure data-type="image" tabindex="1"><img src="https://toomi.pages.dev/post-images/1673340872279.png" alt="" loading="lazy"></figure>
+<h2 id="juc-locks-锁框架">juc-locks 锁框架</h2>
+<p>早期的JDK版本中，仅仅提供了synchronizd、wait、notify等等比较底层的多线程同步工具，开发人员如果需要开发复杂的多线程应用，通常需要基于JDK提供的这些基础工具进行封装，开发自己的工具类。JDK1.5+后，Doug Lea根据一系列常见的多线程设计模式，设计了JUC并发包，其中<code>java.util.concurrent.locks</code>包下提供了一系列基础的锁工具，用以对synchronizd、wait、notify等进行补充、增强。<br>
+<code>java.util.concurrent.locks</code>包的结构如下：<br>
+<img src="https://toomi.pages.dev/post-images/1673341056312.png" alt="" loading="lazy"><br>
+<img src="https://toomi.pages.dev/post-images/1673341099309.png" alt="" loading="lazy"></p>
+<h2 id="juc-atomic-原子类框架">juc-atomic 原子类框架</h2>
+<p>早期的JDK版本中，如果要并发的对Integer、Long、Double之类的Java原始类型或引用类型进行操作，一般都需要通过锁来控制并发，以防数据不一致<br>
+从JDK1.5开始，引入了<code>java.util.concurrent.atomic</code>工具包，该包提供了许多Java原始/引用类型的映射类，如<code>AtomicInteger</code>、<code>AtomicLong</code>、<code>AtomicBoolean</code>，这些类可以通过一种“无锁算法”，线程安全的操作Integer、Long、Boolean等原始类型。</p>
+<p>所谓“无锁算法”，我们在讲juc-locks锁框架系列中，已经接触过太多次了，其实底层就是通过Unsafe类实现的一种比较并交换的算法，大致的结构如下（具体入参，根据上下文有所不同）： <code>boolean compareAndSet(expectedValue, updateValue); </code>当希望修改的值与expectedValue相同时，则尝试将值更新为updateValue，更新成功返回true，否则返回false。</p>
+<p>java.util.concurrent.atomic包结构如下:<br>
+<img src="https://toomi.pages.dev/post-images/1673341358908.png" alt="" loading="lazy"><br>
+<img src="https://toomi.pages.dev/post-images/1673341476089.png" alt="" loading="lazy"></p>
+<h2 id="juc-sync-同步器框架">juc-sync 同步器框架</h2>
+<p>这里的juc-sync同步器框架，是指java.util.concurrent包下一些辅助同步器类，每个类都有自己适合的使用场景：</p>
+<table>
+<thead>
+<tr>
+<th>同步器名称</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CountDownLatch</td>
+<td>倒数计数器，构造时设定计数值，当计数值归零后，所有阻塞线程恢复执行；其内部实现了AQS框架</td>
+</tr>
+<tr>
+<td>CyclicBarrier</td>
+<td>循环栅栏，构造时设定等待线程数，当所有线程都到达栅栏后，栅栏放行；其内部通过ReentrantLock和Condition实现同步</td>
+</tr>
+<tr>
+<td>Semaphore</td>
+<td>信号量，类似于“令牌”，用于控制共享资源的访问数量；其内部实现了AQS框架</td>
+</tr>
+<tr>
+<td>Exchanger</td>
+<td>交换器，类似于双向栅栏，用于线程之间的配对和数据交换；其内部根据并发情况有“单槽交换”和“多槽交换”之分</td>
+</tr>
+<tr>
+<td>Phaser</td>
+<td>多阶段栅栏，相当于CyclicBarrier的升级版，可用于分阶段任务的并发控制执行；其内部比较复杂，支持树形结构，以减少并发带来的竞争</td>
+</tr>
+</tbody>
+</table>
+<h2 id="juc-collections-集合框架">juc-collections 集合框架</h2>
+<p>这里的juc-collections集合框架，是指java.util.concurrent包下的一些同步集合类，按类型划分可以分为：符号表、队列、Set集合、列表四大类，每个类都有自己适合的使用场景，整个juc-collections集合框架的结构如下图：<br>
+<img src="https://toomi.pages.dev/post-images/1673341585338.png" alt="" loading="lazy"></p>
+<p>其中阻塞队列的分类及特性如下表：</p>
+<table>
+<thead>
+<tr>
+<th>队列特性</th>
+<th>有界队列</th>
+<th>近似无界队列</th>
+<th>无界队列</th>
+<th>特殊队列</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>有锁算法</td>
+<td>ArrayBlockingQueue</td>
+<td>LinkedBlockingQueue、LinkedBlockingDeque</td>
+<td>/</td>
+<td>PriorityBlockingQueue、DelayQueue</td>
+</tr>
+<tr>
+<td>无锁算法</td>
+<td>/</td>
+<td>/</td>
+<td>LinkedTransferQueue</td>
+<td>SynchronousQueue</td>
+</tr>
+</tbody>
+</table>
+<h2 id="juc-executors-执行器框架">juc-executors 执行器框架</h2>
+<p>executors框架是整个J.U.C包中类/接口关系最复杂的框架，executors其实可以划分为3大块，每一块的核心都是基于<strong>Executor</strong>这个接口：</p>
+<ul>
+<li>线程池</li>
+<li>Future模式</li>
+<li>Fork/Join框架</li>
+</ul>
+<h2 id="原文">原文</h2>
+<p>https://www.yijiyong.com/java/juc/02-juccatogray.html<br>
+https://segmentfault.com/u/ressmix</p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/shi-yong-javautilconcurrentthreadfactory-lei-chuang-jian-xian-cheng/">
+                                                    <h3 class="post-title">
+                                                        使用java.util.concurrent.ThreadFactory类创建线程
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

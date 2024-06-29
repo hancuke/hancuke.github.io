@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>從硬體觀點了解 memory barrier 的實作和效果 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="之前從軟體的角度寫過 memory barrier 的介紹。《Memory Barriers: a Hardware View for Software Hackers》則是從硬體的角度了解硬體設計者的需求，以及 read/write me..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="從硬體觀點了解 memory barrier 的實作和效果" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="之前從軟體的角度寫過 memory barrier 的介紹。《Memory Barriers: a Hardware View for Software Hackers》則是從硬體的角度了解硬體設計者的需求，以及 read/write me...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/cong-ying-ti-guan-dian-liao-jie-memory-barrier-de-shi-zuo-he-xiao-guo/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2022-12-26">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="從硬體觀點了解 memory barrier 的實作和效果">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="從硬體觀點了解 memory barrier 的實作和效果">
+        <meta name="twitter:description" content="之前從軟體的角度寫過 memory barrier 的介紹。《Memory Barriers: a Hardware View for Software Hackers》則是從硬體的角度了解硬體設計者的需求，以及 read/write me...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    從硬體觀點了解 memory barrier 的實作和效果
+                                </h2>
+                                <span class="article-info">
+                                    2022-12-26, 685 words, 4 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <p>之前從軟體的角度寫過 memory barrier 的介紹。《Memory Barriers: a Hardware View for Software Hackers》則是從硬體的角度了解硬體設計者的需求，以及 read/write memory barrier 如何運作。我只有讀完前五章，後面用我理解的方式摘要這篇文章。本文的圖示都是從該篇文章取出來的。</p>
+<p>因为对内存访问顺序的重排可以获取更好的性能，如果某些场合下，程序的逻辑正确性需要内存访问顺序和program order一致，例如：同步原语，那么软件工程师可以使用memory barrier这样的工具阻止CPU对内存访问的优化。</p>
+<p>Memory barriers are used to provide control over the order of memory accesses. This is necessary sometimes because optimizations performed by the compiler and hardware can cause memory to be accessed in a different order than intended by the developer.</p>
+<p>A memory barrier affects instructions that access memory in two ways:</p>
+<ul>
+<li>provides control over the order that memory access instructions are performed, and</li>
+<li>provides control over when memory access instructions will complete.</li>
+</ul>
+<p>Memory access instructions, such as loads and stores, typically take longer to execute than other instructions. Therefore, compilers use registers to hold frequently used values and processors use high speed caches to hold the most frequently used memory locations. Another common optimization is for compilers and processors to rearrange the order that instructions are executed so that the processor does not have to wait for memory accesses to complete. This can result in memory being accessed in a different order than specified in the source code. While this typically will not cause a problem in a single thread of execution, it can cause a problem if the location can also be accessed from another processor or device.</p>
+<h2 id="types-of-memory-barriers">Types of Memory Barriers</h2>
+<p>As mentioned above, both compilers and processors can optimize the execution of instructions in a way that necessitates the use of a memory barrier. A memory barrier that affects both the compiler and the processor is a hardware memory barrier, and a memory barrier that only affects the compiler is a software memory barrier.</p>
+<p>In addition to hardware and software memory barriers, a memory barrier can be restricted to memory reads, memory writes, or both. A memory barrier that affects both reads and writes is a full memory barrier.</p>
+<p>There is also a class of memory barrier that is specific to multi-processor environments. The name of these memory barriers are prefixed with &quot;smp&quot;. On a multi-processor system, these barriers are hardware memory barriers and on uni-processor systems, they are software memory barriers.</p>
+<p>The barrier() macro is the only software memory barrier, and it is a full memory barrier. All other memory barriers in the Linux kernel are hardware barriers. A hardware memory barrier is an implied software barrier.</p>
+<h2 id="using-memory-barriers">Using Memory Barriers</h2>
+<p>The two most common needs for memory barriers are to manage memory shared by more than one processor and IO control registers that are mapped to memory locations.</p>
+<p>In the case of shared memory, when there is only one CPU, hardware memory barriers are not needed. Because of this, memory barriers that are only needed to control shared memory between processors can be optimized for better performance on systems with only one processor. As mentioned above, the name of these memory barriers are prefixed with &quot;smp&quot;.</p>
+<h2 id="参考">参考</h2>
+<ul>
+<li>https://medium.com/fcamels-notes/%E5%BE%9E%E7%A1%AC%E9%AB%94%E8%A7%80%E9%BB%9E%E4%BA%86%E8%A7%A3-memry-barrier-%E7%9A%84%E5%AF%A6%E4%BD%9C%E5%92%8C%E6%95%88%E6%9E%9C-416ff0a64fc1</li>
+<li>https://bruceblinn.com/linuxinfo/MemoryBarriers.html</li>
+</ul>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/java-qi-dong-can-shu/">
+                                                    <h3 class="post-title">
+                                                        Java 启动参数
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>the ways to inject beans into Spring container | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="Have you always been using @Service, @Component, @Contoller or @ Bean to add your Spring beans?
+Have you seen some of th..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="the ways to inject beans into Spring container" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="Have you always been using @Service, @Component, @Contoller or @ Bean to add your Spring beans?
+Have you seen some of th...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/the-ways-to-inject-beans-into-spring-container/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2023-02-14">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="the ways to inject beans into Spring container">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="the ways to inject beans into Spring container">
+        <meta name="twitter:description" content="Have you always been using @Service, @Component, @Contoller or @ Bean to add your Spring beans?
+Have you seen some of th...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    the ways to inject beans into Spring container
+                                </h2>
+                                <span class="article-info">
+                                    2023-02-14, 677 words, 5 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <p>Have you always been using @Service, @Component, @Contoller or @ Bean to add your Spring beans?</p>
+<p>Have you seen some of the others’ code that looks fancy in injecting the beans but don’t know how it achieves the same purpose?</p>
+<p>Let’s take a look at some common ways to inject Spring beans into the container.</p>
+<h2 id="1-configuration-bean">1. @Configuration + @Bean</h2>
+<p>This might be the most common one.<br>
+@ Configuration declares a configuration class and we can use @ Bean to add the bean into the container.</p>
+<pre><code class="language-java">@Configuration
+public class MyConfiguration {
+    @Bean
+    public Person person() {
+        Person person = new Person();
+        person.setName(&quot;spring&quot;);
+        return person;
+    }
+}
+</code></pre>
+<h2 id="2-component-componentscan">2. @Component + @ComponentScan</h2>
+<p>For the same example, we can declare the Person object as a Component. We will then use @ComponentScan “basePackages” to declare the paths for the components.</p>
+<pre><code class="language-java">@Component
+public class Person {
+    private String name;
+ 
+    public String getName() {
+ 
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+    @Override
+    public String toString() {
+        return &quot;Person{&quot; +
+                &quot;name='&quot; + name + '\'' +
+                '}';
+    }
+}
+ 
+@ComponentScan(basePackages = &quot;com.springboot.initbean.*&quot;)
+public class Demo1 {
+    public static void main(String[] args) {
+        AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext(Demo1.class);
+        Person bean = applicationContext.getBean(Person.class);
+        System.out.println(bean);
+    }
+}
+</code></pre>
+<h2 id="3-import">3. @Import</h2>
+<p>There are various flexible ways to use this annotation.</p>
+<h3 id="31-direct-import-bean">3.1 Direct import bean</h3>
+<p>Direct import bean. Once we are done constructing the Person class, we can then import the class into the Spring container.</p>
+<pre><code class="language-java">public class Person {
+    private String name;
+ 
+    public String getName() {
+ 
+        return name;
+    }
+ 
+    public void setName(String name) {
+        this.name = name;
+    }
+ 
+    @Override
+    public String toString() {
+        return &quot;Person{&quot; +
+                &quot;name='&quot; + name + '\'' +
+                '}';
+    }
+}
+
+@Import(Person.class)
+public class Demo1 {
+ 
+    public static void main(String[] args) {
+        AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext(Demo1.class);
+        Person bean = applicationContext.getBean(Person.class);
+        System.out.println(bean);
+    }
+}
+</code></pre>
+<h3 id="32-import-importselector">3.2 @Import + ImportSelector</h3>
+<p>We can also define a MyImportSelector to realize ImportSelector interface and override selectImports method, in which we will specify beans we need.</p>
+<p>Now we only need to import the MyImportSelector class.</p>
+<pre><code class="language-java">@Import(MyImportSelector.class)
+public class Demo1 {
+ 
+    public static void main(String[] args) {
+        AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext(Demo1.class);
+        Person bean = applicationContext.getBean(Person.class);
+        System.out.println(bean);
+    }
+}
+ 
+class MyImportSelector implements ImportSelector {
+    @Override
+    public String[] selectImports(AnnotationMetadata importingClassMetadata) {
+        return new String[]{&quot;com.springboot.pojo.Person&quot;};
+    }
+}
+</code></pre>
+<h3 id="33-import-importbeandefinitionregistrar">3.3 @Import + ImportBeanDefinitionRegistrar</h3>
+<p>For this method, we also need to realize an interface ImportBeanDefinitionRegistrar.</p>
+<pre><code class="language-java">@Import(MyImportBeanDefinitionRegistrar.class)
+public class Demo1 {
+ 
+    public static void main(String[] args) {
+        AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext(Demo1.class);
+        Person bean = applicationContext.getBean(Person.class);
+        System.out.println(bean);
+    }
+}
+ 
+class MyImportBeanDefinitionRegistrar implements ImportBeanDefinitionRegistrar {
+ 
+    @Override
+    public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
+        // construct beanDefinition
+        AbstractBeanDefinition beanDefinition = BeanDefinitionBuilder.rootBeanDefinition(Person.class).getBeanDefinition();
+        // register the bean into the  container
+        registry.registerBeanDefinition(&quot;person&quot;, beanDefinition);
+    }
+}
+</code></pre>
+<p>The difference between this method and the previous one is an additional declaration of “beanDefinition” — the metadata of the bean.</p>
+<h2 id="4-factorybean">4 @FactoryBean</h2>
+<p>FactoryBean is a bean itself, which, by the way, not to be confused with BeanFactory that manages beans.</p>
+<pre><code class="language-java">@Configuration
+public class Demo1 {
+    @Bean
+    public PersonFactoryBean personFactoryBean() {
+        return new PersonFactoryBean();
+    }
+ 
+    public static void main(String[] args) {
+        AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext(Demo1.class);
+        Person bean = applicationContext.getBean(Person.class);
+        System.out.println(bean);
+    }
+}
+ 
+class PersonFactoryBean implements FactoryBean&lt;Person&gt; {
+
+    @Override
+    public Person getObject() throws Exception {
+        return new Person();
+    }
+
+    @Override
+    public Class&lt;?&gt; getObjectType() {
+        return Person.class;
+    }
+}
+</code></pre>
+<p>Here we use method 1 — @Configuration + @Bean to add PersonFactoryBean into the Spring container. However, notice that I didn’t inject Person bean directly in @Bean. Instead, PersonFactoryBean is injected. Spring container then gets the Person bean from the factory bean.</p>
+<h2 id="5-beandefinitionregistrypostprocessor">5 BeanDefinitionRegistryPostProcessor</h2>
+<p>When Spring container executes postProcessBeanDefinitionRegistry method in BeanDefinitionRegistryPostProcesso, it will process the beanDefinition separately, which we can use to adjust the beanDefinition.</p>
+<pre><code class="language-java">public class Demo1 {
+    public static void main(String[] args) {
+        AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext();
+        MyBeanDefinitionRegistryPostProcessor beanDefinitionRegistryPostProcessor = new MyBeanDefinitionRegistryPostProcessor();
+        applicationContext.addBeanFactoryPostProcessor(beanDefinitionRegistryPostProcessor);
+        applicationContext.refresh();
+        Person bean = applicationContext.getBean(Person.class);
+        System.out.println(bean);
+    }
+}
+ 
+class MyBeanDefinitionRegistryPostProcessor implements BeanDefinitionRegistryPostProcessor {
+ 
+    @Override
+    public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
+        AbstractBeanDefinition beanDefinition = BeanDefinitionBuilder.rootBeanDefinition(Person.class).getBeanDefinition();
+        registry.registerBeanDefinition(&quot;person&quot;, beanDefinition);
+    }
+    @Override
+    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+ 
+    }
+}
+</code></pre>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/bean-wrapper-beanfactory-applicationcontext/">
+                                                    <h3 class="post-title">
+                                                        Bean Wrapper 、  BeanFactory 、ApplicationContext等核心概念
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

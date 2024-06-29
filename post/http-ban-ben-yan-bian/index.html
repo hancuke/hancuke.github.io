@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>http版本演变 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="HTTP/0.9
+1990年问世，那时的HTTP并没有作为正式的标准被建立，这时的HTTP其实含有HTTP/1.0之前版本的意思，那时候还有严重设计缺陷，只支持GET方法，很快被HTTP/1.0取代。
+并且协议还规定，服务器只能回应HTML..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="http版本演变" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="HTTP/0.9
+1990年问世，那时的HTTP并没有作为正式的标准被建立，这时的HTTP其实含有HTTP/1.0之前版本的意思，那时候还有严重设计缺陷，只支持GET方法，很快被HTTP/1.0取代。
+并且协议还规定，服务器只能回应HTML...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/http-ban-ben-yan-bian/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2022-10-20">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="http版本演变">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="http版本演变">
+        <meta name="twitter:description" content="HTTP/0.9
+1990年问世，那时的HTTP并没有作为正式的标准被建立，这时的HTTP其实含有HTTP/1.0之前版本的意思，那时候还有严重设计缺陷，只支持GET方法，很快被HTTP/1.0取代。
+并且协议还规定，服务器只能回应HTML...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    http版本演变
+                                </h2>
+                                <span class="article-info">
+                                    2022-10-20, 1162 words, 5 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <h2 id="http09">HTTP/0.9</h2>
+<p>1990年问世，那时的HTTP并没有作为正式的标准被建立，这时的HTTP其实含有HTTP/1.0之前版本的意思，那时候还有严重设计缺陷，只支持GET方法，很快被HTTP/1.0取代。<br>
+并且协议还规定，服务器只能回应HTML格式的字符串，不能回应别的格式，当服务器发送完毕，就关闭TCP连接。</p>
+<h2 id="http10">HTTP/1.0</h2>
+<h3 id="特点">特点</h3>
+<ol>
+<li>任何格式的内容都可以发送。这使得互联网不仅可以传输文字，还能传输图像、视频、二进制文件。这为互联网的大发展奠定了基础。</li>
+<li>除了GET命令，还引入了POST命令和HEAD命令，丰富了浏览器与服务器的互动手段。</li>
+<li>HTTP请求和回应的格式也变了。除了数据部分，每次通信都必须包括头信息（HTTP header），用来描述一些元数据。</li>
+<li>其他的新增功能还包括状态码（status code）、多字符集支持、多部分发送（multi-part type）、权限（authorization）、缓存（cache）、内容编码（content encoding）等。</li>
+</ol>
+<h3 id="不足">不足</h3>
+<p>HTTP/1.0 版的主要缺点是，每个TCP连接只能发送一个请求。发送数据完毕，连接就关闭，如果还要请求其他资源，就必须再新建一个连接。TCP连接的新建成本很高，因为需要客户端和服务器三次握手，并且开始时发送速率较慢（slow start）。<br>
+所以，HTTP 1.0版本的性能比较差。随着网页加载的外部资源越来越多，这个问题就愈发突出了。</p>
+<h2 id="http11">HTTP/1.1</h2>
+<h3 id="特点-2">特点</h3>
+<ol>
+<li>引入了持久连接（persistent connection），即TCP连接默认不关闭，可以被多个请求复用，不用声明Connection: keep-alive。客户端和服务器发现对方一段时间没有活动，就可以主动关闭连接。不过，规范的做法是，客户端在最后一个请求时，发送Connection: close，明确要求服务器关闭TCP连接</li>
+<li>引入了管道机制（pipelining），即在同一个TCP连接里面，客户端可以同时发送多个请求。这样就进一步改进了HTTP协议的效率。举例来说，客户端需要请求两个资源。以前的做法是，在同一个TCP连接里面，先发送A请求，然后等待服务器做出回应，收到后再发出B请求。管道机制则是允许浏览器同时发出A请求和B请求，但是服务器还是按照顺序，先回应A请求，完成后再回应B请求。</li>
+<li>将Content-length字段的作用进行扩充，即声明本次回应的数据长度（一个TCP连接现在可以传送多个回应，势必就要有一种机制，区分数据包是属于哪一个回应的）</li>
+<li>采用分块传输编码，对于一些很耗时的动态操作，服务器需要等到所有操作完成，才能发送数据，显然这样的效率不高。更好的处理方法是，产生一块数据，就发送一块，采用&quot;流模式&quot;（stream）取代&quot;缓存模式&quot;（buffer）</li>
+<li>1.1版还新增了许多动词方法：PUT、PATCH、HEAD、 OPTIONS、DELETE。另外，客户端请求的头信息新增了Host字段，用来指定服务器的域名</li>
+</ol>
+<h3 id="不足-2">不足</h3>
+<p>虽然1.1版允许复用TCP连接，但是同一个TCP连接里面，所有的数据通信是按次序进行的。服务器只有处理完一个回应，才会进行下一个回应。要是前面的回应特别慢，后面就会有许多请求排队等着。这称为&quot;队头堵塞&quot;（Head-of-line blocking）。为了避免这个问题，只有两种方法：一是减少请求数，二是同时多开持久连接。这导致了很多的网页优化技巧，比如合并脚本和样式表、将图片嵌入CSS代码、域名分片（domain sharding）等等。如果HTTP协议设计得更好一些，这些额外的工作是可以避免的。</p>
+<h2 id="http20">HTTP/2.0</h2>
+<p>简单来说，HTTP/2（超文本传输协议第2版，最初命名为HTTP2.0），是HTTP协议的第二个主要版本。HTTP/2是HTTP协议自1999年HTTP1.1发布后的首个更新，主要基于SPDY协议。<br>
+HTTP2.0的特点是：在不改动HTTP语义、方法、状态码、URI及首部字段的情况下，大幅度提高了web性能。</p>
+<h2 id="http30">HTTP3.0</h2>
+<p>谷歌开发的QUIC协议，利用UDP实现可靠数据传输。</p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/fei-dui-cheng-jia-mi-suan-fa/">
+                                                    <h3 class="post-title">
+                                                        非对称加密算法
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

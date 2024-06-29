@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>依赖注入 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="简介
+在软件工程中，依赖注入（dependency injection）的意思为，给予调用方它所需要的事物。“依赖”是指可被方法调用的事物。依赖注入形式下，调用方不再直接指使用“依赖”，取而代之是“注入” 。“注入”是指将“依赖”传递给调用..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="依赖注入" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="简介
+在软件工程中，依赖注入（dependency injection）的意思为，给予调用方它所需要的事物。“依赖”是指可被方法调用的事物。依赖注入形式下，调用方不再直接指使用“依赖”，取而代之是“注入” 。“注入”是指将“依赖”传递给调用...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/yi-lai-zhu-ru/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2023-02-09">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="依赖注入">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="依赖注入">
+        <meta name="twitter:description" content="简介
+在软件工程中，依赖注入（dependency injection）的意思为，给予调用方它所需要的事物。“依赖”是指可被方法调用的事物。依赖注入形式下，调用方不再直接指使用“依赖”，取而代之是“注入” 。“注入”是指将“依赖”传递给调用...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    依赖注入
+                                </h2>
+                                <span class="article-info">
+                                    2023-02-09, 890 words, 4 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <h2 id="简介">简介</h2>
+<p>在软件工程中，依赖注入（dependency injection）的意思为，给予调用方它所需要的事物。“依赖”是指可被方法调用的事物。依赖注入形式下，调用方不再直接指使用“依赖”，取而代之是“注入” 。“注入”是指将“依赖”传递给调用方的过程。在“注入”之后，调用方才会调用该“依赖”。传递依赖给调用方，而不是让让调用方直接获得依赖，这个是该设计的根本需求。在编程语言角度下，“调用方”为对象和类，“依赖”为变量。在提供服务的角度下，“调用方”为客户端，“依赖”为服务。</p>
+<p>在理解它在编程中的含义之前，首先让我们了解一下它的总体含义，这可以帮助我们更好地理解这个概念。</p>
+<p>依赖是指依靠某种东西来获得支持。比如我会说我们对手机的依赖程度过高。</p>
+<p>在讨论依赖注入之前，我们先理解编程中的依赖是什么意思。</p>
+<p>当 class A 使用 class B 的某些功能时，则表示 class A 具有 class B 依赖。</p>
+<p>在 Java 中，在使用其他 class 的方法之前，我们首先需要创建那个 class 的对象（即 class A 需要创建一个 class B 实例）。</p>
+<p>因此，将创建对象的任务转移给其他 class，并直接使用依赖项的过程，被称为“依赖项注入”。<br>
+<img src="https://toomi.pages.dev/post-images/1675909454042.png" alt="" loading="lazy"></p>
+<h2 id="为什么需要使用依赖注入">为什么需要使用依赖注入</h2>
+<p>假设我们有一个 car class，其中包含各种对象，例如车轮、引擎等。</p>
+<p>这里的 car class 负责创建所有依赖对象。现在，如果我们决定将来放弃 MRFWheels，而希望使用 Yokohama 车轮，该怎么办？</p>
+<p>我们将需要使用新的 Yokohama 依赖关系来重新创建 car 对象。但是，当使用依赖注入（DI）时，我们可以在运行时更改车轮 wheels（因为可以在运行时而不是在编译时注入依赖项）。</p>
+<p>你可以将依赖注入视为代码中的中间人，它负责创建想要的 wheels 对象，并将其提供给car class。</p>
+<p>它使 car class 不需要创建车轮 wheels、电池 battery 对象等。</p>
+<h2 id="三种类型的依赖注入">三种类型的依赖注入</h2>
+<ul>
+<li>构造函数注入：依赖关系是通过 class 构造器提供的。</li>
+<li>setter 注入：注入程序用客户端的 setter 方法注入依赖项。</li>
+<li>接口注入：依赖项提供了一个注入方法，该方法将把依赖项注入到传递给它的任何客户端中。客户端必须实现一个接口，该接口的 setter 方法接收依赖。</li>
+</ul>
+<p>如果对象有任何更改，则依赖注入会对其进行调查，并且不应影响到使用这些对象的类。这样，如果将来对象发生变化，则依赖注入负责为类提供正确的对象。</p>
+<h2 id="控制反转依赖注入背后的概念">控制反转——依赖注入背后的概念</h2>
+<p>这是指一个类不应静态配置其依赖项，而应由其他一些类从外部进行配置。</p>
+<p>这是 S.O.L.I.D 的第五项原则——一<strong>类应该依赖于抽象</strong>，而不是依赖于具体的东西（简单地说，就是硬编码）。</p>
+<p>根据这些原则，一个类应该专注于履行其职责，而不是创建履行这些职责所需的对象。 这就是依赖注入发挥作用的地方：它为类提供了必需的对象。</p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/sql-server-man-cha-xun-ri-zhi/">
+                                                    <h3 class="post-title">
+                                                        SQL SERVER 慢查询日志
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

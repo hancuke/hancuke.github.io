@@ -1,0 +1,578 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://toomi.pages.dev</id>
+    <title>Toomi</title>
+    <updated>2024-06-29T02:47:41.429Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://toomi.pages.dev"/>
+    <link rel="self" href="https://toomi.pages.dev/atom.xml"/>
+    <subtitle>简单记录</subtitle>
+    <logo>https://toomi.pages.dev/images/avatar.png</logo>
+    <icon>https://toomi.pages.dev/favicon.ico</icon>
+    <rights>All rights reserved 2024, Toomi</rights>
+    <entry>
+        <title type="html"><![CDATA[multipass 命令]]></title>
+        <id>https://toomi.pages.dev/post/multipass-ming-ling/</id>
+        <link href="https://toomi.pages.dev/post/multipass-ming-ling/">
+        </link>
+        <updated>2024-06-22T14:40:31.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="查询可用网络接口">查询可用网络接口</h2>
+<pre><code class="language-cmd">multipass networks
+</code></pre>
+<h2 id="设置网络接口">设置网络接口</h2>
+<pre><code class="language-cmd">multipass set local.bridged-network=waibu
+</code></pre>
+<h2 id="设置镜像源">设置镜像源</h2>
+<pre><code class="language-cmd">multipass set local.image.mirror=https://mirrors.cloud.tencent.com/ubuntu-cloud-images/
+</code></pre>
+<h2 id="安装docker">安装docker</h2>
+<p>国内机安装源</p>
+<pre><code class="language-cmd">bash &lt;(curl -sSL https://gitee.com/SuperManito/LinuxMirrors/raw/main/DockerInstallation.sh)
+</code></pre>
+<h2 id="参考">参考</h2>
+<ul>
+<li>https://github.com/canonical/multipass/issues/717</li>
+<li>https://github.com/robertzhouxh/multipass-k8s-kubeedge</li>
+<li>https://www.cnblogs.com/qumogu/p/18245943</li>
+<li>https://www.wxy97.com/archives/77</li>
+</ul>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[python 自动安装依赖]]></title>
+        <id>https://toomi.pages.dev/post/python-zi-dong-an-zhuang-yi-lai/</id>
+        <link href="https://toomi.pages.dev/post/python-zi-dong-an-zhuang-yi-lai/">
+        </link>
+        <updated>2024-04-21T02:21:38.000Z</updated>
+        <content type="html"><![CDATA[<p>为某些python脚本，没有requirements.txt，自动分析其依赖，进行自动安装. 下面介绍两种方法</p>
+<h2 id="pip工具">pip工具</h2>
+<p>pigar仅打包当前目录下python文件的依赖。安装命令如下：</p>
+<pre><code class="language-shell">pip install pigar # 安装工具
+pigar generate #生成requirements.txt
+</code></pre>
+<h2 id="自定义脚本">自定义脚本</h2>
+<pre><code class="language-python">import os
+import ast
+import subprocess
+
+def dir_files(directory, extension):
+    &quot;&quot;&quot;遍历目录内指定后缀&quot;&quot;&quot;
+    file_list = []
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            if file.endswith(extension):
+                if &quot;tempCodeRunnerFile&quot; not in file:  # CodeRunner生成的临时文件忽略掉
+                    file_list.append(os.path.join(root, file))
+    return file_list
+
+def parse_imports(filename):
+    &quot;&quot;&quot;解析python源文件import了哪些库&quot;&quot;&quot;
+    with open(filename, &quot;r&quot;, encoding=&quot;utf-8&quot;) as f:
+        tree = ast.parse(f.read())
+    imports = set()
+    for node in ast.iter_child_nodes(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                imports.add(alias.name.split(&quot;.&quot;)[0])
+        elif isinstance(node, ast.ImportFrom):
+            module_name = node.module.split(&quot;.&quot;)[0] if node.module else &quot;&quot;
+            for alias in node.names:
+                imports.add(module_name + &quot;.&quot; + alias.name.split(&quot;.&quot;)[0])
+
+    return list(imports)
+
+def pip_install(libraries):
+    &quot;&quot;&quot;判断是否安装了库 没有就直接pip安装&quot;&quot;&quot;
+    for library in libraries:
+        library = library.split(&quot;.&quot;)[0]
+        try:
+            __import__(library)
+        except ImportError:
+            print(f&quot;{library} 没有安装，正在使用pip安装...&quot;)
+            subprocess.call([&quot;pip&quot;, &quot;install&quot;, library])
+
+if __name__ == &quot;__main__&quot;:
+    # 指定项目文件夹路径
+    python_file_folders = [r&quot;D:\\project\\&quot;]
+
+    # 查找项目中的Python文件
+    python_files = []
+    for folder in python_file_folders:
+        python_files += dir_files(folder, &quot;.py&quot;) + dir_files(folder, &quot;.pyw&quot;)
+
+    print(&quot;找到的Python文件：&quot;, python_files)
+
+    # 解析Python文件中的依赖库
+    all_imports = []
+    for python_file in python_files:
+        imports = parse_imports(python_file)
+        all_imports += [library.split(&quot;.&quot;)[0] for library in imports]
+
+    print(&quot;项目中使用的依赖库：&quot;, all_imports)
+
+    # 自动安装依赖库
+    if all_imports:
+        imports = set(all_imports)
+        pip_install(imports)
+</code></pre>
+<h2 id="参考">参考</h2>
+<ul>
+<li>https://visionguide.readthedocs.io/zh-cn/latest/python/tool/requirements/</li>
+</ul>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[docker 安装 gitlab-ce]]></title>
+        <id>https://toomi.pages.dev/post/docker-an-zhuang-gitlab-ce/</id>
+        <link href="https://toomi.pages.dev/post/docker-an-zhuang-gitlab-ce/">
+        </link>
+        <updated>2024-01-08T03:19:43.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="拉取镜像">拉取镜像</h2>
+<pre><code class="language-cmd"># gitlab-ce为稳定版本，后面不填写版本则默认pull最新latest版本
+$ docker pull gitlab/gitlab-ce
+</code></pre>
+<h2 id="配置">配置</h2>
+<p>配置文件路径<code>:/home/gitlab/config/gitlab.rb</code></p>
+<pre><code class="language-cmd"># 配置http协议所使用的访问地址,不加端口号默认为80
+external_url 'http://192.168.1.101:8084'
+
+nginx['listen_port'] = 80
+
+# 配置ssh协议所使用的访问地址和端口
+gitlab_rails['gitlab_ssh_host'] = '192.168.1.101'
+gitlab_rails['gitlab_shell_ssh_port'] = 222 # 此端口是run时22端口映射的222端口
+</code></pre>
+<h2 id="运行">运行</h2>
+<pre><code class="language-cmd">$ docker run -d  -p 443:443 -p 8084:80 -p 222:22 --name gitlab --restart always -v /home/gitlab/config:/etc/gitlab -v /home/gitlab/logs:/var/log/gitlab -v /home/gitlab/data:/var/opt/gitlab gitlab/gitlab-ce
+# -d：后台运行
+# -p：将容器内部端口向外映射
+# --name：命名容器名称
+# -v：将容器内数据文件夹或者日志、配置等文件夹挂载到宿主机指定目录
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[hackerrank刷题资源]]></title>
+        <id>https://toomi.pages.dev/post/hackerrank-shua-ti-zi-yuan/</id>
+        <link href="https://toomi.pages.dev/post/hackerrank-shua-ti-zi-yuan/">
+        </link>
+        <updated>2023-10-28T13:52:53.000Z</updated>
+        <content type="html"><![CDATA[<ul>
+<li>https://www.knowprogram.com/java/java-synchronization-mcq/</li>
+<li>https://www.sarthaks.com/2435862/which-of-the-following-is-not-an-inheritance-mapping-strategies</li>
+<li>https://www.sanfoundry.com/java-questions-answers-java8-features/</li>
+<li>https://www.springboottutorial.com/spring-boot-interview-questions</li>
+<li>http://lucentblackboard.com/java-programming-examples/126-0-Variables%20and%20Loops</li>
+<li>https://techs4.blogspot.com/2012/04/ocjp-16-preparation-questions-and.html</li>
+<li>https://www.sanfoundry.com/advanced-java-questions-answers-design-patterns/</li>
+<li>https://documentation.help/Spring-Framework-zh/pr01.html</li>
+<li>https://www.sanfoundry.com/advanced-java-questions-answers-annotations/</li>
+</ul>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[从零开始在linux k8s部署spring项目]]></title>
+        <id>https://toomi.pages.dev/post/cong-ling-kai-shi-zai-linux-k8s-bu-shu-spring-xiang-mu/</id>
+        <link href="https://toomi.pages.dev/post/cong-ling-kai-shi-zai-linux-k8s-bu-shu-spring-xiang-mu/">
+        </link>
+        <updated>2023-10-17T01:39:28.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="环境准备">环境准备</h2>
+<ol>
+<li>用k3s搭建k8s环境</li>
+<li>安装Docker环境，主要是用于打包项目成容器镜像（image）</li>
+<li>在centos安装Java环境，包括maven，主要是打包spring项目，<a href="https://www.server-world.info/en/note?os=CentOS_Stream_9&amp;p=java&amp;f=3">参考</a><br>
+2.1. Java环境安装命令 <code>sudo yum install java-17-openjdk java-17-openjdk-devel</code><br>
+2.2. <code>[java-17-openjdk] </code>是jre ，<code>[java-17-openjdk-devel]</code> 是编译工具，javac<br>
+2.3.  maven 建议下载二进制包，解压，然后配置环境变量进行安装，不要用 <code>yum install </code> 的方式，因为这种方式会把额外安装 jre 版本，容易造成和项目java版本冲突</li>
+<li>spring 项目代码，<a href="https://mkyong.com/spring-boot/spring-boot-hello-world-example/">参考</a></li>
+<li>安装docker私有仓库，后续需要把打包好的docker镜像上传到仓库后，再部署到k8s集群，使用命令<code>docker run -d -p 5000:5000 --restart=always --name registry registry</code> 进行安装<a href="https://yeasy.gitbook.io/docker_practice/repository/registry">参考</a></li>
+</ol>
+<h2 id="项目打包">项目打包</h2>
+<p>通过拉取代码，用maven打包成jar，命令如下</p>
+<pre><code class="language-shell">$ git clone https://github.com/mkyong/spring-boot.git
+$ cd spring-boot-hello-world
+$ mvn spring-boot:run
+</code></pre>
+<p>将jar，打包成docker镜像，创建一个名为<code>Dockerfile</code>的文本文件，内容如下</p>
+<pre><code class="language-shell">from openjdk:17.0.2-jdk
+copy target/spring-boot-hello-world-1.0.jar /spring-boot-hello-world-1.0.jar
+CMD [&quot;java&quot;, &quot;-jar&quot;, &quot;/spring-boot-hello-world-1.0.jar&quot;]
+</code></pre>
+<p>然后再运行下面命令打包</p>
+<pre><code class="language-shell">docker build -t my-java-app .
+</code></pre>
+<p>查看生成的image镜像</p>
+<pre><code class="language-shell">docker image ls
+</code></pre>
+<p>运行docker容器，并测试外网访问</p>
+<pre><code class="language-shell"># 81是主机端口，外网访问，8080是容器端口，spring 项目监听的端口
+docker run -p 81:8080 -it --rm --name my-running-app my-java-app 
+</code></pre>
+<p>将镜像推送到私有仓库</p>
+<pre><code class="language-shell">docker push my-java-app
+</code></pre>
+<h2 id="部署到k8s">部署到k8s</h2>
+<p>构建k8s最小管理单元pod，创建名为<code>my-java-app.yaml</code>,内容如下</p>
+<pre><code class="language-shell">apiVersion: v1
+kind: Pod
+metadata:
+  name: spring-java-name
+  # 指定 label，便于检索 ，这里要记住，后面配置外网访问service的时候需要用到
+  labels:
+    app: spring-java-lable
+spec:
+  containers:
+  - name: spring-java-container
+    # 指定镜像
+    image: my-java-app:latest
+    #imagePullPolicy: Never
+    # 指定暴露端口
+    ports:
+     # 这里只是个用于标识，和容器内应用监听的端口要一致，如果不一致，以容器实际端口为准
+    - containerPort: 8080
+</code></pre>
+<p>运行<code>kubectl apply -f my-java-app.yaml</code>命令进行打包，然后运行<code>kubectl get pods</code>查看打包后的pod状态</p>
+<p>创建NodePort类型 service ，将应用暴露出来供外网访问，创建一个名为<code>java-service.yaml</code>的文本文件，内容如下</p>
+<pre><code class="language-shell">apiVersion: v1
+kind: Service
+metadata:
+  name: my-java-nodeport-service
+spec:
+  type: NodePort
+  ports:
+    - port: 8001 # Service 公开的端口，内部访问
+      targetPort: 8080 # Pod 中容器的端口
+      nodePort: 30001 # NodePort，需要在 30000-32767 范围内选择，外部访问
+  selector:
+    app: spring-java-lable # 用于选择匹配的 Pod，基于pod label，而不是pod name
+</code></pre>
+<p>运行<code> kubectl apply -f java-service.yaml</code> 命令，启动service服务，然后运行<code>kubectl get svc</code> 命令查看所有service,会看到一个TYPE 为 NodePort 的service<br>
+<img src="https://toomi.pages.dev/post-images/1697509902873.png" alt="" loading="lazy"></p>
+<p>在k8s服务器上访问CLUSTER-IP:PORT , 如<code>curl  10.43.90.53:8001</code>  或者在外网访问外放ip和端口，如<code>curl  外网ip:30001</code> 即可测试服务访问性</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[MySQL Innodb 开启事务时机 ]]></title>
+        <id>https://toomi.pages.dev/post/mysql-innodb-kai-qi-shi-wu-shi-ji/</id>
+        <link href="https://toomi.pages.dev/post/mysql-innodb-kai-qi-shi-wu-shi-ji/">
+        </link>
+        <updated>2023-10-03T12:55:51.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="1-begin">1. BEGIN</h2>
+<p>和BEGIN等效的命令还有“BEGIN WORK”及“START TRANSACTION”。 <strong>执行BEGIN命令并不会真的去引擎层开启一个事务，仅仅是为当前线程设定标记，表示为显式开启的事务。</strong></p>
+<p>当以BEGIN开启一个事务时，首先会去检查是否有活跃的事务还未提交，如果没有提交，则调用ha_commit_trans提交之前的事务，并释放之前事务持有的MDL锁。</p>
+<p>执行  <code>BEGIN</code> 语句后，直到执行 查询 select 语句或者修改语句，Innodb 才会开启事务，并创建一致性视图（Read View）</p>
+<h2 id="2-start-transaction-with-consistent-snapshot">2. START TRANSACTION WITH CONSISTENT SNAPSHOT</h2>
+<p>执行这个语句会立即开启事务时还会顺便创建一致性视图（Read View）</p>
+<h2 id="3-autocommit0">3. AUTOCOMMIT=0</h2>
+<p>关闭自动提交，则执行 查询 select 语句或者修改语句，Innodb 都会开启事务</p>
+<h2 id="4-实验">4. 实验</h2>
+<p>在MySQL中，可以通过 <code>SHOW ENGINE INNODB STATUS</code> 命令，或者查询表 <code>NFORMATION_SCHEMA.INNODB_TRX</code> 查看事务状态，本文用的是查询<code>NFORMATION_SCHEMA.INNODB_TRX</code> 判断哪种命令开启了事务。</p>
+<h3 id="41-验证begin-语句">4.1 验证<code>BEGIN</code> 语句</h3>
+<p>步骤1：在窗口1开启会话，查询当前执行中的事务，看到当前并无执行中的事务<br>
+<img src="https://toomi.pages.dev/post-images/1696339690277.png" alt="" loading="lazy"><br>
+步骤2：在窗口2开启会话，只执行 <code>BEGIN</code> 语句，并返回窗口 1 查询当前执行中的事务<br>
+<img src="https://toomi.pages.dev/post-images/1696339849939.png" alt="" loading="lazy"><br>
+仍然看到当前并无执行中的事务，可以得出结果 <strong>只执行<code>BEGIN</code> 语句并不会立即开启事务</strong><br>
+<img src="https://toomi.pages.dev/post-images/1696339910320.png" alt="" loading="lazy"><br>
+步骤3：执行查询语句 <code>select * from account  ;</code> ，并返回窗口 1 查询当前执行中的事务<br>
+<img src="https://toomi.pages.dev/post-images/1696340059799.png" alt="" loading="lazy"><br>
+此时可以看到，有正在执行中的事务，可以得出结果，在执行<code>BEGIN</code>语句后，直到执行 查询 select 语句或者修改语句，Innodb 才会开启事务<br>
+<img src="https://toomi.pages.dev/post-images/1696340107818.png" alt="" loading="lazy"></p>
+<p>同理，用上诉方法，可以证明<code>START TRANSACTION WITH CONSISTENT SNAPSHOT</code>语句执行后，会立即开启事务</p>
+<h2 id="参考链接">参考链接</h2>
+<ul>
+<li><a href="https://www.percona.com/blog/when-does-innodb-start-transaction/">When does Innodb Start Transaction</a></li>
+<li><a href="http://mysql.taobao.org/monthly/2015/12/01/">InnoDB 事务子系统介绍</a></li>
+<li><a href="https://kiosk007.top/post/what-happened-to-mysql-query-2/">一条MySQL查询语句经历了什么--事务</a></li>
+<li><a href="https://www.w3cschool.cn/hjikt5/4nbizozt.html">MySQL 如何查看当前最新事务ID</a></li>
+</ul>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Linux系统中的Page cache和Buffer cache]]></title>
+        <id>https://toomi.pages.dev/post/linux-xi-tong-zhong-de-page-cache-he-buffer-cache/</id>
+        <link href="https://toomi.pages.dev/post/linux-xi-tong-zhong-de-page-cache-he-buffer-cache/">
+        </link>
+        <updated>2023-09-22T08:23:50.000Z</updated>
+        <content type="html"><![CDATA[<p>Linux中有两个很容易混淆的概念,<code>pagecache</code>和<code>buffercache</code>,首先简单将一些Linux系统下内存的分布,使用<code>free -m</code>命令可以查看内存分布情况:</p>
+<pre><code>[root@localhost ~]# free -m
+              total        used        free      shared  buff/cache   available
+Mem:           3770        1148        1252          17        1369        2377
+Swap:          3967           0        3967
+</code></pre>
+<p>内存分布示意图:<br>
+<img src="https://toomi.pages.dev/post-images/1695371099178.png" alt="" loading="lazy"></p>
+<h2 id="page-cache与buffer-cache作用">Page cache与Buffer Cache作用</h2>
+<ul>
+<li>page cache :页缓存,负责缓存逻辑数据。</li>
+<li>buffer cache : 块缓存,负责缓存物理数据。</li>
+</ul>
+<p>文件存储在磁盘上,存储最小单位是扇区,大小为0.5kb,磁盘读取数据到内存时不会一个一个扇区的读,这样效率太低,而是先将扇区组成小块,这个小块就是buffer cache，大小为1kb,然后将块组织成页(pagecache,4kb)。</p>
+<p>读取数据具体流程是:先去读取buffer cache,如果cache空间不够，会通过一定的策略将一些过时或多次未被访问的buffer cache清空。程序在下一次访问磁盘时首先查看是否在buffer cache找到所需块，命中可减少访问磁盘时间。不命中时需重新读入buffer cache。</p>
+<p>对buffer cache的写分为两种，一是直接写，这是程序在写buffer cache后也写磁盘，要读时从buffer cache上读，二是后台写，程序在写完buffer cache后并不立即写磁盘，因为有可能程序在很短时间内又需要写文件，如果直接写，就需多次写磁盘了。这样效率很低，而是过一段时间后由后台写，减少了多次访磁盘的时间。</p>
+<p>Page cache在linux读写文件时，它用于缓存文件的逻辑内容，从而加快对磁盘上映像和数据的访问。具体说是加速对文件内容的访问，buffer cache缓存文件的具体内容——物理磁盘上的磁盘块，这是加速对磁盘的访问。</p>
+<p>Buffer cache是由物理内存分配，Linux系统为提高内存使用率，会将空闲内存全分给buffer cache ，当其他程序需要更多内存时，系统会减少cache大小。</p>
+<h2 id="page-cache和buffer-cache的区别">Page cache和Buffer cache的区别</h2>
+<p>磁盘的操作有逻辑级（文件系统）和物理级（磁盘块），这两种Cache就是分别缓存逻辑和物理级数据的。</p>
+<p>假设我们通过文件系统操作文件，那么文件将被缓存到Page Cache，如果需要刷新文件的时候，Page Cache将交给Buffer Cache去完成，因为Buffer Cache就是缓存磁盘块的。</p>
+<p>也就是说，直接去操作文件，那就是Page Cache区缓存，用dd等命令直接操作磁盘块，就是Buffer Cache缓存的东西。</p>
+<p>Page cache实际上是针对文件系统的，是文件的缓存，在文件层面上的数据会缓存到page cache。文件的逻辑层需要映射到实际的物理磁盘，这种映射关系由文件系统来完成。当page cache的数据需要刷新时，page cache中的数据交给buffer cache，但是这种处理在2.6版本的内核之后就变的很简单了，没有真正意义上的cache操作。</p>
+<p>Buffer cache是针对磁盘块的缓存，也就是在没有文件系统的情况下，直接对磁盘进行操作的数据会缓存到buffer cache中，例如，文件系统的元数据都会缓存到buffer cache中。</p>
+<p>简单说来，page cache用来缓存文件数据，buffer cache用来缓存磁盘数据。在有文件系统的情况下，对文件操作，那么数据会缓存到page cache，如果直接采用dd等工具对磁盘进行读写，那么数据会缓存到buffer cache。</p>
+<p>Buffer(Buffer Cache)以块形式缓冲了块设备的操作，定时或手动的同步到硬盘，它是为了缓冲写操作然后一次性将很多改动写入硬盘，避免频繁写硬盘，提高写入效率。</p>
+<p>Cache(Page Cache)以页面形式缓存了文件系统的文件，给需要使用的程序读取，它是为了给读操作提供缓冲，避免频繁读硬盘，提高读取效率。</p>
+<h2 id="原文">原文</h2>
+<p>https://www.cnblogs.com/Courage129/p/14311675.html</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[LinkedHashMap实现lru原理]]></title>
+        <id>https://toomi.pages.dev/post/linkedhashmap-shi-xian-lru-yuan-li/</id>
+        <link href="https://toomi.pages.dev/post/linkedhashmap-shi-xian-lru-yuan-li/">
+        </link>
+        <updated>2023-08-28T03:22:33.000Z</updated>
+        <content type="html"><![CDATA[<p>lru全称是least recently used，即最近最少使用。该算法一般应用于内存缓存场景，提供了在缓存数据规模增大时限制数据集合大小，优先保留热点数据的方案。lru在数据规模到达集合上限时会优先清理上次访问时间距当前最久的数据，这样的好处在于能够保证热点数据更长时间驻留，有利于提供系统的整体访问性能，减少从外存或磁盘读取数据的次数。</p>
+<h2 id="linkedhashmap">LinkedHashMap</h2>
+<p>JDK自带集合工具中已经为我们提供了lru算法的解决方案，即LinkedHashMap。LinkedHashMap继承于HashMap，在原有hash数组的基础上追加了一个双向链表结构。我们知道，数组长于随机访问，短于增删数据，而链表正好相反，增删数据方便，但只能顺序访问。因此，这里其实结合了数组和链表各自的优势，实现高效的随机访问和元素增删，典型的空间换时间。</p>
+<p>LinkedHashMap比HashMap多出两个私有属性。首先是布尔型的accessOrder，当其为true，则当前为lru算法模式，否则为传统模式，即按照插入顺序遍历读取。其次是header，作为链表的头节点构建链表。</p>
+<p>header的声明类型Entry继承自HashMap的Entry，其主要实现逻辑是覆写了recordAccess方法，我们来看下源码:</p>
+<pre><code class="language-java">void recordAccess(HashMap&lt;K,V&gt; m) {
+    LinkedHashMap&lt;K,V&gt; lm = (LinkedHashMap&lt;K,V&gt;)m;
+    if (lm.accessOrder) {
+        lm.modCount++;
+        remove();
+        addBefore(lm.header);
+    }
+}
+private void remove() {
+    before.after = after;
+    after.before = before;
+}
+private void addBefore(Entry&lt;K,V&gt; existingEntry) {
+    after  = existingEntry;
+    before = existingEntry.before;
+    before.after = this;
+    after.before = this;
+}
+</code></pre>
+<p>当accessOrder设置为true，则将当前访问节点首先从原来位置移除，然后置为头节点。这一系列操作实现将最近访问的节点移动到头部，保证了在达到容量上限需要移除元素时能够最后被移除。因此，这里也是实现lru算法的核心逻辑。</p>
+<p>在查询或插入时，会执行recordAccess方法进行访问元素位置的调整。特别的是，插入时执行父类方法put，然后执行子类重写的recordAccess方法进行元素调整，是一个模板方法模式。另外LinkedHashMap重写了addEntry方法，这个算是对HashMap逻辑的覆盖。</p>
+<pre><code class="language-java">void addEntry(int hash, K key, V value, int bucketIndex) {
+    createEntry(hash, key, value, bucketIndex);
+    // Remove eldest entry if instructed, else grow capacity if appropriate
+    Entry&lt;K,V&gt; eldest = header.after;
+    if (removeEldestEntry(eldest)) {
+        removeEntryForKey(eldest.key);
+    } else {
+        if (size &gt;= threshold)
+            resize(2 * table.length);
+    }
+}
+</code></pre>
+<p>这里createEntry将元素加入链表头部。然后检查是否需要删除最老的元素，存在两个问题：一是header.after表示的是链表尾部，这是双向链表的环形结构决定的；二是removeEldestEntry是一个空的实现，默认返回false。在使用时需要我们覆写逻辑,以决定什么时候可以进行老旧数据的删除逻辑。一个简单的实现如下:</p>
+<pre><code class="language-java">private static final int MAX_ENTRIES = 100;
+protected boolean removeEldestEntry(Map.Entry eldest) {
+    return size() &gt; MAX_ENTRIES;
+}
+</code></pre>
+<h2 id="原文">原文</h2>
+<p>https://cescme.github.io/2017/03/08/LinkedHashMap%E5%AE%9E%E7%8E%B0lru%E5%8E%9F%E7%90%86/</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[文件系统的原理]]></title>
+        <id>https://toomi.pages.dev/post/zhuan-zai-wen-jian-xi-tong-de-yuan-li/</id>
+        <link href="https://toomi.pages.dev/post/zhuan-zai-wen-jian-xi-tong-de-yuan-li/">
+        </link>
+        <updated>2023-08-25T02:15:09.000Z</updated>
+        <content type="html"><![CDATA[<p>持久性的数据是存储在外部磁盘上的，如果没有文件系统，访问这些数据就需要直接读写磁盘的sector，实在太不方便了。而文件系统存在的意义，就是能更有效的组织、管理和使用磁盘上的这些raw data。</p>
+<blockquote>
+<p>所谓持久性（persistance），就是指即便面对困难、挑战，依然可以持续，对于设备来说，就是面对掉电、操作系统crash，依然可以保持数据的持久存在。</p>
+</blockquote>
+<h2 id="文件系统的组成">文件系统的组成</h2>
+<p>要管理，就得先划分，那按照什么粒度划分呢？因为磁盘上的数据要和内存交互，而内存通常是以4KB为单位的，所以从逻辑上，把磁盘按照4KB划分比较方便（称为一个block）。现在假设由一个文件系统管理64个blocks的一个磁盘区域：<br>
+<img src="https://toomi.pages.dev/post-images/1692929811802.png" alt="" loading="lazy"></p>
+<p>那在这些blocks中应该存储些什么？文件系统的基础要素自然是文件，而文件作为一个数据容器的逻辑概念，本质上是一些字节构成的集合，这些字节就是文件的user data（对应下图的&quot;D&quot;）。<br>
+<img src="https://toomi.pages.dev/post-images/1692929840747.png" alt="" loading="lazy"></p>
+<p>除了文件本身包含的数据，还有文件的访问权限、大小和创建时间等控制信息，这些信息被称为meta data。meta data可理解为是关于文件user data的data，这些meta data存储的数据结构就是inode（对应下图的&quot;I&quot;，有些文件系统称之为dnode或fnode）。</p>
+<blockquote>
+<p>inode 不存储文件名，文件名存储在目录中，详细看下文</p>
+</blockquote>
+<p>inode是&quot;index node&quot;的简称，在早期的Unix系统中，这些nodes是通过数组组织起来的，因此需要依靠index来索引数组中的node。假设一个inode占据256字节，那么一个4KB的block可以存放16个inodes，使用5个blocks可以存放80个inodes，也就是最多支持80个文件。<br>
+<img src="https://toomi.pages.dev/post-images/1692929876637.png" alt="" loading="lazy"></p>
+<h2 id="inode-的内容">inode 的内容</h2>
+<p>inode 包含文件的元信息，具体来说有以下内容：</p>
+<ul>
+<li>文件的字节数</li>
+<li>文件拥有者的 User ID</li>
+<li>文件用户组的 Group ID</li>
+<li>文件的读、写、执行权限</li>
+<li>文件的时间戳，共有三个：</li>
+<li>ctime 指 inode 上一次变动的时间</li>
+<li>mtime 指文件内容上一次变动的时间</li>
+<li>atime 指文件上一次打开的时间</li>
+<li>链接数，即有多少文件名指向这个 inode</li>
+<li>文件数据 block 的位置<br>
+可以用 stat 命令，查看某个文件的 inode 信息：</li>
+</ul>
+<pre><code class="language-c">[Linux]$ stat abc.txt
+  File: 'abc.txt'
+  Size: 7805      Blocks: 16         IO Block: 4096   regular file
+Device: fc09h/64521dInode: 152067      Links: 1
+Access: (0664/-rw-rw-r--)  Uid: ( 5000/shiyanlou)   Gid: ( 5000/shiyanlou)
+Access: 2018-01-16 15:14:20.419663570 +0800
+Modify: 2018-01-16 15:14:28.331874373 +0800
+Change: 2018-01-16 15:14:28.331874373 +0800
+ Birth: -
+</code></pre>
+<p>总之，除了文件名以外的所有文件信息，都存在 inode 之中。至于为什么没有文件名，下文会有详细解释。<br>
+每个 inode 都有一个号码，操作系统用 inode 号码来识别不同的文件。<br>
+这里值得重复一遍，Unix/Linux 系统内部不使用文件名，而使用 inode 号码来识别文件。对于系统来说，文件名只是 inode 号码便于识别的别称或者绰号。<br>
+表面上，用户通过文件名打开文件。实际上，系统内部将这个过程分成三步：</p>
+<ol>
+<li>系统找到文件名对应的 inode 号码</li>
+<li>通过 inode 号码，获取 inode 信息</li>
+<li>根据 inode 信息，找到文件数据所在的 block，读出数据。</li>
+</ol>
+<p>使用 ls -l 命令查看文件名对应的 inode 号码：</p>
+<pre><code class="language-c">[Linux]$ ls -i abc.txt
+152067 abc.txt
+</code></pre>
+<h2 id="bitmap">bitmap</h2>
+<p>同内存分配一样，当有了新的数据产生时，我们需要选择一个空闲的block来存放数据，此外还需要一个空闲的inode。所以，需要追踪这些inodes和data blocks的分配和释放情况，以判断哪些是已用的，哪些是空闲的。</p>
+<p>最简单的办法就是使用bitmap，包括记录inode使用情况的bitmap（对应下图的&quot;i&quot;），和记录data block使用情况的bitmap（对应下图的&quot;d&quot;）。空闲就标记为0，正在使用就标记为1。<br>
+<img src="https://toomi.pages.dev/post-images/1692929987614.png" alt="" loading="lazy"></p>
+<h2 id="superblock">superblock</h2>
+<p>因为block是最小划分单位，所以这里使用了两个blocks来分别存储inode bitmap和data block bitmap，每个block可以容纳的bits数量是4096*8。而这里我们只有80个inodes和56个data blocks，所以是绰绰有余的。</p>
+<p>还剩下开头的一个block，这个block是留给superblock的（对应下图的&quot;S&quot;）。<br>
+<img src="https://toomi.pages.dev/post-images/1692930040851.png" alt="" loading="lazy"></p>
+<p>这个superblock包含了一个文件系统所有的控制信息，比如文件系统中有多少个inodes和data blocks，inode的信息起始于哪个block（这里是第3个），可能还有一个区别不同文件系统类型的magic number。因此，superblock可理解为是文件系统的meta data。<br>
+<img src="https://toomi.pages.dev/post-images/1692930064409.png" alt="" loading="lazy"></p>
+<h2 id="文件寻址">文件寻址</h2>
+<p>这5个blocks中的80个inodes构成了一个inode table。假设一个inode的大小是256字节，现在我们要访问第32个文件，那就要先找到这个文件的控制信息，也就是第32个inode所在的磁盘位置。它应该在相对inode table起始地址的8KB处（32*256=8192），而inode table的起始地址是12KB，所以实际位置是20KB。<br>
+<img src="https://toomi.pages.dev/post-images/1692930118823.png" alt="" loading="lazy"></p>
+<p>磁盘同内存不同，它在物理上不是按字节寻址的，而是按sector。一个sector的大小通常是512字节，因此换算一下就是第40个sector（20*1024/512）。</p>
+<p>对于ext2/3/4文件系统，以上介绍的这些inode bitmap, data block bitmap和inode table，都可以通过一个名为&quot;dumpe2fs&quot;的工具来查看其在磁盘上的具体位置：<br>
+<img src="https://toomi.pages.dev/post-images/1692930143276.png" alt="" loading="lazy"></p>
+<p>如果只需要查看inode的使用情况，那么直接使用&quot;df -i&quot;命令即可：<br>
+<img src="https://toomi.pages.dev/post-images/1692930177056.png" alt="" loading="lazy"></p>
+<p>那通过inode如何找到对应的文件呢？根据大小的不同，一个文件需要占据若干个blocks，这些blocks可能是磁盘上连续分布的，也可能不是。所以，比较好的办法是使用指针，指针存储在inode中，一个指针指向一个block。</p>
+<p>不过，在这个简化的示例里，并不需要C语言里那种指针，只需要一个block的编号就可以了。如果文件比较小，占有的blocks数目就比较少，那么一个256字节的inode就能存储这些指针。假设一个inode最多能包含12个指针，那么文件的大小不能超过48KB。</p>
+<p>那如果超过了怎么办？可由inode先指向一个block，这个block再指向分散的data block，这种方法称为multi-level index。inode在指向中间block的同时，也可以直接指向data block。假设一个指针占据4个字节，那么一个中间block可存储1024个指针，二级index的寻址范围就可超过4MB，三级index则可超过4GB。<br>
+<img src="https://toomi.pages.dev/post-images/1692930214684.png" alt="" loading="lazy"></p>
+<p>有没有觉得很像内存管理中的多级页表？事实上，它们的原理可以说是一样的，文件在磁盘上的实际block分布对等于内存的物理地址，而各级index就对等于内存的虚拟地址。</p>
+<p>这种只使用block指针的方式（可被称为&quot;pointer-based&quot;）被ext2和ext3文件系统所采用，但它存在一个问题，对于占据多个data block的文件，需要较多的meta data。</p>
+<p>另一种实现是使用一个block指针加上一个length来表示一组物理上连续的blocks（称为一个extent，其中length以block为单位计），一个文件则由若干个extents构成。这种&quot;extent-based&quot;的方式被后来的ext4文件系统所采用。</p>
+<pre><code class="language-c++">struct ext4_extent {
+    __le32  ee_block;   /* first logical block extent covers */
+    __le16  ee_len;     /* number of blocks covered by extent */
+    ...
+};
+</code></pre>
+<p>相比&quot;pointer-based&quot;而言，&quot;extent-based&quot;由于需要磁盘上连续的free space，灵活性稍差，适用于磁盘空闲空间比较充足的场景。</p>
+<h2 id="目录文件">目录文件</h2>
+<p>Unix/Linux 系统中，目录（directory）也是一种文件。打开目录，实际上就是打开目录文件。<br>
+目录文件的结构非常简单，就是一系列目录项（dirent）的列表。每个目录项，由两部分组成：所包含文件的文件名，以及该文件名对应的 inode 号码。如果要查看文件的详细信息，就必须根据 inode 号码，访问 inode 节点，读取信息。</p>
+<blockquote>
+<p>目录的执行权限<br>
+目录文件的读权限（r）和写权限（w）只是针对目录文件本身。由于目录文件内只有文件名和 inode 号码，所以如果只有读权限，只能获取文件名，无法获取其他信息。</p>
+<pre><code class="language-c">[Linux]$ ls -l
+drw-rw-rw-  2 glenn glenn  4096 Dec  5 18:11 test/
+[Linux]$ls -l test/
+total 0
+d????????? ? ? ? ?            ? ./
+d????????? ? ? ? ?            ? ../
+-????????? ? ? ? ?            ? b.txt
+</code></pre>
+<p>要读取 inode 节点内的信息具有文件夹的执行权限（x）。</p>
+</blockquote>
+<p>各级目录构成了访问文件的路径，不同于windows操作系统的drive分区，类Unix系统中的&quot;mount&quot;操作让所有的文件系统的挂载点都是一个路径，形成了树形结构。从抽象的角度，目录也可视作一种文件，只是这种文件比较特殊，它的user data存储的是该路径下的普通文件的inode编号。<br>
+<img src="https://toomi.pages.dev/post-images/1692930271887.png" alt="" loading="lazy"></p>
+<p>所以，如下图所示的这样一个路径结构，假设要在&quot;/foo&quot;目录下创建一个文件&quot;bar.txt&quot;，那么需要从inode bitmap中分配一个空闲的inode，并在&quot;/foo&quot;这个目录中分配一个entry，以关联这个inode号。<br>
+<img src="https://toomi.pages.dev/post-images/1692930296092.png" alt="" loading="lazy"></p>
+<p>接下来，我们要读取刚才创建的这个&quot;/foo/bar.txt&quot;文件，那么先得找到&quot;/&quot;这个目录文件的inode号（这必须是事先知道的，假设是2）。然后访问这个inode指向的data block，从中找到一个名为&quot;foo&quot;的entry，得到目录文件&quot;foo&quot;的inode号（假设是44）。重复此过程，按图索骥，直到找到文本文件&quot;bar.txt&quot;的inode号。</p>
+<h2 id="inode-的特殊作用">inode 的特殊作用</h2>
+<p>由于 inode 号码与文件名分离，这种机制导致了一些 Unix/Linux 系统特有的现象。</p>
+<ol>
+<li>当文件名包含特殊字符，无法正常删除时。可以删除 inode 节点，就能直接删除文件。</li>
+<li>移动文件或重命名文件，只是改变文件名，不影响 inode 号码。所以在 Linux 中移动文件不论大小基本秒成。</li>
+<li>打开一个文件后，系统就以 inode 号码来识别文件，不再考虑文件名。因此，系统无法从 inode 号码得知文件名。</li>
+</ol>
+<p>第 3 点使得在更新软件时可以不关闭、不重启软件。因为系统通过 inode 号码，识别运行中的文件，软件更新的时候，新版文件以同样的文件名，生成一个新的 inode，不会影响到运行中的文件。等到下一次运行这个软件的时候，文件名就自动指向新版文件，旧版文件的 inode 则被回收。</p>
+<h2 id="软链接存储">软链接存储</h2>
+<figure data-type="image" tabindex="1"><img src="https://toomi.pages.dev/post-images/1692932986837.png" alt="" loading="lazy"></figure>
+<h2 id="原文">原文</h2>
+<ul>
+<li>https://zhuanlan.zhihu.com/p/106459445</li>
+<li>https://gnu-linux.readthedocs.io/zh/latest/Chapter03/00_inode.html</li>
+<li>https://juejin.cn/post/7133154797468778503</li>
+<li>http://chuquan.me/2022/05/01/understand-principle-of-filesystem/</li>
+</ul>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[MyBatis 的反射]]></title>
+        <id>https://toomi.pages.dev/post/mybatis-de-fan-she/</id>
+        <link href="https://toomi.pages.dev/post/mybatis-de-fan-she/">
+        </link>
+        <updated>2023-08-22T02:40:38.000Z</updated>
+        <content type="html"><![CDATA[<figure data-type="image" tabindex="1"><img src="https://toomi.pages.dev/post-images/1692672776589.png" alt="" loading="lazy"></figure>
+<p>MyBatis作为一款ORM框架，主要通过XML定义Object，这就难免用到反射，虽然JDK自带的反射已经方便使用，但是MyBatis依然结合业务功能，将反射功能封装成一个更加易用的包，这个包就在reflection中。</p>
+<p>一个POJO对象拥有两类属性，对象属性以及类信息，在MyBatis中分别通过通过MetaObject和MetaClass对应上述信息。</p>
+<p>明白了上述信息，就能理解下面MyBatis反射包中几个关键类的作用：</p>
+<ul>
+<li>MetaClass : 保存了POJO的类相关信息，比如拥有的方法hasGetter()/hasSetter()</li>
+<li>MetaObject ： 保存了POJO对象的相关的信息，比如通过getter()获取值，通过setter()设置值</li>
+<li>ObjectWrapper : 用来区别不同的POJO获取属性的不同的方式，比如数组通过索引获取：nums[index],Map通过key获取，POJO通过getter()获取</li>
+<li>Relector: 这个类便是MyBatis的反射底层类，它简单的封装了JDK底层的反射，其他类都是调用此类进行反射操作。</li>
+</ul>
+<h2 id="小结">小结</h2>
+<p>这里再次复习一下，MyBatis的反射使用入口是SystemMetaObject，它包含了整个反射包的基本配置。</p>
+<p>在MyBatis的代码中，很少能看到静态类，静态工具方法等，基本都是通过对象“注入”到对应的其他对象中。这样当需要修改实现的时候，就能很好的维护。</p>
+<p>在MyBatis中，首先使用MetaObject，MetaObject内部充当了一个简单工厂方法，用来分辨是处理Map还是处理List还是Bean，</p>
+<p>ObjectWrapper根据不同的实现，使用不同的方式获取底层的值，对于Bean来说，使用的是MetaClass，</p>
+<p>MetaClass包含了对应Bean的Class的各种元属性。其中MetaClass底层使用的Reflector对象</p>
+<p>Reflector对象便是真正的反射实现者，其内部根据传入的Class，生成了各种信息，并且由于Class是通用的，因此MyBatis使用ReflectorFactory将其缓存起来。</p>
+<h2 id="reflectorfactory-测试">ReflectorFactory 测试</h2>
+<pre><code class="language-java">public class Student {
+    
+    public Integer getId() {
+        return 6;
+    }
+
+    public void setId(Integer id) {
+        System.out.println(id);
+    }
+
+    public String getUserName() {
+        return &quot;张三&quot;;
+    }
+}
+</code></pre>
+<pre><code class="language-java">@Test
+public void test02() throws Exception{
+        ReflectorFactory factory = new DefaultReflectorFactory();
+        Reflector reflector = factory.findForClass(Student.class);
+        System.out.println(&quot;可读属性:&quot;+Arrays.toString(reflector.getGetablePropertyNames()));
+        System.out.println(&quot;可写属性:&quot;+Arrays.toString(reflector.getSetablePropertyNames()));
+        System.out.println(&quot;是否具有默认的构造器:&quot; + reflector.hasDefaultConstructor());
+        System.out.println(&quot;Reflector对应的Class:&quot; + reflector.getType());
+ }
+</code></pre>
+<h2 id="systemmetaobject">SystemMetaObject</h2>
+<pre><code class="language-java">Student student = new Student();
+student.setId(1);
+MetaObject metaObject = SystemMetaObject.forObject(car);
+Integer id = (Integer) metaObject.getValue(&quot;id&quot;);
+System.out.println(&quot;  id: &quot; + id);
+</code></pre>
+<h2 id="原文">原文</h2>
+<ul>
+<li>https://dengchengchao.com/?p=1209</li>
+<li><a href="https://zhuanlan.zhihu.com/p/383638358">带你彻底搞懂MyBatis的底层实现之反射工具箱(reflector)</a></li>
+<li>https://www.cayzlh.com/wiki/mybatis-technology-insider/part11/</li>
+<li>https://jimmy2angel.github.io/2017/04/22/mybatis-mapper/</li>
+</ul>
+]]></content>
+    </entry>
+</feed>

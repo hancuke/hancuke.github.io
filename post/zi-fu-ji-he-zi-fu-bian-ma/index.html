@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>字符集和字符编码 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="字符集就是字符的集合，如常见的 ASCII字符集，GB2312字符集，Unicode字符集等。这些不同字符集之间最大的区别是所包含的字符数量的不同。
+字符编码则代表字符集的实际编码规则，是用于计算机解析字符的，如 GB2312，GBK，UT..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="字符集和字符编码" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="字符集就是字符的集合，如常见的 ASCII字符集，GB2312字符集，Unicode字符集等。这些不同字符集之间最大的区别是所包含的字符数量的不同。
+字符编码则代表字符集的实际编码规则，是用于计算机解析字符的，如 GB2312，GBK，UT...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/zi-fu-ji-he-zi-fu-bian-ma/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2022-11-17">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="字符集和字符编码">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="字符集和字符编码">
+        <meta name="twitter:description" content="字符集就是字符的集合，如常见的 ASCII字符集，GB2312字符集，Unicode字符集等。这些不同字符集之间最大的区别是所包含的字符数量的不同。
+字符编码则代表字符集的实际编码规则，是用于计算机解析字符的，如 GB2312，GBK，UT...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    字符集和字符编码
+                                </h2>
+                                <span class="article-info">
+                                    2022-11-17, 2845 words, 11 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <p>字符集就是字符的集合，如常见的 ASCII字符集，GB2312字符集，Unicode字符集等。这些不同字符集之间最大的区别是所包含的字符数量的不同。</p>
+<p>字符编码则代表字符集的实际编码规则，是用于计算机解析字符的，如 GB2312，GBK，UTF-8 等。字符编码的本质就是如何使用二进制字节来表示字符的问题。</p>
+<p>字符集和编码是一对多的关系，同一字符集可能有多种字符编码，如Unicode字符集就有 UTF-8，UTF-16 等。</p>
+<p>在前端开发中，Javascript程序是使用Unicode字符集，Javascript源码文本通常是基于UTF-8编码。<br>
+但js代码中的字符串类型是UTF-16编码的，这也是为什么会碰到api接口返回字符串在前端出现乱码，因为多数服务都使用utf-8编码，前后编码方式不一致。</p>
+<p>说起字符集的发展历程，可以总结为一句话：几乎都是对ASCII字符集的扩展。</p>
+<h2 id="ascii">ASCII</h2>
+<p>我们知道，计算机是使用二进制来处理信息的。<br>
+其中，每一个二进制位(bit)有 0和1 两种状态。一个字节(byte)则有8个二进制位，可以有256种状态。</p>
+<p>而ASCII就是基于拉丁字母、主要用于显示英文的一种单字节字符集，它的编码和字符是一一对应的，因为它就是使用一个字节8个二进制位来表示，不会超过256个字符。</p>
+<p>标准的ASCII字符总计有128个字符(2^7)，其中前面32个控制字符，后面96个是可打印字符，包括常用的大小写字母数字标点符号等。因为只占用了一个字节的后7位，那字节的最高位一般设置为0。</p>
+<pre><code class="language-js">'a'.charCodeAt() // 97
+'A'.charCodeAt() // 65
+'9'.charCodeAt() // 57
+'.'.charCodeAt() // 46
+</code></pre>
+<p>如上，每个字符会对应一个编码(使用数字标识)，总共会从0-128。完整的ASCII码表，网上很容易找到。</p>
+<p>通过ASCII码表，我们发现，小写字母并没有和大写字母挨着排序？这是为了方便大小写之间的转换， A 排在 65(64 + 1) 位，而 a 排在 97(64 + 32 + 1) 位。</p>
+<pre><code class="language-js">65 ^ 32 = 97
+// A ^ 32 = a
+</code></pre>
+<h2 id="字符集的发展历史">字符集的发展历史</h2>
+<p>ASCII是几乎所有字符集的基础。</p>
+<p>标准的ASCII码最多只能标识128个字符，欧美国家可以很好的使用，但其他国家的字符变多，自然就不够用了。<br>
+这个时候，最高位就开始被惦记上，通过扩展ASCII码的最高位，又能满足用于特殊符号的一些国家的需求，这种就是扩展ASCII码。</p>
+<p>但是亚非拉更多非拉丁语系的国家，字符成千上万，只能使用新的方式。<br>
+如中文，就又进行了扩展，小于127的字符的意义与标准ASCII码相同，当需要标识汉字时，使用2个字节，每个字节都大于127。这种多字节字符集即GB2312，后续因为不断的扩展，如繁体字和各种符号，甚至少数民族的语言符号等等，又使用了包括GBK等不同字符集。<br>
+因此，很多国家都制定了自己的编码字符集，基本都是在ASCII的基础上进行的。</p>
+<p>各字符集虽然都能够兼容标准ASCII码，但在使用交流上的不便是显而易见的，乱码也是随处可见。为了解决这种各自为战的问题，Unicode字符集就诞生了。</p>
+<h2 id="unicode">Unicode</h2>
+<p>Unicode是国际组织制定的，用于收纳世界上所有文字和符号的字符集方案。<br>
+前128个字符同ASCII一样，进行扩充后，使用数字0-0x10FFFF来映射这些字符，最多可以有1114112个字符。目前仍然只使用了其中的一小部分。</p>
+<blockquote>
+<p>Unicode 编码字符集旨在收集全球所有的字符，为每个字符分配唯一的字符编号即代码点（Code Point），用 U+紧跟着十六进制数表示。所有字符按照使用上的频繁度划分为 17 个平面（编号为 0-16），即基本的多语言平面和增补平面。基本的多语言平面（英文为 Basic Multilingual Plane，简称 BMP）又称平面 0，收集了使用最广泛的字符，代码点从 U+0000 到 U+FFFF，每个平面有 2^16=65536 个码点；增补平面从平面 1~16，分为增补多语言平面（平面 1）、增补象形平面（平面 2）、保留平面（平面 3~13）、增补专用平面等，每个增补平面也有 2^16=65536 个码点。所以 17 个平面总计有 17 × 65,536 = 1,114,112 个码点。下图 是 Unicode 平面分布图，以及 Unicode 各个平面码点空间</p>
+</blockquote>
+<p><img src="https://toomi.pages.dev/post-images/1669879834364.png" alt="" loading="lazy"><br>
+<img src="https://toomi.pages.dev/post-images/1669879884001.png" alt="" loading="lazy"></p>
+<p>Unicode只是一个字符集，定义了字符与数字的映射关系，但对于计算机中如何存储，没有做任何规定。由于字符数量之大，码点的范围很宽，排在前面的码点，可能用1个字节就能表示，而码点较大的，可能需要2个字节，3个字节，4个字节才能表示。那么计算机如何确定是将1个字节解释为一个字符呢，还是将2个字节连在一起解释为一个字符呢？还是3个，4个字节连在一起为一个字符。于是出现了一些解决方案：</p>
+<ul>
+<li>取最大的，将所有字符都存储为4个字节（假设4个字节已经足够囊括所有码点），这样计算机固定以4个字节为单位来解释字符编码。但这样会产生极大的空间浪费，对于一篇纯英文文档，会浪费3倍的空间。</li>
+<li>存储表示字节数的信息，让计算机知道该字符是以几个字节来存储的，如UTF-8编码。</li>
+</ul>
+<p>Unicode字符集可以有不同的编码方式，如UTF-8,UTF-16,UTF-32，这里UTF指的是Unicode Transformation Format，即Unicode转换格式，即将Unicode编码空间中每个字符对应的码点，与字节顺序进行一一映射。</p>
+<h3 id="码元">码元</h3>
+<p>码元(Code Unit)可以理解为对码点进行编码时的最小基本单元，码元是一个整体。而字符编码的作用就是将Unicode码点转换成码元序列。<br>
+Unicode常用的编码方式有 UTF-8 、UTF-16 和 UTF-32，UTF是Unicode TransferFormat的缩写。<br>
+UTF-8是8位的单字节码元，UTF-16是16位的双字节码元，UTF-32是32位的四字节码元。</p>
+<table>
+<thead>
+<tr>
+<th>编码方式</th>
+<th>码元</th>
+<th>编码后字节数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UTF-8</td>
+<td>8位</td>
+<td>1-4字节</td>
+</tr>
+<tr>
+<td>UTF-16</td>
+<td>16位</td>
+<td>2字节或者4字节</td>
+</tr>
+<tr>
+<td>UTF-32</td>
+<td>32位</td>
+<td>4字节</td>
+</tr>
+</tbody>
+</table>
+<p>另外，为什么总看到使用十六进制数据来表示如码点等各种数据呢？<br>
+因为，两位的十六进制正好等于一个字节8位，0xff = 0b11111111。</p>
+<h2 id="utf-字节序">UTF 字节序</h2>
+<p>最小编码单元是多字节才会有字节序的问题存在，UTF-8 最小编码单元是一字节，所以 它是没有字节序的问题，UTF-16 最小编码单元是 2 个字节，在解析一个 UTF-16 字符之前，需要知道每个编码单元的字节序</p>
+<p>比如：前面提到过，&quot;中&quot; 字的 Unicode 码是 4E2D, &quot;?&quot; 字符的 Unicode 码是 2D4E， 当我们收到一个 UTF-16 字节流 4E2D 时，计算机如何识别它表示的是字符 &quot;中&quot; 还是 字符 &quot;?&quot; 呢 ?</p>
+<p>所以，对于多字节的编码单元，需要有一个标记显式的告诉计算机，按照什么样的顺序解析字符，也就是字节序，字节序分为 大端字节序 和 小端字节序</p>
+<p>小端字节序简写为 LE( Little-Endian ), 表示 低位字节在前，高位字节在后, 高位字节保存在内存的高地址端，而低位字节保存在内存的低地址端</p>
+<p>大端字节序简写为 BE( Big-Endian ), 表示 高位字节在前，低位字节在后，高位字节保存在内存的低地址端，低位字节保存在在内存的高地址端</p>
+<p>下面以 0x4E2D 为例来说明大端和小端，具体参见下图:<br>
+<img src="https://toomi.pages.dev/post-images/1669952564689.png" alt="" loading="lazy"></p>
+<p>数据是从高位字节到低位字节显示的，这也更符合人们阅读数据的习惯，而内存地址是从低地址向高地址增加</p>
+<p>所以，字符0x4E2D 数据的高位字节是 4E，低位字节是 2D</p>
+<p>按照大端字节序的高位字节保存内存低地址端的规则，4E 保存到低内存地址 0x10001 上，2D 则保存到高内存地址 0x10002 上</p>
+<p>对于小端字节序，则正好相反，数据的高位字节保存到内存的高地址端，低位字节保存到内存低地址端的，所以 4E 保存到高内存地址 0x10002 上，2D 则保存到低内存地址 0x10001 上</p>
+<h2 id="bom">BOM</h2>
+<p>BOM 是 byte-order mark 的缩写，是 &quot;字节序标记&quot; 的意思, 它常被用来当做标识文件是以 UTF-8、UTF-16 或 UTF-32 编码的标记 在 Unicode 编码中有一个叫做 &quot;零宽度非换行空格&quot; 的字符 ( ZERO WIDTH NO-BREAK SPACE ), 用字符 FEFF 来表示 。对于 UTF-16 ，如果接收到以 FEFF 开头的字节流， 就表明是大端字节序，如果接收到 FFFE， 就表明字节流 是小端字节序。</p>
+<p>UTF-8 没有字节序问题，上述字符只是用来标识它是 UTF-8 文件，而不是用来说明字节顺序的。&quot;零宽度非换行空格&quot; 字符 的 UTF-8 编码是 EF BB BF, 所以如果接收到以 EF BB BF 开头的字节流，就知道这是UTF-8 文件 ， 下面的表格列出了不同 UTF 格式的固定文件头</p>
+<table>
+<thead>
+<tr>
+<th>UTF编码</th>
+<th>固定文件头</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UTF-8</td>
+<td>EF BB BF</td>
+</tr>
+<tr>
+<td>UTF-16LE</td>
+<td>FF FE</td>
+</tr>
+<tr>
+<td>UTF-16BE</td>
+<td>FE FF</td>
+</tr>
+<tr>
+<td>UTF-32LE</td>
+<td>FF FE 00 00</td>
+</tr>
+<tr>
+<td>UTF-32BE</td>
+<td>00 00 FE FF</td>
+</tr>
+</tbody>
+</table>
+<p>根据上面的 固定文件头，下面列出了 &quot;中&quot; 字在文件中的存储 ( 包含文件头 )</p>
+<table>
+<thead>
+<tr>
+<th>编码</th>
+<th>固定文件头</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Unicode 编码</td>
+<td>0X004E2D</td>
+</tr>
+<tr>
+<td>UTF-8</td>
+<td>EF BB BF 4E 2D</td>
+</tr>
+<tr>
+<td>UTF-16BE</td>
+<td>FE FF 4E 2D</td>
+</tr>
+<tr>
+<td>UTF-16LE</td>
+<td>FF FE 2D 4E</td>
+</tr>
+<tr>
+<td>UTF-32BE</td>
+<td>00 00 FE FF 00 00 4E 2D</td>
+</tr>
+<tr>
+<td>UTF-32LE</td>
+<td>FF FE 00 00 2D 4E 00 00</td>
+</tr>
+</tbody>
+</table>
+<h2 id="mysql-中的-utf8-和-utf8mb4">MySQL 中的 utf8 和 utf8mb4</h2>
+<p>MySQL 中的 &quot;utf8&quot; 实际上不是真正的 UTF-8， &quot;utf8&quot; 只支持每个字符最多 3 个字节, 对于超过 3 个字节的字符就会出错, 而真正的 UTF-8 至少要支持 4 个字节。MySQL 中的 &quot;utf8mb4&quot; 才是真正的 UTF-8，下面以 test 表为例来说明, 表结构如下:</p>
+<pre><code class="language-sql">mysql&gt; show create table test\G 
+*************************** 1. row *************************** 
+       Table: test 
+Create Table: CREATE TABLE `test` ( 
+  `name` char(32) NOT NULL 
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 
+</code></pre>
+<p>向 test 表分别插入 &quot;中&quot; 字 和 Unicode 码为 0x10A6F 的字符，这个字符需要从 https://unicode-table.com/cn/10A6F/ 直接复制到 MySQL 控制台上，手工输入会无效，具体的执行结果如下图:<br>
+<img src="https://toomi.pages.dev/post-images/1669952899015.png" alt="" loading="lazy"></p>
+<h2 id="原文链接">原文链接</h2>
+<p>https://www.cnblogs.com/jimojianghu/p/16205678.html<br>
+https://blog.51cto.com/u_15445690/4720328<br>
+https://www.51cto.com/article/661981.html</p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/mysql-de-ti-xi-jie-gou/">
+                                                    <h3 class="post-title">
+                                                        MySQL的体系结构
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

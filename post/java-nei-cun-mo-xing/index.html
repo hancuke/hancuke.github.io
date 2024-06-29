@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>JAVA内存模型 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="JAVA内存模型定义了一个规范，那就是每个线程都有一个工作内存，线程操作共享变量的时候需要从主内存读取到工作内存，然后再传递给工作线程使用。共享变量修改后先刷新到工作内存，然后再刷新回主内存。
+JMM 关于同步规定：
+
+线程解锁前，必须把共..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="JAVA内存模型" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="JAVA内存模型定义了一个规范，那就是每个线程都有一个工作内存，线程操作共享变量的时候需要从主内存读取到工作内存，然后再传递给工作线程使用。共享变量修改后先刷新到工作内存，然后再刷新回主内存。
+JMM 关于同步规定：
+
+线程解锁前，必须把共...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/java-nei-cun-mo-xing/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2022-10-27">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="JAVA内存模型">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="JAVA内存模型">
+        <meta name="twitter:description" content="JAVA内存模型定义了一个规范，那就是每个线程都有一个工作内存，线程操作共享变量的时候需要从主内存读取到工作内存，然后再传递给工作线程使用。共享变量修改后先刷新到工作内存，然后再刷新回主内存。
+JMM 关于同步规定：
+
+线程解锁前，必须把共...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    JAVA内存模型
+                                </h2>
+                                <span class="article-info">
+                                    2022-10-27, 1138 words, 4 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <p>JAVA内存模型定义了一个规范，那就是每个线程都有一个工作内存，线程操作共享变量的时候需要从主内存读取到工作内存，然后再传递给工作线程使用。共享变量修改后先刷新到工作内存，然后再刷新回主内存。<img src="https://toomi.pages.dev/post-images/1666858738930.png" alt="" loading="lazy"></p>
+<h2 id="jmm-关于同步规定">JMM 关于同步规定：</h2>
+<ul>
+<li>线程解锁前，必须把共享变量的值刷新回主内存</li>
+<li>线程加锁前，必须读取主内存的最新值到自己的工作内存</li>
+<li>加锁解锁是同一把锁</li>
+</ul>
+<p>JMM定义了8种指令，它工作的时候就是通过这8种指令来操作内存的。<br>
+包括怎么锁定变量、怎么将数据从主存传到工作内存、怎么传给正在被CPU调度的线程、修改之后CPU怎么传回工作内存、工作内存又怎么传递回主存：</p>
+<ol>
+<li>lock（锁定）：把主内存中的一个共享变量标记为一个线程独享的状态</li>
+<li>unlock（解锁）：把主内存的变量从线程独享的lock状态中解除出来</li>
+<li>read（读取）：把主内存的一个共享变量传输工作内存中</li>
+<li>load（载入）：把从主内存传输到工作内存的共享变量，赋值给工作内存中的变量副本</li>
+<li>use（使用）：把工作内存中的变量副本的值，传递给执行引擎CPU</li>
+<li>assign（赋值）：执行引擎（CPU）执行完之后，把修改过的变量值重新赋值给工作内存中的变量副本</li>
+<li>store（存储）：把工作内存中修改过共享变量的值传递到主内存中</li>
+<li>write（写入）：把传递到主内存中的变量值，重新写回给主内存的共享变量</li>
+</ol>
+<p>比如线程A要执行一个x++的操作，可能要经历下面的过程：<br>
+<img src="https://toomi.pages.dev/post-images/1666858891883.png" alt="" loading="lazy"></p>
+<p>lock和unlock<br>
+<img src="https://toomi.pages.dev/post-images/1666858946206.png" alt="" loading="lazy"></p>
+<ul>
+<li>工作线程A操作该共享内存变量的时候，执行lock指令，主内存中的这个共享变量；同时告诉线程B这个共享变量我准备修改了，让它失效掉。</li>
+<li>B线程的变量副本失效之后，运行时候用到，需要到主内存重新读取（执行read、load操作放入工作内存）；发现该主内存的变量被锁定了，读取失败；此时相当于线程A拥有该变量的独享操作</li>
+<li>线程A执行i++操作，经历上述说的（read、load、use、assign、store、write）指令之后；操作完成执行unlock释放锁定的这个内存变量</li>
+<li>线程B这个时候再去主内存读取的时候，发现未被锁定，就可以重新读取了</li>
+</ul>
+<h2 id="变量不可见性内存语义">变量不可见性内存语义</h2>
+<p>JMM：Java 内存模型，是 Java 虚拟机规范中所定义的一种内存模型，Java 内存模型是标准化的，屏蔽掉了底层不用计算机的区别。<br>
+Java 内存模型描述了 Java 程序中各种变量（线程共享变量）的访问规则，以及在 JVM 中将变量存储到内存和从内存中读取变量这样的底层细节。<br>
+JMM 具有以下规定：</p>
+<ul>
+<li>所有的共享变量都存储于主内存。这里所说的变量指的是实例变量和类变量。不包含局部变量，因为局部变量是线程私有的，因此不存在竞争问题。</li>
+<li>每一个线程还存在自己的工作内存，线程的工作内存，保留了被线程使用的变量的工作副本。</li>
+<li>线程对变量的所有的操作（读、取）都必须在工作内存中完成，而不能直接读写主内存中的变量。</li>
+<li>不同线程之间也不能直接访问对方工作内存中的变量，线程间变量的值的传递需要通过主内存中转来完成。</li>
+</ul>
+<h2 id="变量不可见性解决方案">变量不可见性解决方案</h2>
+<p>如何实现在多线程下访问共享变量的可见性：也就是实现一个线程修改变量后，对其他线程可见？</p>
+<ol>
+<li>使用 synchronized 关键字加锁</li>
+<li>使用 volatile 关键字<br>
+其中，volatile 保证不同线程对共享变量操作的可见性，也就是说一个线程修改了 volatile 修饰的变量，当修改写回主内存时，另外一个线程立即看到最新的值。所以，volatile 修饰的变量可以在多线程并发修改下，实现线程间变量的可见性。</li>
+</ol>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/concurrent-bao-de-shi-xian/">
+                                                    <h3 class="post-title">
+                                                        concurrent包的实现
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

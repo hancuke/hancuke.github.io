@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>MySQL Innodb 开启事务时机  | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="1. BEGIN
+和BEGIN等效的命令还有“BEGIN WORK”及“START TRANSACTION”。 执行BEGIN命令并不会真的去引擎层开启一个事务，仅仅是为当前线程设定标记，表示为显式开启的事务。
+当以BEGIN开启一个事务时..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="MySQL Innodb 开启事务时机 " />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="1. BEGIN
+和BEGIN等效的命令还有“BEGIN WORK”及“START TRANSACTION”。 执行BEGIN命令并不会真的去引擎层开启一个事务，仅仅是为当前线程设定标记，表示为显式开启的事务。
+当以BEGIN开启一个事务时...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/mysql-innodb-kai-qi-shi-wu-shi-ji/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2023-10-03">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="MySQL Innodb 开启事务时机 ">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="MySQL Innodb 开启事务时机 ">
+        <meta name="twitter:description" content="1. BEGIN
+和BEGIN等效的命令还有“BEGIN WORK”及“START TRANSACTION”。 执行BEGIN命令并不会真的去引擎层开启一个事务，仅仅是为当前线程设定标记，表示为显式开启的事务。
+当以BEGIN开启一个事务时...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    MySQL Innodb 开启事务时机 
+                                </h2>
+                                <span class="article-info">
+                                    2023-10-03, 522 words, 2 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <h2 id="1-begin">1. BEGIN</h2>
+<p>和BEGIN等效的命令还有“BEGIN WORK”及“START TRANSACTION”。 <strong>执行BEGIN命令并不会真的去引擎层开启一个事务，仅仅是为当前线程设定标记，表示为显式开启的事务。</strong></p>
+<p>当以BEGIN开启一个事务时，首先会去检查是否有活跃的事务还未提交，如果没有提交，则调用ha_commit_trans提交之前的事务，并释放之前事务持有的MDL锁。</p>
+<p>执行  <code>BEGIN</code> 语句后，直到执行 查询 select 语句或者修改语句，Innodb 才会开启事务，并创建一致性视图（Read View）</p>
+<h2 id="2-start-transaction-with-consistent-snapshot">2. START TRANSACTION WITH CONSISTENT SNAPSHOT</h2>
+<p>执行这个语句会立即开启事务时还会顺便创建一致性视图（Read View）</p>
+<h2 id="3-autocommit0">3. AUTOCOMMIT=0</h2>
+<p>关闭自动提交，则执行 查询 select 语句或者修改语句，Innodb 都会开启事务</p>
+<h2 id="4-实验">4. 实验</h2>
+<p>在MySQL中，可以通过 <code>SHOW ENGINE INNODB STATUS</code> 命令，或者查询表 <code>NFORMATION_SCHEMA.INNODB_TRX</code> 查看事务状态，本文用的是查询<code>NFORMATION_SCHEMA.INNODB_TRX</code> 判断哪种命令开启了事务。</p>
+<h3 id="41-验证begin-语句">4.1 验证<code>BEGIN</code> 语句</h3>
+<p>步骤1：在窗口1开启会话，查询当前执行中的事务，看到当前并无执行中的事务<br>
+<img src="https://toomi.pages.dev/post-images/1696339690277.png" alt="" loading="lazy"><br>
+步骤2：在窗口2开启会话，只执行 <code>BEGIN</code> 语句，并返回窗口 1 查询当前执行中的事务<br>
+<img src="https://toomi.pages.dev/post-images/1696339849939.png" alt="" loading="lazy"><br>
+仍然看到当前并无执行中的事务，可以得出结果 <strong>只执行<code>BEGIN</code> 语句并不会立即开启事务</strong><br>
+<img src="https://toomi.pages.dev/post-images/1696339910320.png" alt="" loading="lazy"><br>
+步骤3：执行查询语句 <code>select * from account  ;</code> ，并返回窗口 1 查询当前执行中的事务<br>
+<img src="https://toomi.pages.dev/post-images/1696340059799.png" alt="" loading="lazy"><br>
+此时可以看到，有正在执行中的事务，可以得出结果，在执行<code>BEGIN</code>语句后，直到执行 查询 select 语句或者修改语句，Innodb 才会开启事务<br>
+<img src="https://toomi.pages.dev/post-images/1696340107818.png" alt="" loading="lazy"></p>
+<p>同理，用上诉方法，可以证明<code>START TRANSACTION WITH CONSISTENT SNAPSHOT</code>语句执行后，会立即开启事务</p>
+<h2 id="参考链接">参考链接</h2>
+<ul>
+<li><a href="https://www.percona.com/blog/when-does-innodb-start-transaction/">When does Innodb Start Transaction</a></li>
+<li><a href="http://mysql.taobao.org/monthly/2015/12/01/">InnoDB 事务子系统介绍</a></li>
+<li><a href="https://kiosk007.top/post/what-happened-to-mysql-query-2/">一条MySQL查询语句经历了什么--事务</a></li>
+<li><a href="https://www.w3cschool.cn/hjikt5/4nbizozt.html">MySQL 如何查看当前最新事务ID</a></li>
+</ul>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/linux-xi-tong-zhong-de-page-cache-he-buffer-cache/">
+                                                    <h3 class="post-title">
+                                                        Linux系统中的Page cache和Buffer cache
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

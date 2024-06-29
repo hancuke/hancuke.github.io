@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>框架和函数库 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="在開發應用的過程中，會使用一些程式庫，例如，應用程式也許使用了 OWASP 的 HTML Sanitizer、H2 JDBC 驅動程式、Java Mail 等，然而，應用程式程式主要流程一直在你的控制之內，你決定了何時要處理請求參數、取得模..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="框架和函数库" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="在開發應用的過程中，會使用一些程式庫，例如，應用程式也許使用了 OWASP 的 HTML Sanitizer、H2 JDBC 驅動程式、Java Mail 等，然而，應用程式程式主要流程一直在你的控制之內，你決定了何時要處理請求參數、取得模...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/kuang-jia-he-han-shu-ku/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2023-02-21">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="框架和函数库">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="框架和函数库">
+        <meta name="twitter:description" content="在開發應用的過程中，會使用一些程式庫，例如，應用程式也許使用了 OWASP 的 HTML Sanitizer、H2 JDBC 驅動程式、Java Mail 等，然而，應用程式程式主要流程一直在你的控制之內，你決定了何時要處理請求參數、取得模...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    框架和函数库
+                                </h2>
+                                <span class="article-info">
+                                    2023-02-21, 1152 words, 4 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <p>在開發應用的過程中，會使用一些程式庫，例如，應用程式也許使用了 OWASP 的 HTML Sanitizer、H2 JDBC 驅動程式、Java Mail 等，然而，應用程式程式主要流程一直在你的控制之內，你決定了何時要處理請求參數、取得模型物件、轉發請求、顯示頁面等各式流程。</p>
+<p>控制、熟悉應用程式的流程走向，是很重要的一部份，在打算套用框架之前，你必須先認清應用程式的流程走向，至少，你應該寫個原型，試著摸出、掌握大致的流程走向，這對後續框架的選擇、使用會有很大的幫助。</p>
+<p>因為在開始使用框架之後，會發現框架將主導程式運行的某個流程，你必須在框架的規範下定義某些類別，框架會在適當時候調用你實作的程式元件，也就是說，對應用程式的流程控制權會被反轉，框架會規範、限制應用程式流程，框架會呼叫你的程式元件，而不是由你來呼叫框架。</p>
+<p>例如，使用程式庫的話，主要流程的控制是這樣的：<br>
+<img src="https://toomi.pages.dev/post-images/1676946794178.png" alt="" loading="lazy"></p>
+<p>灰色部份是可以自行掌控的流程，並在過程中必要時機，引用各種程式庫，當然，執行程式庫的過程中，會暫時進入程式庫的流程，不過，絕大多數的情況下，你對應用程式的主要流程，還是擁有很大的控制權。</p>
+<p>使用框架的話，主要流程的控制是這樣的：<br>
+<img src="https://toomi.pages.dev/post-images/1676946815002.png" alt="" loading="lazy"></p>
+<p>這就是<strong>控制權反轉</strong>（Inverse of Control, IoC）的解讀之一，使用框架的話必須注意，流程控制權會從你的手中反轉至框架身上！</p>
+<p>當然，框架本質上也是個程式庫，不過會被定位為框架，表示它對程式主要流程擁有更多的控制權，然而，框架本身是個半成品，想要完成整個流程，必須在框架的流程規範下，實現自定義元件，如上圖表示的，灰色部份是可以自行掌控的部份，與使用程式庫相比，對流程控制的自由度少了許多。</p>
+<p>應用程式開發時是否需要使用框架，有很多考量點，然而簡單來說，<strong>使用程式庫時，開發者會擁有較高的自由度；使用框架時，開發者會受到較大的限制</strong>。</p>
+<p>若應用程式本身不複雜，不需要套用任何框架就可以完成這項任務，那麼就不要使用框架，因為若要使用框架，往往必須按照框架的規範實作定義檔、設定相關數值、依一定方式取得元件等，若應用程式本身並不複雜，在享用到框架的益處之前，就會被一堆繁瑣規範或設定給困擾，產生「有必要這麼複雜嗎？」的疑惑，若框架本身又很龐大，光是學習、掌握到熟練框架，也會付出很大的成本。</p>
+<p>然而，如果應用程式在主要流程、組合元件甚至管理元件生命週期管理等需求上，自行撰寫程式碼完成任務已成沉重負擔之時，而框架對這些需求，若能大致符合既有之需求，套用框架可省去自行撰寫、維護元件生命週期等程式碼的麻煩，這時換取而來的益處超越了犧牲掉的流程自由度，才會使得使用框架具有意義。</p>
+<p>類似地，想要套用 Spring MVC 之類的 Web 框架嗎？那要先問自己，應用程式打算遵照或已經是 MVC 流程架構了嗎？如果不是，那使用 Spring MVC 並不會為你帶來益處，反而會感到處處受限，正如股市有句名言：「好的老師帶你上天堂，不好的老師帶你住套房。」用框架時可以這麼想：「好的框架帶你上天堂，不好的框架帶你住套房。」</p>
+<p>在程式設計相關的領域中，名詞多半沒有嚴謹的定義，這邊談到的 Inversion of Control，是在使用任何框架前必須要有的認知，然而，並不是 Spring IoC 核心中的 Inversion of Control 概念，由於經常有人將兩者混淆在一起，後來 Martin Fowler 建議使用 Dependency Injection 來取代 Spring 中 對 IoC 的稱呼。</p>
+<h2 id="原文">原文</h2>
+<p>https://openhome.cc/Gossip/Spring/IoC.html</p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/sqlsessionfactorybean-de-gou-jian-liu-cheng/">
+                                                    <h3 class="post-title">
+                                                        SqlSessionFactoryBean的构建流程
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

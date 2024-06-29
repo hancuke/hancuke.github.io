@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>Data Structures and Algorithms | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="
+Of the many subfields within computer science, algorithms and data structures may be the most fundamental—it seems to c..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="Data Structures and Algorithms" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="
+Of the many subfields within computer science, algorithms and data structures may be the most fundamental—it seems to c...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/data-structures-and-algorithms/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2022-11-15">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="Data Structures and Algorithms">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="Data Structures and Algorithms">
+        <meta name="twitter:description" content="
+Of the many subfields within computer science, algorithms and data structures may be the most fundamental—it seems to c...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    Data Structures and Algorithms
+                                </h2>
+                                <span class="article-info">
+                                    2022-11-15, 757 words, 5 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <blockquote>
+<p>Of the many subfields within computer science, algorithms and data structures may be the most fundamental—it seems to characterize computer science like perhaps no other. What is involved in the study of algorithms and data structures?</p>
+</blockquote>
+<h2 id="why-must-they-go-together">Why Must They Go Together?</h2>
+<p>data structures and algorithms were mentioned together. Why?</p>
+<ul>
+<li>Computing systems are concerned with the storage and retrieval of information.</li>
+<li>For systems to be economical, the data must be <strong>organized</strong> (into data structures) in such a way as to support <strong>efficient manipulation</strong> (by algorithms).</li>
+<li>Choosing the wrong algorithms and data structures makes a program slow at best and unmaintainable and insecure at worst.</li>
+</ul>
+<h2 id="how-do-they-go-together">How Do They Go Together?</h2>
+<p>It’s very helpful to think of the <strong>data type</strong> as the bridge between data structures and algorithms.<br>
+<img src="https://toomi.pages.dev/post-images/1668494118235.png" alt="" loading="lazy"></p>
+<h2 id="data-types">Data Types</h2>
+<p>So these data types are the key to everything right? What are they, exactly?</p>
+<p>First of all, note that programs manipulate information, and information in a program is represented with <strong>entities</strong>. Entities are things like numbers, text, lists, and so on. To help us understand entities, it helps to classify them into <strong>types</strong>.</p>
+<p>We have an intuition about what types are. As a first approximation, a type is just a set of values, for example:</p>
+<ul>
+<li>ℕ={0,1,2,3,4,...}</li>
+<li>ℤ={...,−2,−1,0,1,2,...}</li>
+<li>𝔹={𝖿𝖺𝗅𝗌𝖾,𝗍𝗋𝗎𝖾}</li>
+<li>ℝ=the set of all real numbers</li>
+<li>ℂ=the set of complex numbers</li>
+<li>ℍ=the set of quaternions</li>
+<li>𝖯𝗋𝗂𝗆𝖺𝗋𝗒𝖢𝗈𝗅𝗈𝗋={𝖱𝖤𝖣,𝖦𝖱𝖤𝖤𝖭,𝖡𝖫𝖴𝖤}</li>
+<li>𝖲𝗎𝗂𝗍={𝖲𝖯𝖠𝖣𝖤𝖲,𝖧𝖤𝖠𝖱𝖳𝖲,𝖣𝖨𝖠𝖬𝖮𝖭𝖣𝖲,𝖢𝖫𝖴𝖡𝖲}</li>
+<li>𝖳𝗐𝗈𝖣𝗂𝗆𝖾𝗇𝗌𝗂𝗈𝗇𝖺𝗅𝖯𝗈𝗂𝗇𝗍=ℝ×ℝ</li>
+<li>𝖢𝖺𝗋𝖽={1..13}×𝖲𝗎𝗂𝗍</li>
+<li>𝖣𝖾𝖼𝗄=the set of all permutations of Card</li>
+<li>𝖲𝗆𝖺𝗅𝗅𝖱𝖾𝖺𝗅={𝑥∣𝑥∈ℝ∧0.0≤𝑥∧𝑥≤1.0}</li>
+<li>𝖢𝗈𝗅𝗈𝗋=𝖯𝗋𝗂𝗆𝖺𝗋𝗒𝖢𝗈𝗅𝗈𝗋→𝖲𝗆𝖺𝗅𝗅𝖱𝖾𝖺𝗅</li>
+<li>𝖡𝖳𝖲𝖬𝖾𝗆𝖻𝖾𝗋𝗌={Jin,Suga,J-Hope,RM,Jimin,V,Jungkook}</li>
+<li>𝖫𝗂𝗌𝗍&lt;𝖨𝗇𝗍𝖾𝗀𝖾𝗋&gt;=ℤ∗</li>
+<li>𝖫𝗂𝗌𝗍&lt;𝛼&gt;=𝛼∗     (woah—that type is parametrized by a type variable)</li>
+<li>𝖳𝗋𝖾𝖾&lt;𝛼&gt;=𝛼×𝖳𝗋𝖾𝖾&lt;𝛼&gt;∗     🤯</li>
+</ul>
+<p>That’s not really good enough, though! The reason why entities have certain types is that they <strong>behave</strong> in certain ways: you can multiply numbers, reverse lists, capitalize text, block users, revoke credentials, promote employees, and so on. Properly specifying a type requires defining how the entities of that type behave.</p>
+<p>These behaviors are captured (algebraically 😮😮😮) as <strong>operations</strong> with zero or more inputs and a single output. For example:<br>
+<img src="https://toomi.pages.dev/post-images/1668495721397.png" alt="" loading="lazy"></p>
+<p>The same thing can be said without pictures, for example:</p>
+<table>
+<thead>
+<tr>
+<th>CLUBS: Suit</th>
+<th></th>
+<th></th>
+<th>TEN: Rank</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HEARTS: Suit</td>
+<td></td>
+<td></td>
+<td>JACK: Rank</td>
+</tr>
+<tr>
+<td>DIAMONDS: Suit</td>
+<td></td>
+<td></td>
+<td>QUEEN: Rank</td>
+</tr>
+<tr>
+<td>SPADES: Suit</td>
+<td></td>
+<td></td>
+<td>KING: Rank</td>
+</tr>
+<tr>
+<td>ACE: Rank</td>
+<td></td>
+<td></td>
+<td>makeCard : Suit × Rank → Card</td>
+</tr>
+<tr>
+<td>TWO: Rank</td>
+<td></td>
+<td></td>
+<td>getSuit : Card → Suit</td>
+</tr>
+<tr>
+<td>THREE: Rank</td>
+<td></td>
+<td></td>
+<td>getRank : Card → Rank</td>
+</tr>
+<tr>
+<td>FOUR: Rank</td>
+<td></td>
+<td></td>
+<td>newDeck : Deck</td>
+</tr>
+<tr>
+<td>FIVE: Rank</td>
+<td></td>
+<td></td>
+<td>positionOf : Deck × Card → int</td>
+</tr>
+<tr>
+<td>SIX: Rank</td>
+<td></td>
+<td></td>
+<td>cardAt : Deck × int → Card</td>
+</tr>
+<tr>
+<td>SEVEN: Rank</td>
+<td></td>
+<td></td>
+<td>topCard : Deck → Card</td>
+</tr>
+<tr>
+<td>EIGHT: Rank</td>
+<td></td>
+<td></td>
+<td>shuffle : Deck → Deck</td>
+</tr>
+<tr>
+<td>NINE: Rank</td>
+<td></td>
+<td></td>
+<td>split : Deck → Deck</td>
+</tr>
+</tbody>
+</table>
+<p>Ah, now we have <strong>behaviors</strong>. A <strong>data type</strong> is a set of values together with operations that define their behavior.<br>
+Not every operation is applicable to every type. Types provide constraints on what we can and cannot say.</p>
+<blockquote>
+<p><strong>Abstract Data Types</strong><br>
+As an aside: you will sometimes hear the term abstract data type, abbreviated “ADT.” People use this term to emphasize the fact that the “internal structure and internal workings of the operations” are somehow unknown to the outside world. Only the effects of the operations matter. To many people, though, saying “data type” is enough—all datatypes are “abstract” in that sense.</p>
+</blockquote>
+<p>A useful exercise is to identify things in your world and try to list as many behaviors as you can. Here is a starter set:</p>
+<figure data-type="image" tabindex="1"><img src="https://toomi.pages.dev/post-images/1668499670653.png" alt="" loading="lazy"></figure>
+<h2 id="data-structures">Data Structures</h2>
+<p>A <strong>data structure</strong> is an arrangement of data for the purpose of being able to store and retrieve information. Usually a data structure exists in order to provide a physical representation of a data type.</p>
+<p>For example, a <strong>list</strong> (a data type, which we saw above) can be represented by an array (a data structure) or by attaching a link from each element to its successor (another kind of data structure).</p>
+<p>Wait, what are arrays and links?</p>
+<h3 id="building-blocks">Building Blocks</h3>
+<p>Data structures are built with three primary structuring mechanisms:<br>
+<img src="https://toomi.pages.dev/post-images/1668501067728.png" alt="" loading="lazy"></p>
+<p>Let’s dive in. A <strong>object</strong>, also known as an <strong>record</strong>, <strong>struct</strong>, or <strong>named tuple</strong>, is a single entity that has many properties, where each property has a name and a value, which is another entity. Here is a simple object, can you guess what it represents?<br>
+<img src="https://toomi.pages.dev/post-images/1668502648903.png" alt="" loading="lazy"></p>
+<p>An array is an entity that has a number of constituent elements, packed tightly together in memory and indexable by small natural numbers. In most programming languages, the first index is 0, in others (Julia, Lua, MATLAB), the first index is 1. Here are some cities in Alaska to visit (in order, because arrays are ordered):<br>
+<img src="https://toomi.pages.dev/post-images/1668503369815.png" alt="" loading="lazy"></p>
+<p><strong>Important: Note that were the properties of a object come together to make one conceptual thing; arrays are generally thought of as a collection of distinct things.</strong></p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/gong-ju/">
+                                                    <h3 class="post-title">
+                                                        工具
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

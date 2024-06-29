@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>使用java.util.concurrent.ThreadFactory类创建线程 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="工厂设计模式是Java中最常用的设计模式之一。它是一种创建型设计模式，能够用于创建一个或多个类所需要的对象。有了这个工厂，我们就能集中的创建对象。
+集中创建方式给我们带来了一些好处，例如：
+
+能够很容易的改变类创建的对象或者创建对象的方式；..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="使用java.util.concurrent.ThreadFactory类创建线程" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="工厂设计模式是Java中最常用的设计模式之一。它是一种创建型设计模式，能够用于创建一个或多个类所需要的对象。有了这个工厂，我们就能集中的创建对象。
+集中创建方式给我们带来了一些好处，例如：
+
+能够很容易的改变类创建的对象或者创建对象的方式；...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/shi-yong-javautilconcurrentthreadfactory-lei-chuang-jian-xian-cheng/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2023-01-06">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="使用java.util.concurrent.ThreadFactory类创建线程">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="使用java.util.concurrent.ThreadFactory类创建线程">
+        <meta name="twitter:description" content="工厂设计模式是Java中最常用的设计模式之一。它是一种创建型设计模式，能够用于创建一个或多个类所需要的对象。有了这个工厂，我们就能集中的创建对象。
+集中创建方式给我们带来了一些好处，例如：
+
+能够很容易的改变类创建的对象或者创建对象的方式；...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    使用java.util.concurrent.ThreadFactory类创建线程
+                                </h2>
+                                <span class="article-info">
+                                    2023-01-06, 630 words, 3 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <p>工厂设计模式是Java中最常用的设计模式之一。它是一种创建型设计模式，能够用于创建一个或多个类所需要的对象。有了这个工厂，我们就能集中的创建对象。</p>
+<p>集中创建方式给我们带来了一些好处，例如：</p>
+<ol>
+<li>能够很容易的改变类创建的对象或者创建对象的方式；</li>
+<li>能够很容易限制对象的创建，例如：我们只能为a类创建N个对象；</li>
+<li>能够很容易的生成有关对象创建的统计数据。</li>
+</ol>
+<p>在Java中，我们通常使用两种方式来创建线程：继承Thread类和实现Runnable接口。Java还提供了一个接口，既ThreadFactory接口，用于创建你自己的线程对象工厂。</p>
+<p>很多类中，例如：ThreadPoolExecutor，使用构造函数来接收ThreadFactory来作为参数。这个工厂参数将会在程序执行时创建新的线程。使用ThreadFactory，你能够自定义执行程序如何创建线程，例如为线程定义适当的名称、优先级，或者你甚至可以将它设定为守护线程。</p>
+<p>ThreadFactory例子 在这个例子中，我们将学习如何通过实现一个ThreadFactory接口来创建一个有个性化名称的线程对象，同时，我们保存了线程对象的创建信息。</p>
+<p>Task.java</p>
+<pre><code class="language-java">class Task implements Runnable
+{
+	@Override
+	public void run() {
+		try {
+			TimeUnit.SECONDS.sleep(2);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+}
+</code></pre>
+<p>CustomThreadFactory.java</p>
+<pre><code class="language-java">public class CustomThreadFactory implements ThreadFactory
+{
+	private intcounter;
+	private String name;
+	private List&lt;String&gt; stats;
+
+	public CustomThreadFactory(String name) {
+		counter = 1;
+		this.name = name;
+		stats = new ArrayList&lt;String&gt;();
+	}
+
+	@Override
+	public Thread newThread(Runnable runnable) {
+		Thread t = new Thread(runnable, name + &quot;-Thread_&quot; + counter);
+		counter++;
+		stats.add(String.format(&quot;Created thread %d with name %s on %s \n&quot;, t.getId(), t.getName(), new Date()));
+		return t;
+	}
+
+	public String getStats() {
+		StringBuffer buffer = new StringBuffer();
+		Iterator&lt;String&gt; it = stats.iterator();
+		while (it.hasNext()) {
+			buffer.append(it.next());
+		}
+		return buffer.toString();
+	}
+}
+</code></pre>
+<p>为了使用上面的线程工厂，请看下面的执行程序：</p>
+<pre><code class="language-java">public static void main(String[] args) {
+	CustomThreadFactory factory = new CustomThreadFactory(&quot;CustomThreadFactory&quot;);
+	Task task = new Task();
+	Thread thread;
+	System.out.printf(&quot;Starting the Threads\n\n&quot;);
+	for (int i = 1; i &lt;= 10; i++) {
+		thread = factory.newThread(task);
+		thread.start();
+	}
+	System.out.printf(&quot;All Threads are created now\n\n&quot;);
+	System.out.printf(&quot;Give me CustomThreadFactory stats:\n\n&quot; + factory.getStats());
+}
+</code></pre>
+<p>上面的代码中，ThreadFactory接口只有一个叫做newThread()的方法，它接收一个Runnable对象作为参数，同时返回一个Thread对象。当你实现ThreadFactory接口时，你必须重写这个方法。</p>
+<h2 id="原文">原文</h2>
+<p>http://howtodoinjava.com/2015/01/06/creating-threads-using-java-util-concurrent-threadfactory/</p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/critical-section-definition-of-the-problem/">
+                                                    <h3 class="post-title">
+                                                        Critical section: Definition of the problem
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>MyBatis Plus自定义通用方法 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="MyBatis Plus支持自定义通用方法，自定义通用方法与MP自带的通用方法一样，都会在应用启动时将方法注入到全局中。自定义通用方法的步骤：
+
+在XxxMapper中定义想要自定义的通用方法，XxxMapper要继承BaseMapper
+..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="MyBatis Plus自定义通用方法" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="MyBatis Plus支持自定义通用方法，自定义通用方法与MP自带的通用方法一样，都会在应用启动时将方法注入到全局中。自定义通用方法的步骤：
+
+在XxxMapper中定义想要自定义的通用方法，XxxMapper要继承BaseMapper
+...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/mybatis-plus-zi-ding-yi-tong-yong-fang-fa/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2023-03-17">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="MyBatis Plus自定义通用方法">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="MyBatis Plus自定义通用方法">
+        <meta name="twitter:description" content="MyBatis Plus支持自定义通用方法，自定义通用方法与MP自带的通用方法一样，都会在应用启动时将方法注入到全局中。自定义通用方法的步骤：
+
+在XxxMapper中定义想要自定义的通用方法，XxxMapper要继承BaseMapper
+...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    MyBatis Plus自定义通用方法
+                                </h2>
+                                <span class="article-info">
+                                    2023-03-17, 230 words, 1 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <p>MyBatis Plus支持自定义通用方法，自定义通用方法与MP自带的通用方法一样，都会在应用启动时将方法注入到全局中。自定义通用方法的步骤：</p>
+<ol>
+<li>在XxxMapper中定义想要自定义的通用方法，XxxMapper要继承BaseMapper</li>
+<li>创建一个类继承AbstractMethod，重写injectMappedStatement()方法，该方法中输入写自定义通用方法的SQL语句</li>
+<li>创建一个XxxInjector类继承DefaultInjector，重写getMethodList()方法，该方法中将包含了自定义SQL语句的类的实例化对象添加到methodList中</li>
+<li>在配置文件中通过bean标签配置自定义的XxxInjector，并在全局配置中通过属性sqlInjector引入</li>
+</ol>
+<p>步骤4中，配置自定义注入器范例代码如下</p>
+<pre><code class="language-java">   @Bean
+    public SqlSessionFactory sqlSessionFactory(DriverManagerDataSource dataSource) throws Exception {
+        MybatisSqlSessionFactoryBean factoryBean = new MybatisSqlSessionFactoryBean();
+        GlobalConfig globalConfig = GlobalConfigUtils.defaults();
+        globalConfig.setSqlInjector(new LzcLogicSqlInjector());
+        factoryBean.setGlobalConfig(globalConfig);
+        factoryBean.setDataSource(dataSource);
+        return factoryBean.getObject();
+    }
+</code></pre>
+<h2 id="参考">参考</h2>
+<p>https://juejin.cn/post/7093825235393773605</p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/spring-mybatis/">
+                                                    <h3 class="post-title">
+                                                        spring mybatis
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

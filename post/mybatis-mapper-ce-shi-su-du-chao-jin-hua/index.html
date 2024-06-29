@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>Mybatis Mapper 測試速度超進化 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="第一階段：@SpringBootTest
+去年產品剛開始開發時，使用 @SpringBootTest 去測試全部 Mapper 的總時間都還在可以接受的範圍。
+今年年初由於產品功能慢慢變多，使用 @SpringBootTest 去測試全部 ..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="Mybatis Mapper 測試速度超進化" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="第一階段：@SpringBootTest
+去年產品剛開始開發時，使用 @SpringBootTest 去測試全部 Mapper 的總時間都還在可以接受的範圍。
+今年年初由於產品功能慢慢變多，使用 @SpringBootTest 去測試全部 ...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/mybatis-mapper-ce-shi-su-du-chao-jin-hua/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2023-08-19">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="Mybatis Mapper 測試速度超進化">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="Mybatis Mapper 測試速度超進化">
+        <meta name="twitter:description" content="第一階段：@SpringBootTest
+去年產品剛開始開發時，使用 @SpringBootTest 去測試全部 Mapper 的總時間都還在可以接受的範圍。
+今年年初由於產品功能慢慢變多，使用 @SpringBootTest 去測試全部 ...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    Mybatis Mapper 測試速度超進化
+                                </h2>
+                                <span class="article-info">
+                                    2023-08-19, 1037 words, 5 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <h2 id="第一階段springboottest">第一階段：@SpringBootTest</h2>
+<p>去年產品剛開始開發時，使用 @SpringBootTest 去測試全部 Mapper 的總時間都還在可以接受的範圍。</p>
+<p>今年年初由於產品功能慢慢變多，使用 @SpringBootTest 去測試全部 Mapper 的總時間越拉越長，於是開始研究降低總時間的方式。</p>
+<h2 id="第二階段mybatistest">第二階段：@MyBatisTest</h2>
+<p>研究的過程中，發現 MyBatis 其實自己有出測試框架，只要在測試中把 @SpringBootTest 換成 @MyBatisTest，就可以大幅降低執行時間，因為 @MyBatisTest 不會像 @SpringBootTest 一樣要準備所有 context。</p>
+<h2 id="第三階段sqlsessionfactory">第三階段：SqlSessionFactory</h2>
+<p>想針對 Mapper 做純單元測試，只要做到啟動 H2 及取得 Mapper，不需要啟動 Spring Container的 Mapper 純單元測試：使用 SqlSessionFactory！</p>
+<p><a href="https://zetcode.com/spring/embeddeddatabasebuilder/">代码来源</a></p>
+<p>数据脚本 schema.sql</p>
+<pre><code class="language-sql">CREATE TABLE cars(id INT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(150), price INT);
+
+</code></pre>
+<p>data.sql</p>
+<pre><code class="language-sql">INSERT INTO cars(name, price) VALUES('Audi', 52642);
+INSERT INTO cars(name, price) VALUES('Mercedes', 57127);
+INSERT INTO cars(name, price) VALUES('Skoda', 9000);
+INSERT INTO cars(name, price) VALUES('Volvo', 29000);
+INSERT INTO cars(name, price) VALUES('Bentley', 350000);
+INSERT INTO cars(name, price) VALUES('Citroen', 21000);
+INSERT INTO cars(name, price) VALUES('Hummer', 41400);
+INSERT INTO cars(name, price) VALUES('Volkswagen', 21600);
+
+</code></pre>
+<p>工具类 <code>MybatisFactory</code></p>
+<pre><code class="language-java">import java.util.List;
+import org.apache.ibatis.mapping.Environment;
+import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+
+/**
+ * 构建mybatis测试环境
+ */
+public class MybatisFactory {
+    /**
+     * h2 数据源构建
+     */
+    EmbeddedDatabaseBuilder embeddedDatabaseBuilder = new EmbeddedDatabaseBuilder();
+
+    /**
+     * 添加启动脚本
+     *
+     * @param script
+     */
+    public void addInitScript(String script) {
+        embeddedDatabaseBuilder.addScript(script);
+    }
+
+    public MybatisFactory() {
+        // h2 数据源构建
+        embeddedDatabaseBuilder
+                .setType(EmbeddedDatabaseType.H2)
+                .setName(&quot;test&quot;);
+    }
+
+    public &lt;T&gt; SqlSessionFactory getSqlSessionFactory(List&lt;Class&lt;T&gt;&gt; mappers) {
+        Environment environment =
+                new Environment(&quot;development&quot;, new JdbcTransactionFactory(), embeddedDatabaseBuilder.build());
+        Configuration configuration = new Configuration(environment);
+        for (Class&lt;T&gt; mapper : mappers) {
+            configuration.addMapper(mapper);
+        }
+        return new SqlSessionFactoryBuilder().build(configuration);
+    }
+}
+</code></pre>
+<p>测试</p>
+<pre><code class="language-java">import java.util.List;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.junit.Test;
+
+public class FactoryTest {
+
+
+    @Test
+    public void testCar() {
+        MybatisFactory mybatisFactory = new MybatisFactory();
+        mybatisFactory.addInitScript(&quot;db/schema.sql&quot;);
+        mybatisFactory.addInitScript(&quot;db/data.sql&quot;);
+
+        SqlSessionFactory sqlSessionFactory = mybatisFactory.getSqlSessionFactory(List.of(CarMapper.class));
+
+        try (SqlSession session = sqlSessionFactory.openSession()) {
+            CarMapper carMapper = session.getMapper(CarMapper.class);
+            Car car = carMapper.getCarByName(&quot;Audi&quot;);
+            assert car.getPrice() == 52642;
+        }
+
+    }
+
+}
+</code></pre>
+<h2 id="configuration-和-environment">Configuration 和 Environment</h2>
+<p>当使用MyBatis时，Configuration 和 Environment 是两个重要的概念，它们之间存在特定的关系，用于配置和管理数据库连接等运行环境。</p>
+<p>Configuration（配置）： Configuration 类是MyBatis的核心配置类，负责管理所有配置信息，包括数据库连接、映射关系、插件等。每个Configuration对象对应一个MyBatis配置，通过此对象，可以访问和修改各项配置。</p>
+<p>Environment（环境）： Environment 类代表MyBatis的运行环境，包括数据库连接信息和事务管理器等。每个Environment对象关联一个数据库连接池（DataSource）和一个事务管理器（TransactionFactory）。</p>
+<p>两者之间的关系如下：</p>
+<p>每个Configuration对象可以与一个或多个Environment对象关联，表示MyBatis可以在不同环境中运行，例如开发、测试、生产等。</p>
+<p>每个Environment对象包含数据库连接池和事务管理器。数据库连接池（DataSource）用于获取连接，事务管理器（TransactionFactory）用于管理事务。每个Environment对象可以配置一个数据库连接池和一个事务管理器，确保正确管理连接和事务。</p>
+<p>在MyBatis的配置文件中，您可以使用以下方式配置Environment：</p>
+<pre><code class="language-xml">&lt;environments default=&quot;development&quot;&gt;
+    &lt;environment id=&quot;development&quot;&gt;
+        &lt;transactionManager type=&quot;JDBC&quot;/&gt;
+        &lt;dataSource type=&quot;POOLED&quot;&gt;
+            &lt;property name=&quot;driver&quot; value=&quot;com.mysql.jdbc.Driver&quot;/&gt;
+            &lt;property name=&quot;url&quot; value=&quot;jdbc:mysql://localhost:3306/mydb&quot;/&gt;
+            &lt;property name=&quot;username&quot; value=&quot;username&quot;/&gt;
+            &lt;property name=&quot;password&quot; value=&quot;password&quot;/&gt;
+        &lt;/dataSource&gt;
+    &lt;/environment&gt;
+&lt;/environments&gt;
+</code></pre>
+<p>在上述配置中，通过<environment>元素配置了名为 &quot;development&quot; 的环境，关联了一个JDBC事务管理器和一个POOLED数据库连接池。<dataSource>元素指定了连接数据库所需的参数。</p>
+<p>总而言之，Configuration是MyBatis的总体配置管理类，而Environment是定义数据库连接和事务管理的环境配置类。您可以根据需求配置多个Environment，然后在Configuration中选择适合的环境来运行。</p>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://abichangtw.medium.com/boost-mybatis-mapper-unit-testing-b72891f78fbf">Mybatis Mapper 測試速度超進化</a></li>
+<li><a href="https://github.com/apachecn/zetcode-zh/blob/master/docs/spring/36.md">Spring EmbeddedDatabaseBuilder教程</a></li>
+</ul>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/spring-jie-xi-yaml-pei-zhi-wen-jian/">
+                                                    <h3 class="post-title">
+                                                        spring 解析 yaml 配置文件
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

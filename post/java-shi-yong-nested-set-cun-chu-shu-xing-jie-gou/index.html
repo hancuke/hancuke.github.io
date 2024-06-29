@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>Java使用Nested set存储树形结构 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="
+sql修改
+此文中，修改左右数值是使用sql实现，但是在初始化的时候，需要大量执行sql语句，短期间会造成数据库压力，所以现把数据读到内存中，然后计算左右数值，最后报存到数据库
+代码
+Node
+package org.example.ne..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="Java使用Nested set存储树形结构" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="
+sql修改
+此文中，修改左右数值是使用sql实现，但是在初始化的时候，需要大量执行sql语句，短期间会造成数据库压力，所以现把数据读到内存中，然后计算左右数值，最后报存到数据库
+代码
+Node
+package org.example.ne...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/java-shi-yong-nested-set-cun-chu-shu-xing-jie-gou/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2023-04-03">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="Java使用Nested set存储树形结构">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="Java使用Nested set存储树形结构">
+        <meta name="twitter:description" content="
+sql修改
+此文中，修改左右数值是使用sql实现，但是在初始化的时候，需要大量执行sql语句，短期间会造成数据库压力，所以现把数据读到内存中，然后计算左右数值，最后报存到数据库
+代码
+Node
+package org.example.ne...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    Java使用Nested set存储树形结构
+                                </h2>
+                                <span class="article-info">
+                                    2023-04-03, 547 words, 4 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <figure data-type="image" tabindex="1"><img src="https://toomi.pages.dev/post-images/1680491212461.png" alt="" loading="lazy"></figure>
+<h2 id="sql修改">sql修改</h2>
+<p><a href="https://www.werc.cz/blog/2015/07/19/nested-set-model-practical-examples-part-i">此文</a>中，修改左右数值是使用sql实现，但是在初始化的时候，需要大量执行sql语句，短期间会造成数据库压力，所以现把数据读到内存中，然后计算左右数值，最后报存到数据库</p>
+<h2 id="代码">代码</h2>
+<h3 id="node">Node</h3>
+<pre><code class="language-java">package org.example.nestset;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public class Node {
+
+    Integer id;
+    Integer left;
+    Integer right;
+    List&lt;Node&gt; children = new ArrayList&lt;&gt;();
+    Integer level;
+
+    public Integer getLeft() {
+        return left;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Node) {
+            Node node = (Node) obj;
+            return id.equals(node.id);
+        }
+        return false;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return this.id;
+    }
+
+    public Integer getRight() {
+        return right;
+    }
+
+    public List&lt;Node&gt; getChildren() {
+        return children;
+    }
+
+    public Integer getLevel() {
+        return level;
+    }
+
+ 
+
+    public Integer getId() {
+        return id;
+    }
+
+  
+
+    public void setLevel(Integer level) {
+        this.level = level;
+    }
+
+
+    public void setLeft(Integer left) {
+        this.left = left;
+    }
+
+    public void setRight(Integer right) {
+        this.right = right;
+    }
+
+    public Node(Integer id) {
+        this.id = id;
+    }
+
+    public String toString() {
+        return String.join( &quot;&quot;, Collections.nCopies(this.level -1, &quot;  &quot;)) + &quot;|--&quot; +  this.getId() + &quot;(&quot; + this.getLeft() + &quot;,&quot; + this.getRight() + &quot;)&quot;;
+
+    }
+}
+</code></pre>
+<h3 id="tree">Tree</h3>
+<pre><code class="language-java">package org.example.nestset;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class Tree {
+
+    Node root;
+
+    /**
+     * 用来设置节点right ，left
+     */
+    Integer seq = 0;
+
+    public Tree() {
+    }
+
+    private final Map&lt;Integer, Node&gt; elementMap = new HashMap&lt;&gt;();
+
+
+    /**
+     * 初始化根节点
+     */
+    private void addRoot(Node root) {
+        root.setLeft(1);
+        root.setRight(2);
+        root.setLevel(1); 
+        this.root = root;
+    }
+
+
+    public void addChild(Node parent, Node child) {
+        // 重复插入则忽略
+        if (this.elementMap.containsKey(child.getId())) {
+            return;
+        }
+        this.elementMap.put(child.getId(), child);
+        if (parent == null) {
+            addRoot(child);
+            return;
+        } 
+        child.setLevel(parent.getLevel() + 1);
+        parent.children.add(child);
+
+    }
+
+
+    private void search(List&lt;Node&gt; nodes) {
+        for (Node node : nodes) {
+            search(node);
+        }
+    }
+
+    private void search(Node node) {
+        node.setLeft(++seq);
+        search(node.getChildren());
+        node.setRight(++seq);
+    }
+
+    public void search() {
+        search(root);
+    }
+
+    public void print() {
+        System.out.println(root.toString());
+        printChild(this.root, 1);
+
+    }
+
+    private void printChild(Node node, int i) {
+        for (Node child : node.getChildren()) {
+            System.out.println(child.toString());
+            printChild(child, i + 2);
+        }
+
+    }
+
+}
+</code></pre>
+<h3 id="test">Test</h3>
+<pre><code class="language-java">package org.example.nestset;
+
+import org.junit.Test;
+
+public class NodeTest {
+
+
+    @Test
+    public void addChild() {
+
+        Node node1 = new Node(1);
+
+        Node node2 = new Node(2);
+        Node node3 = new Node(3);
+        Node node4 = new Node(4);
+        Node node5 = new Node(5);
+        Node node6 = new Node(6);
+        Node node7 = new Node(7);
+        Node node8 = new Node(8);
+        Node node9 = new Node(9);
+        Node node10 = new Node(10);
+        Node node11 = new Node(11);
+        Tree tree = new Tree();
+
+        tree.addChild(null, node1);
+        tree.addChild(node1, node2);
+        tree.addChild(node1, node3);
+        tree.addChild(node1, node4);
+
+        tree.addChild(node2, node5);
+        tree.addChild(node3, node6);
+        tree.addChild(node4, node7);
+        tree.addChild(node3, node8);
+        tree.addChild(node4, node9);
+        tree.addChild(node5, node10);
+
+        tree.addChild(node1, node11);
+        tree.search();
+        tree.print();
+
+
+    }
+}
+</code></pre>
+<h2 id="参考">参考</h2>
+<p>https://www.werc.cz/blog/2015/07/19/nested-set-model-practical-examples-part-i</p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/mybatis-gong-ju-lei-ti-huan-zhan-wei-fu/">
+                                                    <h3 class="post-title">
+                                                        mybatis 工具类替换占位符
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

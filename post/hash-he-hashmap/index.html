@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>hash 和 hashmap | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="什么是 hash
+Hash（哈希），又称“散列”。散列（hash）英文原意是“混杂”、“拼凑”、“重新表述”的意思。
+在某种程度上，散列是与排序相反的一种操作，排序是将集合中的元素按照某种方式比如字典顺序排列在一起，而散列通过计算哈希值，打..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="hash 和 hashmap" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="什么是 hash
+Hash（哈希），又称“散列”。散列（hash）英文原意是“混杂”、“拼凑”、“重新表述”的意思。
+在某种程度上，散列是与排序相反的一种操作，排序是将集合中的元素按照某种方式比如字典顺序排列在一起，而散列通过计算哈希值，打...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/hash-he-hashmap/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2023-03-18">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="hash 和 hashmap">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="hash 和 hashmap">
+        <meta name="twitter:description" content="什么是 hash
+Hash（哈希），又称“散列”。散列（hash）英文原意是“混杂”、“拼凑”、“重新表述”的意思。
+在某种程度上，散列是与排序相反的一种操作，排序是将集合中的元素按照某种方式比如字典顺序排列在一起，而散列通过计算哈希值，打...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    hash 和 hashmap
+                                </h2>
+                                <span class="article-info">
+                                    2023-03-18, 5886 words, 22 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <h2 id="什么是-hash">什么是 hash</h2>
+<p>Hash（哈希），又称“散列”。散列（hash）英文原意是“混杂”、“拼凑”、“重新表述”的意思。</p>
+<p>在某种程度上，散列是与排序相反的一种操作，排序是将集合中的元素按照某种方式比如字典顺序排列在一起，而散列通过计算哈希值，打破元素之间原有的关系，使集合中的元素按照散列函数的分类进行排列。</p>
+<p>在介绍一些集合时，我们总强调需要重写某个类的 equlas() 方法和 hashCode() 方法，确保唯一性。这里的 hashCode() 表示的是对当前对象的唯一标示。计算 hashCode 的过程就称作 哈希。</p>
+<h2 id="为什么要有-hash">为什么要有 Hash</h2>
+<p>我们通常使用数组或者链表来存储元素，一旦存储的内容数量特别多，需要占用很大的空间，而且在查找某个元素是否存在的过程中，数组和链表都需要挨个循环比较，而通过 哈希 计算，可以大大减少比较次数。<br>
+<img src="https://toomi.pages.dev/post-images/1679105411300.png" alt="" loading="lazy"></p>
+<p>举个栗子：现在有 4 个数 {2,5,9,13}，需要查找 13 是否存在。</p>
+<ol>
+<li>使用数组存储，需要新建个数组 new int[]{2,5,9,13}，然后需要写个循环遍历查找。这样需要遍历 4 次才能找到，时间复杂度为 O(n)。</li>
+<li>而假如存储时先使用哈希函数进行计算，这里我随便用个函数：</li>
+</ol>
+<pre><code class="language-java">H[key] = key % 3;
+
+// 四个数 {2,5,9,13} 对应的哈希值为：
+H[2] = 2 % 3 = 2;
+H[5] = 5 % 3 = 2;
+H[9] = 9 % 3 = 0;
+H[13] = 13 % 3 = 1;
+</code></pre>
+<p>然后把它们存储到对应的位置。当要查找 13 时，只要先使用哈希函数计算它的位置，然后去那个位置查看是否存在就好了，本例中只需查找一次(暂不考虑hash函数冲突)，时间复杂度为 O(1)。</p>
+<p>因此可以发现，哈希其实是随机存储的一种优化，先进行分类，然后查找时按照这个对象的分类去找。哈希通过一次计算大幅度缩小查找范围，自然比从全部数据里查找速度要快。</p>
+<h2 id="哈希函数算法">哈希函数(算法)</h2>
+<p>哈希函数（算法）不是指某种特定的函数（算法），而是一类函数，它有各种各样的实现。例如 MD4、MD5、SHA。哈希函数（散列函数）能够将任意长度的输入值转变成固定长度的值输出，该值称为散列值，输出值通常为字母与数字组合。好的哈希算法发生碰撞的几率非常小，碰撞主要取决于：</p>
+<ul>
+<li>散列函数，一个好的散列函数的值应尽可能平均分布。</li>
+<li>处理碰撞方法。</li>
+<li>负载因子的大小。太大不一定就好，并且浪费空间严重，负载因子和散列函数是联动的。</li>
+</ul>
+<h2 id="jdk-17-之前的-hashmap">JDK 1.7 之前的 HashMap</h2>
+<p>我们先大概瞥一眼 JDK 1.7 之前的 HashMap 结构：<br>
+<img src="https://toomi.pages.dev/post-images/1679106174008.png" alt="" loading="lazy"></p>
+<p>简而言之，HashMap 是由数组组成的一定数量的桶（bucket）。在进行存储时，使用 key 的 hashcode() 通过 hash 函数计算得到 hash 值，然后通过 <code>(hash值 % 数组长度)</code>来确定将 Entry(key + value) 放入数组的哪个桶里。</p>
+<blockquote>
+<p>为了高效的定位元素在数组中的位置，以及使放入的元素尽可能均匀的分布在数组中。<br>
+正确实现 hashcode() 方法返回的 hash 值可以达到散列分布的目的，同样的键也会返回相同的 hash 值，因此我们使用 hash 信息来确定元素在数组中的下标信息以达到快速访问。</p>
+</blockquote>
+<p>如果 hash 函数足够完美，将能实现数据的均匀分配，此时时间复杂度为 O(1)。但是开发者通常会编写较差的哈希函数，这将导致分布不均。</p>
+<h2 id="hash碰撞及解决collision">Hash碰撞及解决（Collision）</h2>
+<p>Hash碰撞表示对于同一个hash函数，对不同的key进行hash计算得出对结果相同。此时数组将会有很大一部分被浪费。<br>
+<img src="https://toomi.pages.dev/post-images/1679106853223.png" alt="" loading="lazy"><br>
+<img src="https://toomi.pages.dev/post-images/1679106698010.png" alt="" loading="lazy"></p>
+<h2 id="负载因子与容量">负载因子与容量</h2>
+<p>为了解决这个问题，一方面，我们可以增大哈希值的取值空间来减少冲突的可能性，比如使 hash 表(数组，桶bucket)大于所需的总数据量。期望只要有哈希表的 70 % 被占用就足够。存储元素的个数和哈希表桶的数量的比值就叫做负载因子（Load factor）。</p>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi mathvariant="normal">负</mi><mi mathvariant="normal">载</mi><mi mathvariant="normal">因</mi><mi mathvariant="normal">子</mi><mo>=</mo><mfrac><mrow><mi mathvariant="normal">所</mi><mi mathvariant="normal">有</mi><mi mathvariant="normal">存</mi><mi mathvariant="normal">储</mi><mi mathvariant="normal">的</mi><mi mathvariant="normal">元</mi><mi mathvariant="normal">素</mi><mi mathvariant="normal">数</mi><mi mathvariant="normal">量</mi></mrow><mrow><mi mathvariant="normal">数</mi><mi mathvariant="normal">组</mi><mi mathvariant="normal">桶</mi><mi mathvariant="normal">大</mi><mi mathvariant="normal">小</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex"> 负载因子 = \frac{所有存储的元素数量}{数组桶大小}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.36687em;vertical-align:0em;"></span><span class="mord cjk_fallback">负</span><span class="mord cjk_fallback">载</span><span class="mord cjk_fallback">因</span><span class="mord cjk_fallback">子</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1.363em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.677em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord cjk_fallback">数</span><span class="mord cjk_fallback">组</span><span class="mord cjk_fallback">桶</span><span class="mord cjk_fallback">大</span><span class="mord cjk_fallback">小</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord cjk_fallback">所</span><span class="mord cjk_fallback">有</span><span class="mord cjk_fallback">存</span><span class="mord cjk_fallback">储</span><span class="mord cjk_fallback">的</span><span class="mord cjk_fallback">元</span><span class="mord cjk_fallback">素</span><span class="mord cjk_fallback">数</span><span class="mord cjk_fallback">量</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+<p>负载因子的值通常是可配置的，并在时间和空间成本之间进行权衡，下图是负载因子值调低调高时的影响。<br>
+<img src="https://toomi.pages.dev/post-images/1679107304396.png" alt="" loading="lazy"></p>
+<p>Java 中 HashMap 的默认负载因子是 0.75，也就是说只要哈希表的 75 % 被占用就足够了。Java HashMap 的默认初始容量为 16，即存储区数组在首次插入时被延迟初始化。当插入的元素到达一定的阈值，HashMap 将会扩容来重新计算哈希，该阈值的计算公式为：</p>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi mathvariant="normal">阈</mi><mi mathvariant="normal">值</mi><mo>(</mo><mi>T</mi><mi>h</mi><mi>r</mi><mi>e</mi><mi>s</mi><mi>h</mi><mi>o</mi><mi>l</mi><mi>d</mi><mo>)</mo><mo>=</mo><mi mathvariant="normal">当</mi><mi mathvariant="normal">前</mi><mi mathvariant="normal">存</mi><mi mathvariant="normal">储</mi><mi mathvariant="normal">的</mi><mi mathvariant="normal">元</mi><mi mathvariant="normal">素</mi><mi mathvariant="normal">数</mi><mi mathvariant="normal">量</mi><mo>×</mo><mi mathvariant="normal">负</mi><mi mathvariant="normal">载</mi><mi mathvariant="normal">因</mi><mi mathvariant="normal">子</mi></mrow><annotation encoding="application/x-tex">阈值(Threshold) =  当前存储的元素数量 \times 负载因子
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord cjk_fallback">阈</span><span class="mord cjk_fallback">值</span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.13889em;">T</span><span class="mord mathdefault">h</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault">e</span><span class="mord mathdefault">s</span><span class="mord mathdefault">h</span><span class="mord mathdefault">o</span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mord mathdefault">d</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.66666em;vertical-align:-0.08333em;"></span><span class="mord cjk_fallback">当</span><span class="mord cjk_fallback">前</span><span class="mord cjk_fallback">存</span><span class="mord cjk_fallback">储</span><span class="mord cjk_fallback">的</span><span class="mord cjk_fallback">元</span><span class="mord cjk_fallback">素</span><span class="mord cjk_fallback">数</span><span class="mord cjk_fallback">量</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0em;vertical-align:0em;"></span><span class="mord cjk_fallback">负</span><span class="mord cjk_fallback">载</span><span class="mord cjk_fallback">因</span><span class="mord cjk_fallback">子</span></span></span></span></span></p>
+<p>以 HashMap 的默认值计算，则为：<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi mathvariant="normal">阈</mi><mi mathvariant="normal">值</mi><mo>=</mo><mn>16</mn><mo>×</mo><mn>0.75</mn><mo>=</mo><mn>12</mn></mrow><annotation encoding="application/x-tex">阈值 = 16 \times 0.75 = 12</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.36687em;vertical-align:0em;"></span><span class="mord cjk_fallback">阈</span><span class="mord cjk_fallback">值</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">1</span><span class="mord">6</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">0</span><span class="mord">.</span><span class="mord">7</span><span class="mord">5</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span><span class="mord">2</span></span></span></span>, 也就是说当插入第 13 个元素后会进行扩容为之前的两倍 oldThreshold &lt;&lt; 1，此时将发生重新哈希（Rehashing），由于重新哈希处理增加了存储桶的数量，因此降低了负载因子。<br>
+<img src="https://toomi.pages.dev/post-images/1679108454863.gif" alt="" loading="lazy"></p>
+<blockquote>
+<p>为什么 HashMap 加载因子默认是 0.75？<br>
+这个跟一个统计学里很重要的原理——泊松分布有关。泊松分布是统计学和概率学常见的离散概率分布，适用于描述单位时间内随机事件发生的次数的概率分布。<br>
+<img src="https://toomi.pages.dev/post-images/1679107986164.png" alt="" loading="lazy"><br>
+等号的左边，P 表示概率，N 表示某种函数关系，t 表示时间，n 表示数量。等号的右边，λ 表示事件的频率。在理想情况下，使用随机哈希码，在扩容阈值（加载因子）为 0.75 的情况下，节点出现在频率在 Hash 桶（表）中遵循参数平均为 0.5 的泊松分布。忽略方差，即 X = λt，P(λt = k)，其中 λt = 0.5的情况。所以我们可以知道，其实常数 0.5 是作为参数代入泊松分布来计算的，而加载因子 0.75 是作为一个条件，当 HashMap 长度为length/size ≥ 0.75 时就扩容，在这个条件下，冲突后的拉链(链表)长度和概率结果为：</p>
+<pre><code class="language-java">0:    0.60653066
+1:    0.30326533
+2:    0.07581633
+3:    0.01263606
+4:    0.00157952
+5:    0.00015795
+6:    0.00001316
+7:    0.00000094
+8:    0.00000006
+</code></pre>
+<p>计算结果如上述的列表所示，当一个桶中的链表长度达到 8 个元素的时候，概率为 0.00000006，几乎是一个不可能事件。选择0.75作为默认的加载因子，完全是时间和空间成本上寻求的一种折衷选择。</p>
+</blockquote>
+<h2 id="冲突元素寻址">冲突元素寻址</h2>
+<p>为了给冲突元素一个合适的位置存储，我们将解决方案从寻址方向上分为两个大类：</p>
+<table>
+<thead>
+<tr>
+<th>开放式寻址（Open Addressing）</th>
+<th>闭合式寻址（Closed Addressing）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>通过在哈希表数组本身中搜索另一个空存储桶来处理冲突。</td>
+<td>键始终存储在散列到的桶中。在每个桶的基础上使用单独的数据结构来处理冲突。</td>
+</tr>
+<tr>
+<td>每个桶中最多存放一个键。</td>
+<td>每个桶存储任意键数。</td>
+</tr>
+<tr>
+<td>理论最大负载系数为1。</td>
+<td>没有理论上的最大负载系数。</td>
+</tr>
+<tr>
+<td>哈希表数组的大小必须始终至少与哈希表中键的数量一样大。</td>
+<td>性能随着负载系数的增长而降低。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="开放式寻址相关技术">开放式寻址相关技术</h3>
+<ul>
+<li>线性探测（Linear Probing）</li>
+<li>二次方探测（Quadratic Probing）</li>
+<li>再哈希（Double hashing）</li>
+<li>罗宾汉哈希（Robin Hood hashing）</li>
+</ul>
+<h3 id="闭合式寻址相关技术">闭合式寻址相关技术</h3>
+<ol>
+<li>使用链表单独存储 hash 相同的键值（拉链法）</li>
+<li>使用动态数组单独存储 hash 相同的键值</li>
+<li>使用自平衡二叉树</li>
+</ol>
+<p>JDK 1.8后，Java HashMap 是结合闭合式寻址中第一种和第三种的实现。<br>
+<img src="https://toomi.pages.dev/post-images/1679108429010.png" alt="" loading="lazy"></p>
+<h2 id="hashmap-详解">HashMap 详解</h2>
+<p><img src="https://toomi.pages.dev/post-images/1679108603619.png" alt="" loading="lazy"><br>
+先总体了解下 HashMap 作为集合类的特性：</p>
+<ul>
+<li>HashMap 的键值都不能存储基本类型,要存储基本类型提高性能，可以使用 Eclipse Collection 的原始类型集合类。</li>
+<li>支持一个 null 键和多个 null value</li>
+<li>键必须唯一，重复的键值将被后面的值替代</li>
+<li>使用哈希技术存储索引，所以不保证插入顺序</li>
+<li>非线程安全，需自己保证同步,可以使用 Collections.synchronizedMap(new HashMap(...)); 包裹，或使用 HashTable，ConcurrentHashMap，后者性能更高</li>
+<li>快速失败机制
+<ul>
+<li>在 Java 非线程安全的集合类中，遍历集合中，对集合做额外的操作比如调用新增、删除会立即停止当前操作并抛出 ConcurrentModificationException，在 HashMap 中使用 modCount 记录修改次数，如果遍历中该记录和开始时不相同，则报错。</li>
+<li>可以使用 Iterator 接口安全的移除元素，一般集合会实现安全的移除操作。但是多线程环境下得保证 Iterator 实现类的线程安全。</li>
+</ul>
+</li>
+</ul>
+<pre><code class="language-java">final HashMap&lt;String, String&gt; hashMap = new HashMap&lt;&gt;(20, 0.75f);
+final Iterator&lt;Map.Entry&lt;String, String&gt;&gt; iterator = hashMap.entrySet().iterator();
+while (iterator.hasNext()) {
+    if (iterator.next().getKey().equals(&quot;test&quot;)) {
+        iterator.remove(); // ok!
+    }
+}
+// java 8 removeIf
+hashMap.entrySet().removeIf(stringStringEntry -&gt; stringStringEntry.getKey().equals(&quot;test&quot;));
+</code></pre>
+<h3 id="数组桶bucket">数组桶(bucket)</h3>
+<p>在代码中，桶数组用如下变量表示：</p>
+<pre><code class="language-java">transient Node&lt;K,V&gt;[] table;
+</code></pre>
+<p>这里需要注意几点：</p>
+<ul>
+<li>桶数组并没有在构造方法中初始化，而是在第一次使用时才会分配内存，比如 put、compute、merge 等。</li>
+<li>当分配内存时，长度总是 2 的幂次方。（为什么选择 2 的幂次方？由于为了达到高效处理性能，很多操作都是通过位运算完成。比如其中的 hash 方法，计算桶索引等，后面会详细说明。）</li>
+<li>如果初始化时传入的桶的容量 capacity 不是 2 的幂次方，将会使用该位运算算法增加到最近的 2 次幂。</li>
+</ul>
+<h3 id="单链表">单链表</h3>
+<p>每个桶内部由链表组成，在代码中为类 Node&lt;K, V&gt; 的实例，此类是 HashMap 类的静态内部类，并且实现 Map.Entry&lt;K, V&gt; 接口，此节点的表示形式为：</p>
+<pre><code class="language-java">static class Node&lt;K,V&gt; implements Map.Entry&lt;K,V&gt; {
+        final int hash;			// 使用 hash 定位桶
+        final K key;				// 节点存放的 key
+        V value;						// 节点存放的 值
+        Node&lt;K,V&gt; next;     // 指向链表的下一个节点
+}
+</code></pre>
+<h3 id="hashmap-如何计算桶索引">HashMap 如何计算桶索引</h3>
+<p>之前我们提到计算索引是使用哈希函数计算的 hash 值和桶数组长度求余，但是求余的效率并没有直接按位运算的高。同样我们需要借助一些位<a href="http://graphics.stanford.edu/~seander/bithacks.html#ModulusDivisionEasy">运算的技巧</a>，这里 n 为桶数组的长度：</p>
+<pre><code class="language-java">index = hash(key) &amp; (n-1)  // 相当于求 hash(key) % n，当 n 为 2 的次幂且不为 0 时成立
+
+// hash 函数求 hash 值  
+static final int hash(Object key) {
+  int h;
+  return (key == null) ? 0 : (h = key.hashCode()) ^ (h &gt;&gt;&gt; 16);
+}
+</code></pre>
+<p>注意，为什么这里 hash 函数需要将高位数据移位到低位进行异或运算呢？这是因为有些数据计算出的哈希值差异主要在高位，而 HashMap 里的哈希寻址是忽略容量以上的高位的，那么这种处理就可以有效避免类似情况下的哈希碰撞。</p>
+<p>计算桶索引并不只是发生在 put 方法时，在调用 get、contains、remove 时都会调用 hash 方法重新计算 hash 值并在计算桶索引。</p>
+<h3 id="为什么桶内不使用-arraylist-或-linkedlist">为什么桶内不使用 ArrayList 或 LinkedList</h3>
+<p>HashMap 内部使用单向链表来维护哈希冲突的元素，但为什么不用数组或双向链表，这其实是一个平衡后的考虑：</p>
+<ul>
+<li>ArrayList 使用较少的空间，检索速度快，但是最坏的情况下插入和删除元素的时间复杂度可能为 O(n)</li>
+<li>LinkedList 双向链表使用更多空间维护前后节点信息，但是插入或删除元素的时间复杂度为 O(1)</li>
+</ul>
+<p>使用单向链表的好处在于，其既可以使空间相对较少，也能保证删除和插入的时间复杂度为 O(1)。但是如果链表过长，最坏的可能是所有元素都放入一个桶里，此时时间复杂度将变为 O(n)。为了优化这一点，JDK 1.8 使用了红黑树来优化链表过长的情况。</p>
+<p>当桶数组的长度超过 MIN_TREEIFY_CAPACITY 且桶中的元素超过 TREEIFY_THRESHOLD 值时，链表转为红黑树。 当桶中元素减少至 UNTREEIFY_THRESHOLD 时，红黑树退回到链表。</p>
+<h3 id="为什么桶内元素过长时用红黑树">为什么桶内元素过长时用红黑树</h3>
+<figure data-type="image" tabindex="1"><img src="https://toomi.pages.dev/post-images/1679111793168.png" alt="" loading="lazy"></figure>
+<p>因为当大量哈希冲突的时候会导致节点链表越来越长从而降低 HashMap 性能。而红黑树为自平衡二叉搜索树，重新平衡并不完美，但保证在 O(logN) 时间内搜索，其中 n 是树的节点数。插入和删除操作，以及树的重排和重新着色，也在 O(logN) 时间内执行。 因此在数据量大的且桶中冲突较大的散列表中红黑树比单向链表更有优势。</p>
+<p><strong>本质上这是个安全问题</strong> 因为在元素放置过程中，如果一个对象哈希冲突，都被放置到同一个桶里，则会形成一个很长的链表，我们知道链表查询是线性的，会严重影响存取的性能。而在现实世界，构造哈希冲突的数据并不是非常复杂的事情，恶意代码就可以利用这些数据大量与服务器端交互，导致服务器端 CPU 大量占用，这就构成了哈希碰撞拒绝服务攻击，国内一线互联网公司就发生过类似攻击事件。</p>
+<p>为什么选择红黑树而不是二叉树或绝对平衡二叉树呢</p>
+<ul>
+<li>首先，二叉树在极端情况下依然会形成链表。例如 1,2,3,4 的 hashCode 相同时，二叉树退化成链表；</li>
+<li>再是，绝对平衡就好像有强迫症一样把精力消耗在如何达到平衡上，因此造成不必要的性能开销；</li>
+</ul>
+<p>而红黑树它是一棵自平衡树但不是绝对平衡树，优点有以下：<br>
+- 树属于折半查找，于较长的链表相比查询效率要高<br>
+- 自平衡树解决了二叉树的计算情况问题（二叉树退化成链表）<br>
+- 非绝对平衡树比绝对平衡树在增删节点时要高效一些<br>
+因此红黑树是综合性能较强的树型数据结构。</p>
+<h3 id="linkedhashmap">LinkedHashMap</h3>
+<figure data-type="image" tabindex="2"><img src="https://toomi.pages.dev/post-images/1679112052599.png" alt="" loading="lazy"></figure>
+<p>我们知道 HashMap 使用 hash 函数定位桶，桶内部使用单向链表存储冲突元素，不能保证插入的顺序。LinkedHashMap 继承了 HashMap，在原有的数据结构基础上，将所有桶内元素通过双向链表链接起来，该链表定义了迭代的顺序，默认是数据插入的顺序，也可以配置为访问顺序。转换为红黑树时也维护链表。</p>
+<p>如果将键重新插入映射中，则插入顺序不会受到影响。<br>
+<img src="https://toomi.pages.dev/post-images/1679112084218.png" alt="" loading="lazy"></p>
+<p>该实现提供了顺序保证，但是并没有增加时间复杂度，和 HashMap 一样还是 O(1)。TreeMap 由于使用了红黑树来提供顺序保证，所以时间复杂度为 O(logN)。</p>
+<h2 id="treemap-比较">TreeMap 比较</h2>
+<p>以下是 TreeMap、HashMap 和 LinkedHashMap 之间的重要区别。</p>
+<table>
+<thead>
+<tr>
+<th>No.</th>
+<th>关键点</th>
+<th>TreeMap</th>
+<th>HashMap</th>
+<th>LinkedHashMap</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>元素的顺序</td>
+<td>插入到 TreeMap 中的元素根据其键的自然顺序进行排序，或者通过在 Map 创建时提供的 Comparator 进行排序，具体取决于使用的构造函数。</td>
+<td>HashMap 不保证 Map 的顺序，也不保证顺序随时间保持不变。</td>
+<td>LinkedHashMap 默认遵循元素的插入顺序，并维护插入元素的顺序。</td>
+</tr>
+<tr>
+<td>2</td>
+<td>内部实现</td>
+<td>TreeMap 的内部实现不允许存储 null 键，但允许 null 值。</td>
+<td>HashMap 允许存储一个 null 键以及多个 null 值。</td>
+<td>LinkedHashmap 的内部实现与 HashMap 相似，因此允许存储一个 null 键和多个 null 值。</td>
+</tr>
+<tr>
+<td>3</td>
+<td>时间复杂度</td>
+<td>TreeMap 的 get、put 和 remove 操作的时间复杂度都是 O(logN)，比 HashMap 大。</td>
+<td>HashMap 在 get、put 和 remove 操作的情况下具有 O(1) 的复杂性。</td>
+<td>LinkedHashMap 具有与 HashMap 相同的复杂度，即 O(1)。</td>
+</tr>
+<tr>
+<td>4</td>
+<td>继承</td>
+<td>TreeMap 实现了 Collection 框架的 SortedMap 接口，它是 Map 的子代。TreeMap 内部实现了红黑树（一种自平衡二叉搜索树）。</td>
+<td>HashMap 实现了简单的 Map 接口，并在内部使用散列来存储和检索其元素。</td>
+<td>LinkedHashMap 扩展了 HashMap 并在内部像 HashMap 一样使用散列。</td>
+</tr>
+<tr>
+<td>5</td>
+<td>索引性能</td>
+<td>与 HashMap 和 LinkedHashMap 相比，TreeMap 维护其元素的顺序，因此性能指标较低，并且需要更多内存。</td>
+<td>HashMap 不维护其元素的任何插入顺序，因此与 TreeMap 相比更快，也不根据其值对其元素进行排序，因此也比 LinkedHashMap 更快。</td>
+<td>LinkedHashMap 比 TreeMap 快，但比 HashMap 慢。</td>
+</tr>
+<tr>
+<td>6</td>
+<td>比较</td>
+<td>TreeMap 中的元素通过使用 compareTo() 方法进行比较，其中也可以提供自定义实现。</td>
+<td>HashMap 使用 Object 类的 compare() 方法进行元素比较。</td>
+<td>LinkedHashMap 也使用 Object 类的 compare() 方法进行元素比较。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="java-7基于分段锁的concurrenthashmap">Java 7基于分段锁的ConcurrentHashMap</h2>
+<p>注：本章的代码均基于JDK 1.7.0_67</p>
+<p>Java 7中的ConcurrentHashMap的底层数据结构仍然是数组和链表。与HashMap不同的是，ConcurrentHashMap最外层不是一个大的数组，而是一个Segment的数组。每个Segment包含一个与HashMap数据结构差不多的链表数组。整体数据结构如下图所示。<br>
+<img src="https://toomi.pages.dev/post-images/1679123047598.png" alt="" loading="lazy"></p>
+<p>ConcurrentHashMap与HashMap相比，有以下不同点</p>
+<ul>
+<li>ConcurrentHashMap线程安全，而HashMap非线程安全</li>
+<li>HashMap允许Key和Value为null，而ConcurrentHashMap不允许</li>
+<li>HashMap不允许通过Iterator遍历的同时通过HashMap修改，而ConcurrentHashMap允许该行为，并且该更新对后续的遍历可见</li>
+</ul>
+<p>HashTable（jdk 1.2 时期的，后续没没太多优化，不建议使用，尽做向后兼容）容器在竞争激烈的并发环境下表现出效率低下的原因是所有访问HashTable的线程都必须竞争同一把锁，那假如容器里有多把锁，每一把锁用于锁容器其中一部分数据，那么当多线程访问容器里不同数据段的数据时，线程间就不会存在锁竞争，从而可以有效的提高并发访问效率，这就是ConcurrentHashMap所使用的锁分段技术，首先将数据分成一段一段的存储，然后给每一段数据配一把锁，当一个线程占用锁访问其中一个段数据的时候，其他段的数据也能被其他线程访问。</p>
+<h2 id="java-8基于cas的concurrenthashmap">Java 8基于CAS的ConcurrentHashMap</h2>
+<p>注：本章的代码均基于JDK 1.8.0_111</p>
+<p>Java 7为实现并行访问，引入了Segment这一结构，实现了分段锁，理论上最大并发度与Segment个数相等。Java 8为进一步提高并发性，摒弃了分段锁的方案，而是直接使用一个大的数组。同时为了提高哈希碰撞下的寻址性能，Java 8在链表长度超过一定阈值（8）时将链表（寻址时间复杂度为O(N)）转换为红黑树（寻址时间复杂度为O(long(N))）。</p>
+<p>即JDK1.8中，ConcurrentHashMap的数据结构与1.8中的HashMap结构类似，都是：数组+单向链表/红黑树。 其数据结构如下图所示：<br>
+<img src="https://toomi.pages.dev/post-images/1679123247211.png" alt="" loading="lazy"></p>
+<p>Java 8的ConcurrentHashMap同样是通过Key的哈希值与数组长度取模确定该Key在数组中的索引。同样为了避免不太好的Key的hashCode设计，它通过如下方法计算得到Key的最终哈希值</p>
+<pre><code class="language-java">//计算key的哈希值
+h = key.hashCode();
+//ConcurrentHashMap中的hash算法，其中HASH_BITS为0x7fffffff，即Integer.MAX_VALUE的值
+h = (h ^ (h &gt;&gt;&gt; 16)) &amp; HASH_BITS
+//HashMap中的hash算法
+h = h ^ (h &gt;&gt;&gt; 16)
+
+//计算table数组位置
+(n - 1) &amp; h
+</code></pre>
+<p>不同的是，Java 8的ConcurrentHashMap作者认为引入红黑树后，即使哈希冲突比较严重，寻址效率也足够高，所以作者并未在哈希值的计算上做过多设计，只是将Key的hashCode值与其高16位作异或并保证最高位为0（从而保证最终结果为正整数）。相比HashMap，多了一步与运算：保证最高位为0，从而保证最终结果为正整数。</p>
+<h3 id="put-大体思路">put 大体思路</h3>
+<p>要想对链表或红黑树进行put操作，必须拿到表头或根节点，所以，锁住了表头或根节点，就相当于锁住了整个链表或者整棵树。这个设计与分段锁的思想一致，只是其他读取操作需要用cas来保证。</p>
+<ul>
+<li>如果table数组还没有初始化，则使用CAS进行初始化</li>
+<li>如果table数组中i位置处元素为空，则使用CAS将table[i]的值设置为value</li>
+<li>如果其他线程正在对table数组进行扩容，则当前线程去协助其进行扩容</li>
+<li>其他情况，则使用synchronized锁住table[i]这个元素（链表表头或红黑树根节点），并将元素追加插入到链表或红黑树中；插入后，检查是否需要将该桶的数据结构由链表转化为红黑树。</li>
+<li>成功设置&lt;key, value&gt;后，检查是否需要进行扩容</li>
+</ul>
+<p>相比JDK1.7的ConcurrentHashMap，JDK1.8中的改进之处主要体现在：</p>
+<ul>
+<li>更小的锁粒度：1.8中摒弃了segment锁，直接将hash桶的头结点当做锁。旧版本的一个segment锁，保护了多个hash桶，而1.8版本的一个锁只保护一个hash桶，由于锁的粒度变小了，写操作的并发性得到了极大的提升。</li>
+<li>更高效的扩容
+<ul>
+<li>更多的扩容线程：扩容时，需要锁的保护。旧版本最多可以同时扩容的线程数是segment锁的个数。而1.8中理论上最多可以同时扩容的线程数是table数组的长度。但是为了防止扩容线程过多，ConcurrentHashMap规定了扩容线程每次最少迁移16个hash桶，因此1.8中实际上最多可以同时扩容的线程数是：hash桶的个数/16</li>
+<li>扩容期间，依然保证较高的并发度：旧版本的segment锁，锁定范围太大，导致扩容期间，写并发度，严重下降。而新版本的采用更加细粒度的hash桶级别锁，扩容期间，依然可以保证写操作的并发度。</li>
+</ul>
+</li>
+</ul>
+<h2 id="参考">参考</h2>
+<p>https://www.cnblogs.com/goloving/p/15242372.html<br>
+https://www.zeral.cn/data-structure/java-hashmap-%E5%AE%9E%E7%8E%B0/<br>
+http://www.jasongj.com/java/concurrenthashmap/</p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/mybatis-plus-zi-ding-yi-tong-yong-fang-fa/">
+                                                    <h3 class="post-title">
+                                                        MyBatis Plus自定义通用方法
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

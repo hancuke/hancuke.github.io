@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>Mutable and Immutable Objects | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="Mutable Objects: When you have a reference to an instance of an object, the contents of that instance can be altered
+Imm..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="Mutable and Immutable Objects" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="Mutable Objects: When you have a reference to an instance of an object, the contents of that instance can be altered
+Imm...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/mutable-and-immutable-objects/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2022-11-19">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="Mutable and Immutable Objects">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="Mutable and Immutable Objects">
+        <meta name="twitter:description" content="Mutable Objects: When you have a reference to an instance of an object, the contents of that instance can be altered
+Imm...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    Mutable and Immutable Objects
+                                </h2>
+                                <span class="article-info">
+                                    2022-11-19, 545 words, 4 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <p><strong>Mutable Objects</strong>: When you have a reference to an instance of an object, the contents of that instance can be altered<br>
+<strong>Immutable Objects</strong>: When you have a reference to an instance of an object, the contents of that instance cannot be altered</p>
+<h2 id="building-an-immutable-class">Building an Immutable class</h2>
+<h3 id="fields-must-be-private">Fields must be private</h3>
+<p>Obviously all of the fields must be private. There is little point removing the mutators if they aren't even required to change the instance contents.</p>
+<h3 id="make-sure-methods-cant-be-overridden">Make sure methods can't be overridden.</h3>
+<p>If your class gets extended, it could add extra fields that are not immutable, or the methods could be overridden to return a different value each time. There are two ways to protect against this.</p>
+<ul>
+<li>
+<p>The preferred way is to make the class final. This is sometimes referred to as &quot;Strong Immutability&quot;. It prevents anyone from extending your class and accidentally or deliberately making it mutable.</p>
+</li>
+<li>
+<p>The second way, also called &quot;Weak Immutability&quot; is to make your methods final. It allows others to extend your class to add more behaviour, but protects the original contract specified by the class. If you want a more verbose description, imagine a class A is weakly immutable. If you have an instance of object A, it is immutable. If someone creates class B that extends A, it is only the behaviour defined by the A class that is immutable. Any added behaviour from class B may not be immutable.</p>
+</li>
+</ul>
+<h3 id="protect-mutable-fields">Protect mutable fields</h3>
+<p>The last requirement which many people fall victim too, is to build your immutable class from primitive types or immutable fields, otherwise you have to protect mutable fields from manipulation.<br>
+To highlight this problem, we'll use the example of a supposedly immutable class representing a person. Our class has a first and last name, as well as a date of birth.</p>
+<pre><code class="language-java">import java.util.Date;
+public final class BrokenPerson
+	{
+		private String firstName;
+		private String lastName;
+		private Date dob;
+
+		public BrokenPerson( String firstName,
+		  String lastName, Date dob)
+		{
+			this.firstName = firstName;
+			this.lastName = lastName;
+			this.dob = dob;
+		}
+
+		public String getFirstName()
+		{
+			return this.firstName;
+		}
+		public String getLastName()
+		{
+			return this.lastName;
+		}
+		public Date getDOB()
+		{
+			return this.dob;
+		}
+	}
+</code></pre>
+<p>This all looks fine, until someone uses it like this:</p>
+<pre><code class="language-java">    Date myDate = new Date();
+	BrokenPerson myPerson =   new BrokenPerson( &quot;David&quot;, &quot;O'Meara&quot;, myDate );
+	System.out.println( myPerson.getDOB() );
+	myDate.setMonth( myDate.getMonth() + 1 );
+	System.out.println( myPerson.getDOB() );
+</code></pre>
+<h2 id="our-template-for-immutable-classes">Our Template for Immutable Classes</h2>
+<p>Now we have a template for creating immutable objects.</p>
+<ul>
+<li>Make all fields private</li>
+<li>Don't provide mutators</li>
+<li>Ensure that methods can't be overridden by either making the class final (Strong Immutability) or making your methods final (Weak Immutability)</li>
+<li>If a field isn't primitive or immutable, make a deep clone on the way in and the way out.</li>
+</ul>
+<h2 id="which-classes-are-immutable">Which classes are Immutable?</h2>
+<p>To finish up, lets discuss the common Java classes that are immutable and those that aren't. Firstly, all of the java.lang package wrapper classes are immutable: Boolean, Byte, Character, Double, Float, Integer, Long, Short, String.<br>
+As in the Person classes we discussed, java.util.Date objects are not immutable. The classes java.math.BigInteger and BigDecimal are not immutable either, although maybe they should have been.</p>
+<h2 id="source">source</h2>
+<p>https://javaranch.com/journal/2003/04/immutable.htm</p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/zi-fu-ji-he-zi-fu-bian-ma/">
+                                                    <h3 class="post-title">
+                                                        字符集和字符编码
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

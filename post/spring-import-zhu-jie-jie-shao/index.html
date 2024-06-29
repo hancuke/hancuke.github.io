@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>Spring @Import 注解介绍 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="提供与 xml 中 &lt;import/&gt;等效的功能, 允许去导入@Configuration类, ImportSelector 和 ImportBeanDefinitionRegistrar 的具体实现, 以及常规组件类 。
+类似..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="Spring @Import 注解介绍" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="提供与 xml 中 &amp;lt;import/&amp;gt;等效的功能, 允许去导入@Configuration类, ImportSelector 和 ImportBeanDefinitionRegistrar 的具体实现, 以及常规组件类 。
+类似...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/spring-import-zhu-jie-jie-shao/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2023-02-24">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="Spring @Import 注解介绍">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="Spring @Import 注解介绍">
+        <meta name="twitter:description" content="提供与 xml 中 &amp;lt;import/&amp;gt;等效的功能, 允许去导入@Configuration类, ImportSelector 和 ImportBeanDefinitionRegistrar 的具体实现, 以及常规组件类 。
+类似...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    Spring @Import 注解介绍
+                                </h2>
+                                <span class="article-info">
+                                    2023-02-24, 404 words, 2 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <p>提供与 xml 中 <code>&lt;import/&gt;</code>等效的功能, 允许去导入@Configuration类, ImportSelector 和 ImportBeanDefinitionRegistrar 的具体实现, 以及常规组件类 。<br>
+类似于<code>AnnotationConfigApplicationContext.register(java.lang.Class&lt;?&gt;...) </code>这种操作。</p>
+<p>可以在类级别声明或作为元注释声明。如果需要导入XML或其他非@Configuration bean定义资源，请改用@ImportResource注释</p>
+<h2 id="1-注册具体类">1. 注册具体类</h2>
+<p>将 @Import 标记的类注册成 bean。</p>
+<pre><code class="language-java">// Test 类   这里不需要任何注解(@Component、@Service)这些都不需要
+public class Test {
+
+}
+
+
+// MyConfig 类
+@Configuration
+@Import({Test.class})
+public class AppConfig {
+
+}
+</code></pre>
+<h2 id="2-导入configuration-配置类下的bean定义">2. 导入@Configuration 配置类下的bean定义</h2>
+<pre><code class="language-java">@Configuration
+public class AppConfigAux { 
+    // 假设这里内部由很多使用了@Bean注解的方法 
+
+}
+
+// AppConfig 类
+@Configuration
+@Import({AppConfigAux.class})
+public class AppConfig {
+
+}
+
+// 开始测试的Test类
+public class Test {  
+    public static void main(String[] args) { 
+    new AnnotationConfigApplicationContext(AppConfig.class); 
+    } 
+}
+</code></pre>
+<h2 id="3-导入importbeandefinitionregistrar的具体实现类">3. 导入ImportBeanDefinitionRegistrar的具体实现类</h2>
+<p>通过方法 <code>registerBeanDefinitions</code>进行注入</p>
+<pre><code class="language-java">// AppConfigAux 类  不需要任何注解
+public class AppConfigAux implements ImportBeanDefinitionRegistrar {
+    @Override
+    public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata,     BeanDefinitionRegistry registry) {
+        registry.registerBeanDefinition(&quot;simple&quot;,BeanDefinitionBuilder.rootBeanDefinition(Simple.class).getBeanDefinition());
+    }
+}
+
+// AppConfig 类
+@Configuration
+@Import({AppConfigAux.class})
+public class AppConfig {
+
+}
+
+// Simple 类  不需要注解
+pulic class Simple {
+
+}
+
+// 开始测试的Test类
+public class Test {  
+    public static void main(String[] args) { 
+        new AnnotationConfigApplicationContext(AppConfig.class); 
+        } 
+    }
+</code></pre>
+<h2 id="4-导入importselector的具体实现">4. 导入ImportSelector的具体实现</h2>
+<pre><code class="language-java">// AppConfigAux 类  不需要任何注解
+public class AppConfigAux implements ImportSelector {
+    @Override
+    public String[] selectImports(AnnotationMetadata importingClassMetadata) {
+        //返回String[]含义：多个类的完全限定名，表示注入这些类到容器中，bean名称就是类的完全限定名（保证唯一性）
+         return new String[] { Simple.class.getName() }; 
+         } 
+}
+
+// AppConfig 类
+@Configuration
+@Import({AppConfigAux.class})
+public class AppConfig {
+
+}
+
+// Simple 类  不需要注解
+pulic class Simple {
+
+}
+
+// 开始测试的Test类
+public class Test {  
+    public static void main(String[] args) { 
+        new AnnotationConfigApplicationContext(AppConfig.class); 
+        } 
+}
+</code></pre>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/linux-zi-mu-lu-yi-ji-wen-jian-ming-gai-cheng-xiao-xie/">
+                                                    <h3 class="post-title">
+                                                        linux 子目录以及文件名改成小写
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

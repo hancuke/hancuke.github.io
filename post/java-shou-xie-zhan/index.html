@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>java手写栈 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="起因
+在java官方文档种，有提示 Staying Away from the Stack Class ， 原因是Stack 类继承 Vector ，但是Vector 类的设计和实现有缺陷，Vector是在java 1.0中开始出现，在ja..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="java手写栈" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="起因
+在java官方文档种，有提示 Staying Away from the Stack Class ， 原因是Stack 类继承 Vector ，但是Vector 类的设计和实现有缺陷，Vector是在java 1.0中开始出现，在ja...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/java-shou-xie-zhan/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2022-11-25">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="java手写栈">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="java手写栈">
+        <meta name="twitter:description" content="起因
+在java官方文档种，有提示 Staying Away from the Stack Class ， 原因是Stack 类继承 Vector ，但是Vector 类的设计和实现有缺陷，Vector是在java 1.0中开始出现，在ja...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    java手写栈
+                                </h2>
+                                <span class="article-info">
+                                    2022-11-25, 525 words, 3 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <h2 id="起因">起因</h2>
+<p>在java官方文档种，有提示 <a href="https://dev.java/learn/storing-elements-in-stacks-and-queues/">Staying Away from the Stack Class</a> ， 原因是Stack 类继承 Vector ，但是Vector 类的设计和实现有缺陷，Vector是在java 1.0中开始出现，在java 1.2 版本后，新的collection框架中的List已经是官方推荐的Vector的替代品，而Vector仅仅是作为向后兼容使用。<br>
+不推荐使用Vector的的原因如下，<a href="https://www.techiedelight.com/why-vector-class-java-obsolete/">原文</a>：</p>
+<ul>
+<li>性能问题，Vector的所有方法都使用了 synchronization ,也就是加锁了</li>
+<li>Vector只是对方法进行加锁，对整个类没有加锁，也就是不同线程，可以同时调用同一实例不同的方法</li>
+</ul>
+<h2 id="官方替代品">官方替代品</h2>
+<p>推荐用ArrayList 替代 Vector，  Deque 替代 Stack</p>
+<h2 id="手写stack">手写Stack</h2>
+<ol>
+<li>先定义Stack接口</li>
+</ol>
+<pre><code class="language-java">/**
+ * A small stack interface. You can (1) query the size of the stack, (2) ask
+ * whether it is empty, (3) push an item, (4) pop an item, and (5) peek at the
+ * top item.
+ */
+public interface Stack {
+
+    /**
+     * Adds the given item to the top of the stack.
+     */
+    void push(Object item);
+
+    /**
+     * Removes the top item from the stack and returns it.
+     * 
+     * @exception java.util.NoSuchElementException if the stack is empty.
+     */
+    Object pop();
+
+    /**
+     * Returns the top item from the stack without popping it.
+     * 
+     * @exception java.util.NoSuchElementException if the stack is empty.
+     */
+    Object peek();
+
+    /**
+     * Returns the number of items currently in the stack.
+     */
+    int size();
+
+    /**
+     * Returns whether the stack is empty or not.
+     */
+    default boolean isEmpty() {
+        return size() == 0;
+    }
+}
+</code></pre>
+<ol start="2">
+<li>A Linked Stack ,基于 link 实现</li>
+</ol>
+<pre><code class="language-java">import java.util.NoSuchElementException;
+
+/**
+ * An implementation of the stack interface using singly-linked nodes.
+ */
+public class LinkedStack implements Stack {
+    private record Node(Object data, Node next) {
+    }
+
+    private Node top = null;
+    private int size = 0;
+
+    public void push(Object item) {
+        top = new Node(item, top);
+        size++;
+    }
+
+    public Object pop() {
+        var item = peek();
+        top = top.next;
+        size--;
+        return item;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        // Override the default implementation for efficiency
+        return top == null;
+    }
+
+    public Object peek() {
+        if (isEmpty()) {
+            throw new NoSuchElementException();
+        }
+        return top.data;
+    }
+
+    public int size() {
+        return size;
+    }
+}
+</code></pre>
+<h2 id="利用stack解决括号匹配问题">利用stack解决括号匹配问题</h2>
+<pre><code class="language-java">public class ValidBracketChecker {
+
+    public static boolean validBrackets(String s) {
+        var stack = new LinkedStack();
+        try {
+            for (var c : s.toCharArray()) {
+                if (c == '(' || c == '[' || c == '{') {
+                    stack.push(String.valueOf(c));
+                } else if (c == '}' &amp;&amp; !stack.pop().equals(&quot;{&quot;)) {
+                    return false;
+                } else if (c == ']' &amp;&amp; !stack.pop().equals(&quot;[&quot;)) {
+                    return false;
+                } else if (c == ')' &amp;&amp; !stack.pop().equals(&quot;(&quot;)) {
+                    return false;
+                }
+            }
+            // If there is anything left over on the stack after running
+            // through the whole string, we have &quot;unclosed&quot; brackets
+            return stack.isEmpty();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public static void main(String[] args) {
+        System.out.println(validBrackets(args[0]));
+    }
+}
+</code></pre>
+<h2 id="参考">参考</h2>
+<p>https://cs.lmu.edu/~ray/notes/stacks/</p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/peek-he-map-de-yi-tong-zhi-chu/">
+                                                    <h3 class="post-title">
+                                                        peek和map的异同之处
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

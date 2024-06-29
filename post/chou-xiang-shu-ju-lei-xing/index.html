@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>抽象数据类型 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="抽象数据类型是指一个数学模型以及定义在此数学模型上的一组操作，简称ADT,(Abstract Data Type)。
+ADT与具体的物理存储无关，不论ADT内部如何变化，都不影响外部使用。抽象数据类型可以使我们更容易描述现实世界，而数据结构..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="抽象数据类型" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="抽象数据类型是指一个数学模型以及定义在此数学模型上的一组操作，简称ADT,(Abstract Data Type)。
+ADT与具体的物理存储无关，不论ADT内部如何变化，都不影响外部使用。抽象数据类型可以使我们更容易描述现实世界，而数据结构...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/chou-xiang-shu-ju-lei-xing/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2023-03-23">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="抽象数据类型">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="抽象数据类型">
+        <meta name="twitter:description" content="抽象数据类型是指一个数学模型以及定义在此数学模型上的一组操作，简称ADT,(Abstract Data Type)。
+ADT与具体的物理存储无关，不论ADT内部如何变化，都不影响外部使用。抽象数据类型可以使我们更容易描述现实世界，而数据结构...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    抽象数据类型
+                                </h2>
+                                <span class="article-info">
+                                    2023-03-23, 293 words, 2 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <p>抽象数据类型是指一个数学模型以及定义在此数学模型上的一组操作，简称ADT,(Abstract Data Type)。<br>
+ADT与具体的物理存储无关，不论ADT内部如何变化，都不影响外部使用。抽象数据类型可以使我们更容易描述现实世界，而数据结构的本质就是抽象数据类型的物理实现。</p>
+<p>抽象数据类型的定义格式：</p>
+<pre><code class="language-java">ADT&lt;抽象数据类型名&gt;
+{
+    数据对象D:&lt;数据对象的定义&gt;
+    数据关系R:&lt;数据关系的定义&gt;
+    基本操作P:&lt;基本操作的定义&gt;
+}ADT&lt;抽象数据类型名&gt;
+</code></pre>
+<p>D是数据对象，R是D上的关系集，P是对D的基本操作集。</p>
+<p>抽象数据类型抽象出了数据结构本质的特征，所能完成的功能以及它和外部用户的接口。同时，将实体的外部特性和其内部实现细节分离，并且对外部用户隐藏其内部实现细节。</p>
+<figure data-type="image" tabindex="1"><img src="https://toomi.pages.dev/post-images/1679539292653.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="2"><img src="https://toomi.pages.dev/post-images/1679539464449.png" alt="" loading="lazy"></figure>
+<h2 id="参考">参考</h2>
+<p>https://www.cnblogs.com/liuruiliang/p/16006760.html<br>
+https://www.coursera.org/lecture/shuju-jiegou-suanfa/about-weQQs</p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/hash-he-hashmap/">
+                                                    <h3 class="post-title">
+                                                        hash 和 hashmap
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

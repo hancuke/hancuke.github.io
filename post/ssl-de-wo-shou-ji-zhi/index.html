@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>SSL的握手机制 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="SSL的握手机制和数字签名机制完全不同， 单向验证机制，只验证服务端。
+
+
+第一步：Visitor给出协议版本号、一个客户端随机数（Client random），以及客户端支持的加密方法。
+第二步：Server确认双方使用的加密方法，以及一..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="SSL的握手机制" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="SSL的握手机制和数字签名机制完全不同， 单向验证机制，只验证服务端。
+
+
+第一步：Visitor给出协议版本号、一个客户端随机数（Client random），以及客户端支持的加密方法。
+第二步：Server确认双方使用的加密方法，以及一...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/ssl-de-wo-shou-ji-zhi/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2023-07-20">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="SSL的握手机制">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="SSL的握手机制">
+        <meta name="twitter:description" content="SSL的握手机制和数字签名机制完全不同， 单向验证机制，只验证服务端。
+
+
+第一步：Visitor给出协议版本号、一个客户端随机数（Client random），以及客户端支持的加密方法。
+第二步：Server确认双方使用的加密方法，以及一...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    SSL的握手机制
+                                </h2>
+                                <span class="article-info">
+                                    2023-07-20, 508 words, 2 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <p>SSL的握手机制和数字签名机制完全不同， 单向验证机制，只验证服务端。<br>
+<img src="https://toomi.pages.dev/post-images/1689823935909.png" alt="" loading="lazy"></p>
+<ul>
+<li>第一步：Visitor给出协议版本号、一个客户端随机数（Client random），以及客户端支持的加密方法。</li>
+<li>第二步：Server确认双方使用的加密方法，以及一个服务器生成的随机数（Server random）。</li>
+<li>第三步：Server发送数字证书给Visitor。</li>
+<li>第四步：Visitor确认数字证书有效（查看证书状态且查询证书吊销列表），并使用信任的CA的公钥解密数字证书获得Server的公钥，然后生成一个新的46字节随机数（称为预备主密钥Pre-master secret），并使用Server的公钥加密预备主密钥发给Server。</li>
+<li>第五步：Server使用自己的私钥，解密Visitor发来的预备主密钥。</li>
+<li>第六步：Visitor和Server双方都具有了(客户端随机数+服务端随机数+预备主密钥)，它们两者都根据约定的加密方法，使用这三个随机数生成对称密钥——主密钥（也称为对话密钥session key），用来加密接下来的整个对话过程。</li>
+<li>第七步：在双方验证完session key的有效性之后，SSL握手机制就算结束了。之后所有的数据只需要使用“对话密钥”加密即可，不再需要多余的加密机制。</li>
+</ul>
+<blockquote>
+<p>注意：<br>
+1.在SSL握手机制中，需要三个随机数（客户端随机数+服务端随机数+预备主密钥）；<br>
+2.至始至终客户端和服务端只有一次非对称加密动作——客户端使用证书中获得的服务端公钥加密预备主密钥。<br>
+3.上述SSL握手机制的前提单向验证，无需验证客户端，如果需要验证客户端则可能需要客户端的证书或客户端提供签名等。</p>
+</blockquote>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://www.cnblogs.com/f-ck-need-u/p/6089523.html">加密、签名和SSL握手机制细节 </a></li>
+<li><a href="https://showme.codes/2017-02-20/understand-https/">也许，这样理解HTTPS更容易</a></li>
+</ul>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/li-jie-mysql-huan-du-wen-ti/">
+                                                    <h3 class="post-title">
+                                                        理解 mysql 幻读问题
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

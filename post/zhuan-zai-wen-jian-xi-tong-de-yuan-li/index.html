@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>文件系统的原理 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="持久性的数据是存储在外部磁盘上的，如果没有文件系统，访问这些数据就需要直接读写磁盘的sector，实在太不方便了。而文件系统存在的意义，就是能更有效的组织、管理和使用磁盘上的这些raw data。
+
+所谓持久性（persistance），就..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="文件系统的原理" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="持久性的数据是存储在外部磁盘上的，如果没有文件系统，访问这些数据就需要直接读写磁盘的sector，实在太不方便了。而文件系统存在的意义，就是能更有效的组织、管理和使用磁盘上的这些raw data。
+
+所谓持久性（persistance），就...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/zhuan-zai-wen-jian-xi-tong-de-yuan-li/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2023-08-25">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="文件系统的原理">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="文件系统的原理">
+        <meta name="twitter:description" content="持久性的数据是存储在外部磁盘上的，如果没有文件系统，访问这些数据就需要直接读写磁盘的sector，实在太不方便了。而文件系统存在的意义，就是能更有效的组织、管理和使用磁盘上的这些raw data。
+
+所谓持久性（persistance），就...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    文件系统的原理
+                                </h2>
+                                <span class="article-info">
+                                    2023-08-25, 2810 words, 11 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <p>持久性的数据是存储在外部磁盘上的，如果没有文件系统，访问这些数据就需要直接读写磁盘的sector，实在太不方便了。而文件系统存在的意义，就是能更有效的组织、管理和使用磁盘上的这些raw data。</p>
+<blockquote>
+<p>所谓持久性（persistance），就是指即便面对困难、挑战，依然可以持续，对于设备来说，就是面对掉电、操作系统crash，依然可以保持数据的持久存在。</p>
+</blockquote>
+<h2 id="文件系统的组成">文件系统的组成</h2>
+<p>要管理，就得先划分，那按照什么粒度划分呢？因为磁盘上的数据要和内存交互，而内存通常是以4KB为单位的，所以从逻辑上，把磁盘按照4KB划分比较方便（称为一个block）。现在假设由一个文件系统管理64个blocks的一个磁盘区域：<br>
+<img src="https://toomi.pages.dev/post-images/1692929811802.png" alt="" loading="lazy"></p>
+<p>那在这些blocks中应该存储些什么？文件系统的基础要素自然是文件，而文件作为一个数据容器的逻辑概念，本质上是一些字节构成的集合，这些字节就是文件的user data（对应下图的&quot;D&quot;）。<br>
+<img src="https://toomi.pages.dev/post-images/1692929840747.png" alt="" loading="lazy"></p>
+<p>除了文件本身包含的数据，还有文件的访问权限、大小和创建时间等控制信息，这些信息被称为meta data。meta data可理解为是关于文件user data的data，这些meta data存储的数据结构就是inode（对应下图的&quot;I&quot;，有些文件系统称之为dnode或fnode）。</p>
+<blockquote>
+<p>inode 不存储文件名，文件名存储在目录中，详细看下文</p>
+</blockquote>
+<p>inode是&quot;index node&quot;的简称，在早期的Unix系统中，这些nodes是通过数组组织起来的，因此需要依靠index来索引数组中的node。假设一个inode占据256字节，那么一个4KB的block可以存放16个inodes，使用5个blocks可以存放80个inodes，也就是最多支持80个文件。<br>
+<img src="https://toomi.pages.dev/post-images/1692929876637.png" alt="" loading="lazy"></p>
+<h2 id="inode-的内容">inode 的内容</h2>
+<p>inode 包含文件的元信息，具体来说有以下内容：</p>
+<ul>
+<li>文件的字节数</li>
+<li>文件拥有者的 User ID</li>
+<li>文件用户组的 Group ID</li>
+<li>文件的读、写、执行权限</li>
+<li>文件的时间戳，共有三个：</li>
+<li>ctime 指 inode 上一次变动的时间</li>
+<li>mtime 指文件内容上一次变动的时间</li>
+<li>atime 指文件上一次打开的时间</li>
+<li>链接数，即有多少文件名指向这个 inode</li>
+<li>文件数据 block 的位置<br>
+可以用 stat 命令，查看某个文件的 inode 信息：</li>
+</ul>
+<pre><code class="language-c">[Linux]$ stat abc.txt
+  File: 'abc.txt'
+  Size: 7805      Blocks: 16         IO Block: 4096   regular file
+Device: fc09h/64521dInode: 152067      Links: 1
+Access: (0664/-rw-rw-r--)  Uid: ( 5000/shiyanlou)   Gid: ( 5000/shiyanlou)
+Access: 2018-01-16 15:14:20.419663570 +0800
+Modify: 2018-01-16 15:14:28.331874373 +0800
+Change: 2018-01-16 15:14:28.331874373 +0800
+ Birth: -
+</code></pre>
+<p>总之，除了文件名以外的所有文件信息，都存在 inode 之中。至于为什么没有文件名，下文会有详细解释。<br>
+每个 inode 都有一个号码，操作系统用 inode 号码来识别不同的文件。<br>
+这里值得重复一遍，Unix/Linux 系统内部不使用文件名，而使用 inode 号码来识别文件。对于系统来说，文件名只是 inode 号码便于识别的别称或者绰号。<br>
+表面上，用户通过文件名打开文件。实际上，系统内部将这个过程分成三步：</p>
+<ol>
+<li>系统找到文件名对应的 inode 号码</li>
+<li>通过 inode 号码，获取 inode 信息</li>
+<li>根据 inode 信息，找到文件数据所在的 block，读出数据。</li>
+</ol>
+<p>使用 ls -l 命令查看文件名对应的 inode 号码：</p>
+<pre><code class="language-c">[Linux]$ ls -i abc.txt
+152067 abc.txt
+</code></pre>
+<h2 id="bitmap">bitmap</h2>
+<p>同内存分配一样，当有了新的数据产生时，我们需要选择一个空闲的block来存放数据，此外还需要一个空闲的inode。所以，需要追踪这些inodes和data blocks的分配和释放情况，以判断哪些是已用的，哪些是空闲的。</p>
+<p>最简单的办法就是使用bitmap，包括记录inode使用情况的bitmap（对应下图的&quot;i&quot;），和记录data block使用情况的bitmap（对应下图的&quot;d&quot;）。空闲就标记为0，正在使用就标记为1。<br>
+<img src="https://toomi.pages.dev/post-images/1692929987614.png" alt="" loading="lazy"></p>
+<h2 id="superblock">superblock</h2>
+<p>因为block是最小划分单位，所以这里使用了两个blocks来分别存储inode bitmap和data block bitmap，每个block可以容纳的bits数量是4096*8。而这里我们只有80个inodes和56个data blocks，所以是绰绰有余的。</p>
+<p>还剩下开头的一个block，这个block是留给superblock的（对应下图的&quot;S&quot;）。<br>
+<img src="https://toomi.pages.dev/post-images/1692930040851.png" alt="" loading="lazy"></p>
+<p>这个superblock包含了一个文件系统所有的控制信息，比如文件系统中有多少个inodes和data blocks，inode的信息起始于哪个block（这里是第3个），可能还有一个区别不同文件系统类型的magic number。因此，superblock可理解为是文件系统的meta data。<br>
+<img src="https://toomi.pages.dev/post-images/1692930064409.png" alt="" loading="lazy"></p>
+<h2 id="文件寻址">文件寻址</h2>
+<p>这5个blocks中的80个inodes构成了一个inode table。假设一个inode的大小是256字节，现在我们要访问第32个文件，那就要先找到这个文件的控制信息，也就是第32个inode所在的磁盘位置。它应该在相对inode table起始地址的8KB处（32*256=8192），而inode table的起始地址是12KB，所以实际位置是20KB。<br>
+<img src="https://toomi.pages.dev/post-images/1692930118823.png" alt="" loading="lazy"></p>
+<p>磁盘同内存不同，它在物理上不是按字节寻址的，而是按sector。一个sector的大小通常是512字节，因此换算一下就是第40个sector（20*1024/512）。</p>
+<p>对于ext2/3/4文件系统，以上介绍的这些inode bitmap, data block bitmap和inode table，都可以通过一个名为&quot;dumpe2fs&quot;的工具来查看其在磁盘上的具体位置：<br>
+<img src="https://toomi.pages.dev/post-images/1692930143276.png" alt="" loading="lazy"></p>
+<p>如果只需要查看inode的使用情况，那么直接使用&quot;df -i&quot;命令即可：<br>
+<img src="https://toomi.pages.dev/post-images/1692930177056.png" alt="" loading="lazy"></p>
+<p>那通过inode如何找到对应的文件呢？根据大小的不同，一个文件需要占据若干个blocks，这些blocks可能是磁盘上连续分布的，也可能不是。所以，比较好的办法是使用指针，指针存储在inode中，一个指针指向一个block。</p>
+<p>不过，在这个简化的示例里，并不需要C语言里那种指针，只需要一个block的编号就可以了。如果文件比较小，占有的blocks数目就比较少，那么一个256字节的inode就能存储这些指针。假设一个inode最多能包含12个指针，那么文件的大小不能超过48KB。</p>
+<p>那如果超过了怎么办？可由inode先指向一个block，这个block再指向分散的data block，这种方法称为multi-level index。inode在指向中间block的同时，也可以直接指向data block。假设一个指针占据4个字节，那么一个中间block可存储1024个指针，二级index的寻址范围就可超过4MB，三级index则可超过4GB。<br>
+<img src="https://toomi.pages.dev/post-images/1692930214684.png" alt="" loading="lazy"></p>
+<p>有没有觉得很像内存管理中的多级页表？事实上，它们的原理可以说是一样的，文件在磁盘上的实际block分布对等于内存的物理地址，而各级index就对等于内存的虚拟地址。</p>
+<p>这种只使用block指针的方式（可被称为&quot;pointer-based&quot;）被ext2和ext3文件系统所采用，但它存在一个问题，对于占据多个data block的文件，需要较多的meta data。</p>
+<p>另一种实现是使用一个block指针加上一个length来表示一组物理上连续的blocks（称为一个extent，其中length以block为单位计），一个文件则由若干个extents构成。这种&quot;extent-based&quot;的方式被后来的ext4文件系统所采用。</p>
+<pre><code class="language-c++">struct ext4_extent {
+    __le32  ee_block;   /* first logical block extent covers */
+    __le16  ee_len;     /* number of blocks covered by extent */
+    ...
+};
+</code></pre>
+<p>相比&quot;pointer-based&quot;而言，&quot;extent-based&quot;由于需要磁盘上连续的free space，灵活性稍差，适用于磁盘空闲空间比较充足的场景。</p>
+<h2 id="目录文件">目录文件</h2>
+<p>Unix/Linux 系统中，目录（directory）也是一种文件。打开目录，实际上就是打开目录文件。<br>
+目录文件的结构非常简单，就是一系列目录项（dirent）的列表。每个目录项，由两部分组成：所包含文件的文件名，以及该文件名对应的 inode 号码。如果要查看文件的详细信息，就必须根据 inode 号码，访问 inode 节点，读取信息。</p>
+<blockquote>
+<p>目录的执行权限<br>
+目录文件的读权限（r）和写权限（w）只是针对目录文件本身。由于目录文件内只有文件名和 inode 号码，所以如果只有读权限，只能获取文件名，无法获取其他信息。</p>
+<pre><code class="language-c">[Linux]$ ls -l
+drw-rw-rw-  2 glenn glenn  4096 Dec  5 18:11 test/
+[Linux]$ls -l test/
+total 0
+d????????? ? ? ? ?            ? ./
+d????????? ? ? ? ?            ? ../
+-????????? ? ? ? ?            ? b.txt
+</code></pre>
+<p>要读取 inode 节点内的信息具有文件夹的执行权限（x）。</p>
+</blockquote>
+<p>各级目录构成了访问文件的路径，不同于windows操作系统的drive分区，类Unix系统中的&quot;mount&quot;操作让所有的文件系统的挂载点都是一个路径，形成了树形结构。从抽象的角度，目录也可视作一种文件，只是这种文件比较特殊，它的user data存储的是该路径下的普通文件的inode编号。<br>
+<img src="https://toomi.pages.dev/post-images/1692930271887.png" alt="" loading="lazy"></p>
+<p>所以，如下图所示的这样一个路径结构，假设要在&quot;/foo&quot;目录下创建一个文件&quot;bar.txt&quot;，那么需要从inode bitmap中分配一个空闲的inode，并在&quot;/foo&quot;这个目录中分配一个entry，以关联这个inode号。<br>
+<img src="https://toomi.pages.dev/post-images/1692930296092.png" alt="" loading="lazy"></p>
+<p>接下来，我们要读取刚才创建的这个&quot;/foo/bar.txt&quot;文件，那么先得找到&quot;/&quot;这个目录文件的inode号（这必须是事先知道的，假设是2）。然后访问这个inode指向的data block，从中找到一个名为&quot;foo&quot;的entry，得到目录文件&quot;foo&quot;的inode号（假设是44）。重复此过程，按图索骥，直到找到文本文件&quot;bar.txt&quot;的inode号。</p>
+<h2 id="inode-的特殊作用">inode 的特殊作用</h2>
+<p>由于 inode 号码与文件名分离，这种机制导致了一些 Unix/Linux 系统特有的现象。</p>
+<ol>
+<li>当文件名包含特殊字符，无法正常删除时。可以删除 inode 节点，就能直接删除文件。</li>
+<li>移动文件或重命名文件，只是改变文件名，不影响 inode 号码。所以在 Linux 中移动文件不论大小基本秒成。</li>
+<li>打开一个文件后，系统就以 inode 号码来识别文件，不再考虑文件名。因此，系统无法从 inode 号码得知文件名。</li>
+</ol>
+<p>第 3 点使得在更新软件时可以不关闭、不重启软件。因为系统通过 inode 号码，识别运行中的文件，软件更新的时候，新版文件以同样的文件名，生成一个新的 inode，不会影响到运行中的文件。等到下一次运行这个软件的时候，文件名就自动指向新版文件，旧版文件的 inode 则被回收。</p>
+<h2 id="软链接存储">软链接存储</h2>
+<figure data-type="image" tabindex="1"><img src="https://toomi.pages.dev/post-images/1692932986837.png" alt="" loading="lazy"></figure>
+<h2 id="原文">原文</h2>
+<ul>
+<li>https://zhuanlan.zhihu.com/p/106459445</li>
+<li>https://gnu-linux.readthedocs.io/zh/latest/Chapter03/00_inode.html</li>
+<li>https://juejin.cn/post/7133154797468778503</li>
+<li>http://chuquan.me/2022/05/01/understand-principle-of-filesystem/</li>
+</ul>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/mybatis-de-fan-she/">
+                                                    <h3 class="post-title">
+                                                        MyBatis 的反射
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>Mybatis OGNL | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="简介
+OGNL是一种表达式语言，用于获取对象的属性或者调用方法。它在Mybatis/Struts（以及漏洞）等涉及到模版的场景中经常使用。语法这里就不讲了，需要注意的是
+
+OGNL大部分场景是取属性，不建议new对象
+OGNL不支持类似Gr..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="Mybatis OGNL" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="简介
+OGNL是一种表达式语言，用于获取对象的属性或者调用方法。它在Mybatis/Struts（以及漏洞）等涉及到模版的场景中经常使用。语法这里就不讲了，需要注意的是
+
+OGNL大部分场景是取属性，不建议new对象
+OGNL不支持类似Gr...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/mybatis-ognl/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2023-08-22">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="Mybatis OGNL">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="Mybatis OGNL">
+        <meta name="twitter:description" content="简介
+OGNL是一种表达式语言，用于获取对象的属性或者调用方法。它在Mybatis/Struts（以及漏洞）等涉及到模版的场景中经常使用。语法这里就不讲了，需要注意的是
+
+OGNL大部分场景是取属性，不建议new对象
+OGNL不支持类似Gr...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    Mybatis OGNL
+                                </h2>
+                                <span class="article-info">
+                                    2023-08-22, 893 words, 6 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <h2 id="简介">简介</h2>
+<p>OGNL是一种表达式语言，用于获取对象的属性或者调用方法。它在Mybatis/Struts（以及漏洞）等涉及到<strong>模版</strong>的场景中经常使用。语法这里就不讲了，需要注意的是</p>
+<ul>
+<li>OGNL大部分场景是取属性，不建议new对象</li>
+<li>OGNL不支持类似Groovy的safe-null，比如user?.role?.name这样的问号表达式，而SpingEL是支持的</li>
+<li>OGNL定位是XML中的胶水，调试方便程度肯定不如Java，因此尽可能不折腾</li>
+</ul>
+<p>在Mybatis中封装了如下的OGNL，测试用例如下</p>
+<pre><code class="language-java">Object a = OgnlCache.getValue(&quot;a + 1&quot;, Collections.singletonMap(&quot;a&quot;, 10));
+System.out.println(&quot;a = &quot; + a);//返回 11
+</code></pre>
+<blockquote>
+<p>只要在OgnlCache.getValue中打上了断点，所有的动态SQL生成过程均可以看见细节</p>
+</blockquote>
+<h2 id="模板替换">模板替换</h2>
+<pre><code class="language-java">package com.homejim.mybatis;
+
+
+import com.homejim.myabtis.GenericTokenParser;
+import com.homejim.myabtis.TokenHandler;
+import org.junit.Ignore;
+import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+
+public class GenericTokenParserTest {
+
+  public static class VariableTokenHandler implements TokenHandler {
+    private Map&lt;String, String&gt; variables;
+
+    public VariableTokenHandler(Map&lt;String, String&gt; variables) {
+      this.variables = variables;
+    }
+
+    @Override
+    public String handleToken(String content) {
+      return variables.get(content);
+    }
+  }
+
+  @Test
+  public void simpleTest() {
+    GenericTokenParser parser = new GenericTokenParser(&quot;${&quot;, &quot;}&quot;, new VariableTokenHandler(new HashMap&lt;String, String&gt;() {
+      {
+        put(&quot;driver&quot;, &quot;com.mysql.jdbc.Driver&quot;);
+        put(&quot;url&quot;, &quot;jdbc:mysql://localhost:3306/mybatis&quot;);
+        put(&quot;username&quot;, &quot;root&quot;);
+        put(&quot;password&quot;, &quot;aaabbb&quot;);
+
+      }
+    }));
+
+    // 测试单个解析
+    assertEquals(&quot;com.mysql.jdbc.Driver&quot;, parser.parse(&quot;${driver}&quot;));
+    // 多个一起测试
+    assertEquals(&quot;驱动=com.mysql.jdbc.Driver，地址=jdbc:mysql://localhost:3306/mybatis，用户名=root&quot;,
+            parser.parse(&quot;驱动=${driver}，地址=${url}，用户名=${username}&quot;));
+  }
+  @Test
+  public void shouldDemonstrateGenericTokenReplacement() {
+    GenericTokenParser parser = new GenericTokenParser(&quot;${&quot;, &quot;}&quot;, new VariableTokenHandler(new HashMap&lt;String, String&gt;() {
+      {
+        put(&quot;first_name&quot;, &quot;James&quot;);
+        put(&quot;initial&quot;, &quot;T&quot;);
+        put(&quot;last_name&quot;, &quot;Kirk&quot;);
+        put(&quot;var{with}brace&quot;, &quot;Hiya&quot;);
+        put(&quot;&quot;, &quot;&quot;);
+      }
+    }));
+
+    assertEquals(&quot;James T Kirk reporting.&quot;, parser.parse(&quot;${first_name} ${initial} ${last_name} reporting.&quot;));
+    assertEquals(&quot;Hello captain James T Kirk&quot;, parser.parse(&quot;Hello captain ${first_name} ${initial} ${last_name}&quot;));
+    assertEquals(&quot;James T Kirk&quot;, parser.parse(&quot;${first_name} ${initial} ${last_name}&quot;));
+    assertEquals(&quot;JamesTKirk&quot;, parser.parse(&quot;${first_name}${initial}${last_name}&quot;));
+    assertEquals(&quot;{}JamesTKirk&quot;, parser.parse(&quot;{}${first_name}${initial}${last_name}&quot;));
+    assertEquals(&quot;}JamesTKirk&quot;, parser.parse(&quot;}${first_name}${initial}${last_name}&quot;));
+
+    assertEquals(&quot;}James{{T}}Kirk&quot;, parser.parse(&quot;}${first_name}{{${initial}}}${last_name}&quot;));
+    assertEquals(&quot;}James}T{Kirk&quot;, parser.parse(&quot;}${first_name}}${initial}{${last_name}&quot;));
+    assertEquals(&quot;}James}T{Kirk&quot;, parser.parse(&quot;}${first_name}}${initial}{${last_name}&quot;));
+    assertEquals(&quot;}James}T{Kirk{{}}&quot;, parser.parse(&quot;}${first_name}}${initial}{${last_name}{{}}&quot;));
+    assertEquals(&quot;}James}T{Kirk{{}}&quot;, parser.parse(&quot;}${first_name}}${initial}{${last_name}{{}}${}&quot;));
+
+    assertEquals(&quot;{$$something}JamesTKirk&quot;, parser.parse(&quot;{$$something}${first_name}${initial}${last_name}&quot;));
+    assertEquals(&quot;${&quot;, parser.parse(&quot;${&quot;));
+    assertEquals(&quot;${\\}&quot;, parser.parse(&quot;${\\}&quot;));
+    assertEquals(&quot;Hiya&quot;, parser.parse(&quot;${var{with\\}brace}&quot;));
+    assertEquals(&quot;&quot;, parser.parse(&quot;${}&quot;));
+    assertEquals(&quot;}&quot;, parser.parse(&quot;}&quot;));
+    assertEquals(&quot;Hello ${ this is a test.&quot;, parser.parse(&quot;Hello ${ this is a test.&quot;));
+    assertEquals(&quot;Hello } this is a test.&quot;, parser.parse(&quot;Hello } this is a test.&quot;));
+    assertEquals(&quot;Hello } ${ this is a test.&quot;, parser.parse(&quot;Hello } ${ this is a test.&quot;));
+  }
+  @Test
+  public void shallNotInterpolateSkippedVaiables() {
+    GenericTokenParser parser = new GenericTokenParser(&quot;${&quot;, &quot;}&quot;, new VariableTokenHandler(new HashMap&lt;String, String&gt;()));
+
+    assertEquals(&quot;${skipped} variable&quot;, parser.parse(&quot;\\${skipped} variable&quot;));
+    assertEquals(&quot;This is a ${skipped} variable&quot;, parser.parse(&quot;This is a \\${skipped} variable&quot;));
+    assertEquals(&quot;null ${skipped} variable&quot;, parser.parse(&quot;${skipped} \\${skipped} variable&quot;));
+    assertEquals(&quot;The null is ${skipped} variable&quot;, parser.parse(&quot;The ${skipped} is \\${skipped} variable&quot;));
+  }
+
+  @Ignore(&quot;Because it randomly fails on Travis CI. It could be useful during development.&quot;)
+  @Test(timeout = 1000)
+  public void shouldParseFastOnJdk7u6() {
+    // issue #760
+    GenericTokenParser parser = new GenericTokenParser(&quot;${&quot;, &quot;}&quot;, new VariableTokenHandler(new HashMap&lt;String, String&gt;() {
+      {
+        put(&quot;first_name&quot;, &quot;James&quot;);
+        put(&quot;initial&quot;, &quot;T&quot;);
+        put(&quot;last_name&quot;, &quot;Kirk&quot;);
+        put(&quot;&quot;, &quot;&quot;);
+      }
+    }));
+
+    StringBuilder input = new StringBuilder();
+    for (int i = 0; i &lt; 10000; i++) {
+      input.append(&quot;${first_name} ${initial} ${last_name} reporting. &quot;);
+    }
+    StringBuilder expected = new StringBuilder();
+    for (int i = 0; i &lt; 10000; i++) {
+      expected.append(&quot;James T Kirk reporting. &quot;);
+    }
+    assertEquals(expected.toString(), parser.parse(input.toString()));
+  }
+
+}
+</code></pre>
+<h2 id="参考">参考</h2>
+<ul>
+<li>https://miao1007.github.io/gitbook/mybatis/dynamic-sql/ognl.html</li>
+</ul>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/mybatis-mapper-ce-shi-su-du-chao-jin-hua/">
+                                                    <h3 class="post-title">
+                                                        Mybatis Mapper 測試速度超進化
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

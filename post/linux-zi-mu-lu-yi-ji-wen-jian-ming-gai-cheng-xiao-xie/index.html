@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>linux 子目录以及文件名改成小写 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="
+创建脚本rename-files.sh
+
+#!/bin/bash
+#print usage 
+if [ -z $1 ];then
+        echo &quot;Usage :$(basename $0) parent-direct..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="linux 子目录以及文件名改成小写" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="
+创建脚本rename-files.sh
+
+#!/bin/bash
+#print usage 
+if [ -z $1 ];then
+        echo &amp;quot;Usage :$(basename $0) parent-direct...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/linux-zi-mu-lu-yi-ji-wen-jian-ming-gai-cheng-xiao-xie/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2023-02-23">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="linux 子目录以及文件名改成小写">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="linux 子目录以及文件名改成小写">
+        <meta name="twitter:description" content="
+创建脚本rename-files.sh
+
+#!/bin/bash
+#print usage 
+if [ -z $1 ];then
+        echo &amp;quot;Usage :$(basename $0) parent-direct...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    linux 子目录以及文件名改成小写
+                                </h2>
+                                <span class="article-info">
+                                    2023-02-23, 203 words, 2 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <ol>
+<li>创建脚本<code>rename-files.sh</code></li>
+</ol>
+<pre><code class="language-shell">#!/bin/bash
+#print usage 
+if [ -z $1 ];then
+        echo &quot;Usage :$(basename $0) parent-directory&quot;
+        exit 1
+fi
+
+#process all subdirectories and files in parent directory
+all=&quot;$(find $1 -depth)&quot;
+
+
+
+for name in ${all}; do
+        #set new name in lower case for files and directories
+        new_name=&quot;$(dirname &quot;${name}&quot;)/$(basename &quot;${name}&quot; | tr '[A-Z]' '[a-z]')&quot;
+
+        #check if new name already exists
+        if [ &quot;${name}&quot; != &quot;${new_name}&quot; ]; then
+                [ ! -e &quot;${new_name}&quot; ] &amp;&amp; mv -T &quot;${name}&quot; &quot;${new_name}&quot;; echo &quot;${name} was renamed to ${new_name}&quot; || echo &quot;${name} wasn't renamed!&quot;
+        fi
+done
+
+echo
+echo
+#list directories and file new names in lowercase
+echo &quot;Directories and files with new names in lowercase letters&quot;
+find $(echo $1 | tr 'A-Z' 'a-z') -depth
+
+exit 0
+</code></pre>
+<ol start="2">
+<li>执行脚本，将<code>Files目录</code>以及子目录和文件全都改成小写</li>
+</ol>
+<pre><code class="language-shell">chmod +x rename-files.sh
+rename-files.sh Files     #Files 为目录名
+</code></pre>
+<h2 id="原文链接">原文链接</h2>
+<p>https://www.tecmint.com/rename-all-files-and-directory-names-to-lowercase-in-linux/</p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/jexus-yun-xing-aspnet/">
+                                                    <h3 class="post-title">
+                                                        jexus 运行 asp.net
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

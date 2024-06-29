@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>Spring 容器启动 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="重要类
+
+BeanFactory： org.springframework.beans.factory.BeanFactory，是一个非常纯粹的 bean 容器，它是 IoC 必备的数据结构，其中 BeanDefinition 是它的基本结..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="Spring 容器启动" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="重要类
+
+BeanFactory： org.springframework.beans.factory.BeanFactory，是一个非常纯粹的 bean 容器，它是 IoC 必备的数据结构，其中 BeanDefinition 是它的基本结...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/beanfactorypostprocessor-he-beanpostprocessor-de-qu-bie/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2023-03-07">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="Spring 容器启动">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="Spring 容器启动">
+        <meta name="twitter:description" content="重要类
+
+BeanFactory： org.springframework.beans.factory.BeanFactory，是一个非常纯粹的 bean 容器，它是 IoC 必备的数据结构，其中 BeanDefinition 是它的基本结...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    Spring 容器启动
+                                </h2>
+                                <span class="article-info">
+                                    2023-03-07, 1253 words, 5 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <h2 id="重要类">重要类</h2>
+<ul>
+<li><strong>BeanFactory：</strong> org.springframework.beans.factory.BeanFactory，是一个非常纯粹的 bean 容器，它是 IoC 必备的数据结构，其中 BeanDefinition 是它的基本结构。BeanFactory 内部维护着一个 BeanDefinition map ，并可根据 BeanDefinition 的描述进行 bean 的创建和管理。</li>
+<li><strong>BeanDefinition：</strong> org.springframework.beans.factory.config.BeanDefinition ，用来描述 Spring 中的 Bean 对象，如保存对象的类路径、对象的属性。</li>
+<li><strong>BeanFactoryPostProcessor</strong>, 当spring启动的时候，要执行容器的初始化，而BeanFactoryPostProcessor翻译过来就是bean工厂的后置处理器。简单来说，就是容器初始化完成之后，可以对容器做的一些后置处理。</li>
+<li><strong>BeanDefinitionRegistryPostProcessor</strong> ,  此类为 BeanFactoryPostProcessor 子类，只不过BeanDefinitionRegistryPostProcessor支持动态注册beanDefinition，BeanFactoryPostProcessor原则上不支持</li>
+<li><strong>ApplicationContext：</strong> org.springframework.context.ApplicationContext ，这个是 Spring 容器，它叫做应用上下文，与我们应用息息相关。</li>
+</ul>
+<h2 id="生命周期">生命周期</h2>
+<p>这里先说总结再讲解源码，先理清脉络再深入细节才不会迷失在细节当中。Spring的启动过程主要可以分为两部分：</p>
+<ul>
+<li>第一步：解析成BeanDefinition：将bean定义信息解析为BeanDefinition类，不管bean信息是定义在xml中，还是通过@Bean注解标注，都能通过不同的BeanDefinitionReader转为BeanDefinition类。
+<ul>
+<li>这里分两种BeanDefinition，RootBeanDefintion和BeanDefinition。RootBeanDefinition这种是系统级别的，是启动Spring必须加载的6个Bean。BeanDefinition是我们定义的Bean。</li>
+</ul>
+</li>
+<li>第二步：参照BeanDefintion定义的类信息，通过BeanFactory生成bean实例存放在缓存中。</li>
+</ul>
+<h2 id="入口">入口</h2>
+<pre><code class="language-java">// 创建ioc容器, sMainConfig为配置类
+ApplicationContext context = new AnnotationConfigApplicationContext(MainConfig.class);
+</code></pre>
+<pre><code class="language-java">// AnnotationConfigApplicationContext
+public class AnnotationConfigApplicationContext extends GenericApplicationContext implements AnnotationConfigRegistry {
+   // 读取注解的Bean定义读取器
+   private final AnnotatedBeanDefinitionReader reader;
+   // 扫描指定类路径中注解Bean定义的扫描器
+   private final ClassPathBeanDefinitionScanner scanner;
+   // 无参构造函数
+   public AnnotationConfigApplicationContext() {
+       // 查看new AnnotatedBeanDefinitionReader(this)源码可以发现
+       // 此时往容器中注入了5个处理器
+       // ConfigurationClassPostProcessor 这个内置的，唯一的实现了BeanDefinitionRegistryPostProcessor的后置处理器是解析其他通过注解注入的bean的类。
+       // AutowiredAnnotationBeanPostProcessor 用来实现依赖注入的功能
+       // CommonAnnotationBeanPostProcessor
+       // EventListenerMethodProcessor
+       // DefaultEventListenerFactory
+       this.reader = new AnnotatedBeanDefinitionReader(this);
+       this.scanner = new ClassPathBeanDefinitionScanner(this);
+   }
+
+   // 最常用的构造函数，通过将涉及的配置类传递给该构造函数，实现将相应配置类中的Bean自动注册到容器中
+   public AnnotationConfigApplicationContext(Class&lt;?&gt;... annotatedClasses) {
+       // (1) 调用无参构造函数
+       this();
+       // (2) 将配置类信息封装成BeanDefinition对象保存到beanDefinitionMap容器中
+       register(annotatedClasses);
+       // (3)刷新容器，触发容器对注解Bean的载入、解析和注册
+       refresh();
+   }
+}
+</code></pre>
+<p>初始化的过程可以看到初始化beanFactory为DefaultListableBeanFactory。这里可以看到AnnotationConfigApplicationContext虽然本身是一个beanFactory（实现了BeanFactory接口），但是依赖查找，依赖注入的过程是依赖内部的beanFactory来实现的（典型的代理模式）</p>
+<p>另外需要注意的一点是，在容器初始化的过程中注册了6个Bean</p>
+<ol>
+<li>ConfigurationClassPostProcessor（实现了BeanFactoryPostProcessor，处理@Configuration）</li>
+<li>AutowiredAnnotationBeanPostProcessor（实现了BeanPostProcessor，处理@Autowired，@Value等）</li>
+<li>CommonAnnotationBeanPostProcessor（实现了BeanPostProcessor，用来处理JSR-250规范的注解，如@Resource，@PostConstruct等）</li>
+<li>PersistenceAnnotationBeanPostProcessor（实现了BeanFactoryPostProcessor，用来支持JPA，在我们这个Demo中不会注册，因为路径中没有JPA相关的类）</li>
+<li>EventListenerMethodProcessor（实现了BeanFactoryPostProcessor）</li>
+<li>DefaultEventListenerFactory</li>
+</ol>
+<h2 id="手动添加-beanfactorypostprocessor">手动添加 BeanFactoryPostProcessor</h2>
+<p>首先我们要知道，给 Spring 容器提供 BeanFactoryPostProcessor 或者 BeanDefinitionRegistryPostProcessor 的 Bean 对象的方式有两种：</p>
+<ul>
+<li>通过加注解，让 Spring 扫描到类（把一个类交给 Spring 管理，整个类的创建过程是交给 Spring 来处理的），主要依赖上文提到的内置的 ConfigurationClassPostProcessor 进行扫描</li>
+<li>手动添加对象到 Spring 中（自己控制对象的实例化过程，然后再交给 Spring 管理）</li>
+</ul>
+<p>手动注册BeanFactoryPostProcessor 并提供给 Spring 管理，是利用 <code>ApplicationContext#addBeanFactoryPostProcessor</code> api 进行 添加 ，例如</p>
+<pre><code class="language-java">public class MyApplication {
+	public static void main(String[] args) throws IOException {
+		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+		ctx.addBeanFactoryPostProcessor(new ManB());
+		ctx.addBeanFactoryPostProcessor(new ManSubY());
+		ctx.register(AppConfig.class);
+		ctx.refresh();
+	}
+}
+
+</code></pre>
+<h2 id="beanfactorypostprocessors执行顺序">BeanFactoryPostProcessors执行顺序</h2>
+<figure data-type="image" tabindex="1"><img src="https://toomi.pages.dev/post-images/1692696663802.png" alt="" loading="lazy"></figure>
+<h2 id="spring容器注册bean方式">Spring容器注册bean方式</h2>
+<p>常见注册bean对象到spring容器的方式:</p>
+<ul>
+<li>
+<p>@Component、@Controller、@Service、@Repository 方式，此为自动创建</p>
+</li>
+<li>
+<p>@Bean 方式，配置类方法加上 @Bean 注解</p>
+</li>
+<li>
+<p>@Import 方式</p>
+<ul>
+<li>@Import 普通类</li>
+<li>@Import ImportSelector</li>
+<li>@Import ImportBeanDefinitionRegistrar</li>
+</ul>
+</li>
+<li>
+<p>实现 BeanDefinitionRegistryPostProcessor#postProcessBeanDefinitionRegistry</p>
+</li>
+<li>
+<p>FactoryBean接口<br>
+以上，都是需要ConfigurationClassPostProcessor 这个内置 BeanDefinitionRegistryPostProcessor 进行扫描，然后加载</p>
+</li>
+<li>
+<p>XML配置文件：通过在XML配置文件中使用<bean>标签来定义和注册bean。</p>
+</li>
+</ul>
+<h2 id="番外">番外</h2>
+<p>动态地给Java对象添加字段并赋值，并不是在已经实例化的对象上去完成的。基于cglib，commons-beanutils库实现思路为：</p>
+<ol>
+<li>将原对象和扩展字段封装为字段map</li>
+<li>基于字段map和原对象创建其子类对象</li>
+<li>重新将原字段值和扩展字段值赋给子类对象</li>
+<li>返回子类对象</li>
+</ol>
+<p>相当于是复制类定义，然后新建个类定义处理。和 spring 的在 <code>BeanFactoryPostProcessor</code> 中添加属性是相通的，因为此时还没对bean进行实例化。</p>
+<h2 id="参考">参考</h2>
+<ul>
+<li>https://www.cnblogs.com/JaxYoun/p/13923703.html</li>
+<li>https://juejin.cn/post/7238200443581677625</li>
+<li>https://learnku.com/articles/42527</li>
+<li>https://www.cnblogs.com/kendoziyu/p/springframework-bean-factory-post-processor.html</li>
+<li>https://juejin.cn/post/7039308644768284679</li>
+</ul>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/sql-server-xing-neng-pai-cha/">
+                                                    <h3 class="post-title">
+                                                        sql server 性能排查
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

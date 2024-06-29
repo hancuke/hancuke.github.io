@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>concurrent包的实现 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="由于java的CAS同时具有 volatile 读和volatile写的内存语义，因此Java线程之间的通信现在有了下面四种方式：
+
+A线程写volatile变量，随后B线程读这个volatile变量。
+A线程写volatile变量，随后B..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="concurrent包的实现" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="由于java的CAS同时具有 volatile 读和volatile写的内存语义，因此Java线程之间的通信现在有了下面四种方式：
+
+A线程写volatile变量，随后B线程读这个volatile变量。
+A线程写volatile变量，随后B...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/concurrent-bao-de-shi-xian/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2022-10-27">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="concurrent包的实现">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="concurrent包的实现">
+        <meta name="twitter:description" content="由于java的CAS同时具有 volatile 读和volatile写的内存语义，因此Java线程之间的通信现在有了下面四种方式：
+
+A线程写volatile变量，随后B线程读这个volatile变量。
+A线程写volatile变量，随后B...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    concurrent包的实现
+                                </h2>
+                                <span class="article-info">
+                                    2022-10-27, 1786 words, 7 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <p>由于java的CAS同时具有 volatile 读和volatile写的内存语义，因此Java线程之间的通信现在有了下面四种方式：</p>
+<ol>
+<li>A线程写volatile变量，随后B线程读这个volatile变量。</li>
+<li>A线程写volatile变量，随后B线程用CAS更新这个volatile变量。</li>
+<li>A线程用CAS更新一个volatile变量，随后B线程用CAS更新这个volatile变量。</li>
+<li>A线程用CAS更新一个volatile变量，随后B线程读这个volatile变量。</li>
+</ol>
+<p>Java的CAS会使用现代处理器上提供的高效机器级别原子指令，这些原子指令以原子方式对内存执行读-改-写操作，这是在多处理器中实现同步的关键（从 本质上来说，能够支持原子性读-改-写指令的计算机器，是顺序计算图灵机的异步等价机器，因此任何现代的多处理器都会去支持某种能对内存执行原子性读-改 -写操作的原子指令）。同时，volatile变量的读/写和CAS可以实现线程之间的通信。把这些特性整合在一起，就形成了整个concurrent包 得以实现的基石。如果我们仔细分析concurrent包的源代码实现，会发现一个通用化的实现模式：</p>
+<ol>
+<li>首先，声明共享变量为volatile；</li>
+<li>然后，使用CAS的原子条件更新来实现线程之间的同步；</li>
+<li>同时，配合以volatile的读/写和CAS所具有的volatile读和写的内存语义来实现线程之间的通信。</li>
+</ol>
+<p>AQS，非阻塞数据结构和原子变量类（java.util.concurrent.atomic包中的类），这些concurrent包中的基础类都是使 用这种模式来实现的，而concurrent包中的高层类又是依赖于这些基础类来实现的。从整体来看，concurrent包的实现示意图如下：<br>
+<img src="https://toomi.pages.dev/post-images/1666837748809.png" alt="" loading="lazy"></p>
+<h2 id="synchronized">synchronized</h2>
+<p>​ synchronized是一种悲观锁,多线程情况下,当一个线程拿到锁时, 会导致其它所有需要锁的线程挂起 ,阻塞其他线程,只有等持有锁的线程执行完毕或抛出异常释放锁. 线程阻塞和唤醒切换以及用户态到内核态间的切换操作额外浪费消耗cpu资源 .如果一个优先级高的线程等待一个优先级低的线程释放锁会导致优先级倒置，引起性能风险。</p>
+<h2 id="cas">CAS</h2>
+<p>CAS:Compare and Swap, 翻译成比较并交换。<br>
+java.util.concurrent包中借助CAS实现了区别于synchronized同步锁的一种乐观锁。<br>
+CAS是一种乐观锁机制,它不会阻塞线程, 先从内存位置读取到值，然后和预期值比较。如果相等，则将此内存位置的值改为新值 ，返回 true。如果不相等，说明和其他线程冲突了，则不做任何改变，返回 false. 这种机制在不阻塞其他线程的情况下避免了并发冲突，比独占锁的性能高很多 .</p>
+<blockquote>
+<p>CAS 本身并未实现失败后的处理机制，它只负责返回成功或失败的布尔值，后续由调用者自行处理。只不过我们最常用的处理方式是重试而已。</p>
+</blockquote>
+<p>本文先从CAS的应用说起，再深入原理解析。</p>
+<h2 id="cas应用">CAS应用</h2>
+<p>CAS有3个操作数，内存值V，旧的预期值A，要修改的新值B。当且仅当预期值A和内存值V相同时，将内存值V修改为B，否则什么都不做。</p>
+<h2 id="非阻塞算法-nonblocking-algorithms">非阻塞算法 （nonblocking algorithms）</h2>
+<p>一个线程的失败或者挂起不应该影响其他线程的失败或挂起的算法。<br>
+现代的CPU提供了特殊的指令，可以自动更新共享数据，而且能够检测到其他线程的干扰，而 compareAndSet() 就用这些代替了锁定。<br>
+拿出AtomicInteger来研究在没有锁的情况下是如何做到数据正确性的。</p>
+<h2 id="aqs">AQS</h2>
+<p>AbstractQueuedSynchronizer：叫做抽象队列同步器，它是一个实现了同步器功能的基础框架。<br>
+如下图所示，就是一个普通的并发工具同步器应该具有的功能。<br>
+（1）首先线程1去同步器获取资源，即获取锁，获取锁成功直接执行业务方法<br>
+（2）线程2也获取锁，但是获取锁失败，就会进入等待队列，阻塞等待<br>
+（3）当线程1释放锁的时候，需要去唤醒还在等待锁的线程2，然后线程2苏醒之后继续去尝试获取锁。<br>
+<img src="https://toomi.pages.dev/post-images/1666837922684.png" alt="" loading="lazy"><br>
+上面的红色部分，包括资源、获取失败进行等待队列、释放资源唤醒等待队列线程、线程苏醒重新竞争锁，AQS就是封装了这些通用的流程和功能。而获取锁、释放锁是非通用的，留给具体的同步器去实现。比如：ReentrantLock、CountDownLatch、Semaphore等使用了AQS框架的基本机制，然后自己实现了获取锁、释放锁的具体逻辑，这样就形成了不同的同步器了。<br>
+<img src="https://toomi.pages.dev/post-images/1666837959090.png" alt="" loading="lazy"></p>
+<h3 id="aqs内部">AQS内部</h3>
+<p>从整体上给你说说，AQS内部封装了哪些数据结构和功能，后面再介绍一下这些东西：<br>
+（1）首先对资源进行了定义，使用一个volatile int  state表示资源<br>
+（2）规定了获取独占资源的入口为acquire()方法、释放独占资源的入口release()<br>
+（3）规定了获取共享资源的入口acquireShared()、释放独占资源入口 releaseShared()方法<br>
+（4）声明了实际获取资源、释放资源的具体实现方法，AQS这里只是声明，由子类去重写，实现获取和释放的逻辑。实际获取独占资源、实际释放独占资源、实际获取共享资源、实际释放共享资源的入口方法，没有具体的实现，让子类实现这些方法从而形成不同的同步工具，这些抽象方法包括：<br>
+（4-1）实际获取独占资源的方法，具体实现逻辑封装在子类的tryAcquire()方法内部<br>
+（4-2）实际释放独占资源的方法，具体实现逻辑封装在子类的tryRelease()方法内部<br>
+（4-3）实际获取共享资源的方法，具体实现逻辑封装在子类的tryAcquireShared()方法内部<br>
+（4-4）实际释放共享资源的方法，具体实现逻辑封装在子类的tryReleaseShared()方法内部<br>
+（5）封装了一个Node的数据结构，用来存储线程信息。通过多个Node串成一个双向链表的等待队列；链表存储了获取锁失败而进入等待队列的线程<br>
+（6）封装了一套非常核心的，线程获取资源失败而如何进入等待队列；以及释放资源之后怎么唤醒等待队列中的线程再次竞争资源的这么一套机制。<br>
+这套机制非常核心，基于AQS之上的同步工具类底层都是使用这套机制来实现的。</p>
+<h2 id="参考">参考</h2>
+<p>https://www.cnblogs.com/duanxz/archive/2012/08/08/2628517.html</p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/guan-li-jiu-shi-guan-ren/">
+                                                    <h3 class="post-title">
+                                                        管理就是管人
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>jexus 运行 asp.net | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="以前在linux中如果要部署.net运行环境，必须安装mono，xsp等等。非常耗时耗力且繁琐。
+偶尔有一次发现宇内大神的jexus推出了独立版，无法安装mono即可完美支持asp.net webform, mvc等程序，安装过程也非常方便..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="jexus 运行 asp.net" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="以前在linux中如果要部署.net运行环境，必须安装mono，xsp等等。非常耗时耗力且繁琐。
+偶尔有一次发现宇内大神的jexus推出了独立版，无法安装mono即可完美支持asp.net webform, mvc等程序，安装过程也非常方便...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/jexus-yun-xing-aspnet/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2023-02-21">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="jexus 运行 asp.net">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="jexus 运行 asp.net">
+        <meta name="twitter:description" content="以前在linux中如果要部署.net运行环境，必须安装mono，xsp等等。非常耗时耗力且繁琐。
+偶尔有一次发现宇内大神的jexus推出了独立版，无法安装mono即可完美支持asp.net webform, mvc等程序，安装过程也非常方便...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    jexus 运行 asp.net
+                                </h2>
+                                <span class="article-info">
+                                    2023-02-21, 255 words, 2 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <p>以前在linux中如果要部署.net运行环境，必须安装mono，xsp等等。非常耗时耗力且繁琐。</p>
+<p>偶尔有一次发现宇内大神的jexus推出了独立版，无法安装mono即可完美支持asp.net webform, mvc等程序，安装过程也非常方便快捷。只需要几行命令即可，大大增加减少了小白的操作步骤。</p>
+<h2 id="安装步骤">安装步骤</h2>
+<p>运行下述安装命令，需要操作者有root权限。</p>
+<ul>
+<li>X86_64系统 安装jexus独立版的命令是：</li>
+</ul>
+<pre><code class="language-cmd">curl https://jexus.org/release/x64/install.sh
+sudo sh ./install.sh
+</code></pre>
+<ul>
+<li>ARM64系统 安装jexus独立版的命令是：</li>
+</ul>
+<pre><code class="language-cmd">curl https://jexus.org/release/arm64/install.sh
+sudo sh ./install.sh
+</code></pre>
+<h2 id="配置和运行">配置和运行</h2>
+<p>配置目录，默认网站路径 <code>/usr/jexus/siteconf/default</code> , 在里面配置端口port，和网站路径 root<br>
+<img src="https://toomi.pages.dev/post-images/1676965258637.png" alt="" loading="lazy"></p>
+<p>将网站上传到 root对应的路径，Jexus包括如下操作命令（首先 cd /usr/jexus）：</p>
+<pre><code class="language-cmd">启动：sudo ./jws start
+停止：sudo ./jws stop
+重启：sudo ./jws restart
+</code></pre>
+<h2 id="参考网站">参考网站</h2>
+<p>https://www.jexus.org/</p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/kuang-jia-he-han-shu-ku/">
+                                                    <h3 class="post-title">
+                                                        框架和函数库
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

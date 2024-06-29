@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>理解 mysql 幻读问题 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="1  前置知识
+1.1 快照读
+单纯的select操作，不包括上述 select ... lock in share mode, select ... for update。　　　　
+Read Committed隔离级别：每次select都..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="理解 mysql 幻读问题" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="1  前置知识
+1.1 快照读
+单纯的select操作，不包括上述 select ... lock in share mode, select ... for update。　　　　
+Read Committed隔离级别：每次select都...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/li-jie-mysql-huan-du-wen-ti/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2023-06-28">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="理解 mysql 幻读问题">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="理解 mysql 幻读问题">
+        <meta name="twitter:description" content="1  前置知识
+1.1 快照读
+单纯的select操作，不包括上述 select ... lock in share mode, select ... for update。　　　　
+Read Committed隔离级别：每次select都...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    理解 mysql 幻读问题
+                                </h2>
+                                <span class="article-info">
+                                    2023-06-28, 1108 words, 5 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <h2 id="1-前置知识">1  前置知识</h2>
+<h3 id="11-快照读">1.1 快照读</h3>
+<p>单纯的select操作，不包括上述 select ... lock in share mode, select ... for update。　　　　<br>
+Read Committed隔离级别：每次select都生成一个快照读<br>
+Read Repeatable隔离级别：开启事务后第一个select语句才是快照读的地方，而不是一开启事务就快照读</p>
+<p>快照读的实现方式：undolog和多版本并发控制MVCC</p>
+<h3 id="12-当前读">1.2 当前读</h3>
+<p>当前读，读取的是最新版本，并且对读取的记录加锁，阻塞其他事务同时改动相同记录，避免出现安全问题。以下形式的SQL属于当前读:</p>
+<ul>
+<li>select...lock in share mode (共享读锁)</li>
+<li>select...for update</li>
+<li>update , delete , insert</li>
+</ul>
+<p>例如，假设要update一条记录，但是另一个事务已经delete这条数据并且commit了，如果不加锁就会产生冲突。所以update的时候肯定要是当前读，得到最新的信息并且锁定相应的记录。<br>
+此处参考 https://www.jianshu.com/p/eb3f56565b42</p>
+<h2 id="2-事务隔离级别和锁">2. 事务隔离级别和锁</h2>
+<p>对于<strong>读</strong>操作，mysql默认的隔离级别是 <strong>可重复读（Read Repeatable）</strong> 。普通的select查询是可重复读的，底层基于多版本并发控制MVCC的<strong>快照读</strong> ，其他事务的修改操作对当前事务不可见，当前事务读的是历史版本。但是如果加上 <code>for update</code> 或者 <code>in share mode</code> 就会切换到当前读，能读到其他事务已经提交commit的数据。</p>
+<p>其他隔离级别如下：</p>
+<table>
+<thead>
+<tr>
+<th>ISOLATION LEVEL</th>
+<th>DIRTY READ</th>
+<th>NON-REPEATABLE READ</th>
+<th>PHANTOM READ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>READ_UNCOMMITTED</td>
+<td>allowed</td>
+<td>allowed</td>
+<td>allowed</td>
+</tr>
+<tr>
+<td>READ_COMMITTED</td>
+<td>prevented</td>
+<td>allowed</td>
+<td>allowed</td>
+</tr>
+<tr>
+<td>REPEATABLE_READ</td>
+<td>prevented</td>
+<td>prevented</td>
+<td>allowed</td>
+</tr>
+<tr>
+<td>SERIALIZABLE</td>
+<td>prevented</td>
+<td>prevented</td>
+<td>prevented</td>
+</tr>
+</tbody>
+</table>
+<p>基于多版本并发控制MVCC实现的默认隔离REPEATABLE_READ并不能解决幻读（PHANTOM READ）问题，<strong>mysql解决幻读并不是在隔离级别层面上处理，而是通过锁层面处理，这是两个层面的问题</strong>。</p>
+<blockquote>
+<p>这里，我需要对“幻读”做一个说明，<a href="https://funnylog.gitee.io/mysql45/20%E8%AE%B2%E5%B9%BB%E8%AF%BB%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%8C%E5%B9%BB%E8%AF%BB%E6%9C%89%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98.html">来源自mysql45讲，第20讲</a>：</p>
+<ol>
+<li>在可重复读隔离级别下，普通的查询是快照读，是不会看到别的事务插入的数据的。因此，幻读在“当前读”下才会出现。</li>
+<li>上面session B的修改结果，被session A之后的select语句用“当前读”看到，不能称为幻读。幻读仅专指“新插入的行”。</li>
+</ol>
+</blockquote>
+<p>我自己的理解是，普通的行锁是锁住已经存在的行，而在可重复读的前提下插入的是第二次读的时候读到第一次读不存在的数据，所以这才是幻读（PHANTOM READ）。PHANTOM 在英文中就有幽灵的意思，意味幻觉，不存在的。 对于“不存在的数据”和“不符合过滤条件的数据” 要分开理解，在mysql中，如果对应字段没有索引，会遍历所有行，然后对所有遍历过的行进行加行锁，即使没有符合条件的行结果。 所以，幻读就是针对插入（insert）这种情况。</p>
+<p>而mysql在可重复读隔离级别下，为了解决幻读，在行锁（record lock）的基础上，加入了间隙锁（gap lock）。行锁和间隙锁组合起来一起，就成为了临键锁（next-key lock）。</p>
+<h2 id="3-覆盖索引">3. 覆盖索引</h2>
+<p>对于索引中包含了查询语句所有结果的情况，查询就不需要通过主键进行回表，对应索引就是覆盖索引。因为对于锁而已，它锁住的就是其搜索过的对象。如果没有索引而走全表扫描，锁住的就是全部行，走索引锁住的就是索引对象。</p>
+<p>加锁规则如下，<a href="https://funnylog.gitee.io/mysql45/21%E8%AE%B2%E4%B8%BA%E4%BB%80%E4%B9%88%E6%88%91%E5%8F%AA%E6%94%B9%E4%B8%80%E8%A1%8C%E7%9A%84%E8%AF%AD%E5%8F%A5%EF%BC%8C%E9%94%81%E8%BF%99%E4%B9%88%E5%A4%9A.html">来源自mysql45讲，第21讲</a></p>
+<blockquote>
+<p>加锁规则里面，包含了两个“原则”、两个“优化”和一个“bug”</p>
+<ol>
+<li>原则1：加锁的基本单位是next-key lock。希望你还记得，next-key lock是前开后闭区间。</li>
+<li>原则2：查找过程中访问到的对象才会加锁。</li>
+<li>优化1：索引上的等值查询，给唯一索引加锁的时候，next-key lock退化为行锁。</li>
+<li>优化2：索引上的等值查询，向右遍历时且最后一个值不满足等值条件的时候，next-key lock退化为间隙锁。</li>
+<li>一个bug：唯一索引上的范围查询会访问到不满足条件的第一个值为止。</li>
+</ol>
+</blockquote>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://vladmihalcea.com/a-beginners-guide-to-acid-and-database-transactions/">A beginner’s guide to ACID and database transactions</a></li>
+<li><a href="https://jahfer.com/posts/innodb-locks/">A Comprehensive (and Animated) Guide to InnoDB Locking</a></li>
+<li><a href="http://blog.toomi.one:2015/InnoDB%20Locking%20Explained%20With%20Stick%20Figures.pdf">图解数据库锁</a></li>
+</ul>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/you-hou-tampermonkey-pa-chong-lao-qu-a-li-fa-pai/">
+                                                    <h3 class="post-title">
+                                                        油猴Tampermonkey爬虫捞取阿里法拍
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>Unsafe.park vs Object.wait | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="Most efficient wait is LockSupport.park/unpark, which doesn't require nasty (direct) usage of Unsafe, and doesn't pay to..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="Unsafe.park vs Object.wait" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="Most efficient wait is LockSupport.park/unpark, which doesn&#39;t require nasty (direct) usage of Unsafe, and doesn&#39;t pay to...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/unsafepark-vs-objectwait/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2023-02-02">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="Unsafe.park vs Object.wait">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="Unsafe.park vs Object.wait">
+        <meta name="twitter:description" content="Most efficient wait is LockSupport.park/unpark, which doesn&#39;t require nasty (direct) usage of Unsafe, and doesn&#39;t pay to...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    Unsafe.park vs Object.wait
+                                </h2>
+                                <span class="article-info">
+                                    2023-02-02, 704 words, 5 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <p>Most efficient wait is <strong>LockSupport.park/unpark</strong>, which doesn't require nasty (direct) usage of Unsafe, and doesn't pay to resynchronize your thread's local cache of memory.</p>
+<p>This point is important; the less work you do, the more efficient. By not synchronizing on anything, you don't pay to have your thread check with main memory for updates from other threads.</p>
+<p>In most cases, this is NOT what you want. In most cases, you want your thread to see all updates that happened &quot;before now&quot;, which is why you should use Object.wait() and .notify(), as you must synchronize memory state to use them.</p>
+<p>LockSupport allows you to safely park a thread for a given time, and so long as no other thread tries to unpark you, it will wait for that long (barring spurious wake ups). If you need to wait for a specific amount of time, you need to recheck the deadline and loop back into park() until that time has actually elapsed.</p>
+<p>You can use it to &quot;sleep&quot; efficiently, without another thread to have to wake you up via LockSupport.parkNanos or .parkUntil (for millis; both methods just call Unsafe for you).</p>
+<p>If you do want other threads to wake you up, chances are high that you need memory synchronization, and should not use park (unless carefully orchestrating volatile fields without race conditions is your thing).</p>
+<p>Good luck, and happy coding!</p>
+<p>You're not supposed to use either of these methods if you're an application programmer.</p>
+<p>They are both too low level, easy to screw up and not meant to be used outside libraries.</p>
+<p>Why not try to use a higher level construct like java.util.concurrent.locks ?</p>
+<p>To answer your question. park(...) works directly on the thread. It takes the thread as a parameter and puts it to sleep until unpark is called on the thread, unless unpark has already been called.</p>
+<p>It's supposed to be faster than Object.wait(), which operates on the monitor abstraction if you know which thread you need to block/unblock.</p>
+<p>Btw unpark is not really that Unsafe if used from inside Java:</p>
+<blockquote>
+<p>public native void unpark(Object thread)<br>
+Unblock the given thread blocked on park, or, if it is not blocked, cause the subsequent call to park not to block. Note: this operation is &quot;unsafe&quot; solely because the caller must somehow ensure that the thread has not been destroyed. Nothing special is usually required to ensure this when called from Java (in which there will ordinarily be a live reference to the thread) but this is not nearly-automatically so when calling from native code.</p>
+</blockquote>
+<p>LockSupport.park/unpark has better performance, but it's too low level API.<br>
+Besides, they have some different operations maybe you should notice</p>
+<pre><code class="language-java">    Object lockObject = new Object();
+    Runnable task1 = () -&gt; {
+        synchronized (lockObject) {
+            System.out.println(&quot;thread 1 blocked&quot;);
+            try {
+                lockObject.wait();
+                System.out.println(&quot;thread 1 resumed&quot;);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+        }
+    };
+    Thread thread1 = new Thread(task1);
+    thread1.start();
+
+    Runnable task2 = () -&gt; {
+        System.out.println(&quot;thread 2 running &quot;);
+        synchronized (lockObject) {
+            System.out.println(&quot;thread 2 get lock&quot;);
+            lockObject.notify();
+        }
+    };
+    Thread thread2 = new Thread(task2);
+    thread2.start();
+</code></pre>
+<p>In this case, thread2 can get lock and notify the thread1 to resumed, because lockObject.wait(); will release the lock.</p>
+<pre><code class="language-java">    Object lockObject = new Object();
+    Runnable task1 = () -&gt; {
+        synchronized (lockObject) {
+            System.out.println(&quot;thread 1 blocked&quot;);
+            LockSupport.park();
+            System.out.println(&quot;thread 1 resumed&quot;);
+
+        }
+    };
+    Thread thread1 = new Thread(task1);
+    thread1.start();
+
+    Runnable task2 = () -&gt; {
+        System.out.println(&quot;thread 2 running &quot;);
+        synchronized (lockObject) {
+            System.out.println(&quot;thread 2 get lock&quot;);
+            LockSupport.unpark(thread1);
+        }
+    };
+    Thread thread2 = new Thread(task2);
+    thread2.start();
+</code></pre>
+<p>However, if you use LockSupport.park/unpark like this, it will cause dead lock. because thread1 won't release the lock by using LockSupport.park. therefore, thread1 can't resumed.</p>
+<p>So be careful, they have different behaviors besides blocking the thread. And in fact, there are some Class we can use it conveniently to coordinate in multi-thread environment, such as CountDownLatch, Semaphore, ReentrantLock</p>
+<h2 id="原文">原文</h2>
+<p>https://newbedev.com/unsafe-park-vs-object-wait</p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/java-zhong-zu-sai-he-deng-dai-zhuang-tai-de-qu-bie/">
+                                                    <h3 class="post-title">
+                                                        java中阻塞和等待状态的区别
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>python 自动安装依赖 | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="为某些python脚本，没有requirements.txt，自动分析其依赖，进行自动安装. 下面介绍两种方法
+pip工具
+pigar仅打包当前目录下python文件的依赖。安装命令如下：
+pip install pigar # 安装工具
+..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="python 自动安装依赖" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="为某些python脚本，没有requirements.txt，自动分析其依赖，进行自动安装. 下面介绍两种方法
+pip工具
+pigar仅打包当前目录下python文件的依赖。安装命令如下：
+pip install pigar # 安装工具
+...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/python-zi-dong-an-zhuang-yi-lai/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2024-04-21">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="python 自动安装依赖">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="python 自动安装依赖">
+        <meta name="twitter:description" content="为某些python脚本，没有requirements.txt，自动分析其依赖，进行自动安装. 下面介绍两种方法
+pip工具
+pigar仅打包当前目录下python文件的依赖。安装命令如下：
+pip install pigar # 安装工具
+...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    python 自动安装依赖
+                                </h2>
+                                <span class="article-info">
+                                    2024-04-21, 428 words, 3 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <p>为某些python脚本，没有requirements.txt，自动分析其依赖，进行自动安装. 下面介绍两种方法</p>
+<h2 id="pip工具">pip工具</h2>
+<p>pigar仅打包当前目录下python文件的依赖。安装命令如下：</p>
+<pre><code class="language-shell">pip install pigar # 安装工具
+pigar generate #生成requirements.txt
+</code></pre>
+<h2 id="自定义脚本">自定义脚本</h2>
+<pre><code class="language-python">import os
+import ast
+import subprocess
+
+def dir_files(directory, extension):
+    &quot;&quot;&quot;遍历目录内指定后缀&quot;&quot;&quot;
+    file_list = []
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            if file.endswith(extension):
+                if &quot;tempCodeRunnerFile&quot; not in file:  # CodeRunner生成的临时文件忽略掉
+                    file_list.append(os.path.join(root, file))
+    return file_list
+
+def parse_imports(filename):
+    &quot;&quot;&quot;解析python源文件import了哪些库&quot;&quot;&quot;
+    with open(filename, &quot;r&quot;, encoding=&quot;utf-8&quot;) as f:
+        tree = ast.parse(f.read())
+    imports = set()
+    for node in ast.iter_child_nodes(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                imports.add(alias.name.split(&quot;.&quot;)[0])
+        elif isinstance(node, ast.ImportFrom):
+            module_name = node.module.split(&quot;.&quot;)[0] if node.module else &quot;&quot;
+            for alias in node.names:
+                imports.add(module_name + &quot;.&quot; + alias.name.split(&quot;.&quot;)[0])
+
+    return list(imports)
+
+def pip_install(libraries):
+    &quot;&quot;&quot;判断是否安装了库 没有就直接pip安装&quot;&quot;&quot;
+    for library in libraries:
+        library = library.split(&quot;.&quot;)[0]
+        try:
+            __import__(library)
+        except ImportError:
+            print(f&quot;{library} 没有安装，正在使用pip安装...&quot;)
+            subprocess.call([&quot;pip&quot;, &quot;install&quot;, library])
+
+if __name__ == &quot;__main__&quot;:
+    # 指定项目文件夹路径
+    python_file_folders = [r&quot;D:\\project\\&quot;]
+
+    # 查找项目中的Python文件
+    python_files = []
+    for folder in python_file_folders:
+        python_files += dir_files(folder, &quot;.py&quot;) + dir_files(folder, &quot;.pyw&quot;)
+
+    print(&quot;找到的Python文件：&quot;, python_files)
+
+    # 解析Python文件中的依赖库
+    all_imports = []
+    for python_file in python_files:
+        imports = parse_imports(python_file)
+        all_imports += [library.split(&quot;.&quot;)[0] for library in imports]
+
+    print(&quot;项目中使用的依赖库：&quot;, all_imports)
+
+    # 自动安装依赖库
+    if all_imports:
+        imports = set(all_imports)
+        pip_install(imports)
+</code></pre>
+<h2 id="参考">参考</h2>
+<ul>
+<li>https://visionguide.readthedocs.io/zh-cn/latest/python/tool/requirements/</li>
+</ul>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/docker-an-zhuang-gitlab-ce/">
+                                                    <h3 class="post-title">
+                                                        docker 安装 gitlab-ce
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>

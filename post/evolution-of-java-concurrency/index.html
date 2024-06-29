@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>Evolution of Java Concurrency | Toomi</title>
+<link rel="shortcut icon" href="https://toomi.pages.dev/favicon.ico">
+<link href="https://toomi.pages.dev/styles/main.css" rel="stylesheet">
+<link href="//at.alicdn.com/t/font_1678829_7cn41ho9lyt.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Toomi » Feed" href="https://toomi.pages.dev/atom.xml">
+        <meta name="description" content="Java’s concurrency support has changed significantly over the last 20 years to mostly reflect the changes in hardware, s..." />
+        <meta name="keywords" content="" />
+        <!-- OG -->
+        <meta property="og:locale" content="zh_CN">
+        <meta property="og:title" content="Evolution of Java Concurrency" />
+        <meta property="og:type" content="article" />
+        <meta property="og:description" content="Java’s concurrency support has changed significantly over the last 20 years to mostly reflect the changes in hardware, s...">
+        <meta property="og:url" content="https://toomi.pages.dev/post/evolution-of-java-concurrency/" />
+        <meta property="og:site_name" content="Toomi">
+        <meta property="og:updated_time" content="2023-02-02">
+        <meta property="og:image" content="" />
+        <meta property="og:image:secure_url" content="">
+        <meta property="og:image:alt" content="Evolution of Java Concurrency">
+        <!-- Twitter (post.ejs) -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="Evolution of Java Concurrency">
+        <meta name="twitter:description" content="Java’s concurrency support has changed significantly over the last 20 years to mostly reflect the changes in hardware, s...">
+        <!-- <meta name="twitter:site" content="@WBoy0609">
+        <meta name="twitter:creator" content="@WBoy0609"> -->
+        <meta name="twitter:image" content="">
+</head>
+
+<body>
+    <div class="main animated">
+        <div class="header animated fadeInDown">
+    <div class="site_title_container">
+        <div class="site_title">
+            <a href="https://toomi.pages.dev">Toomi</a>
+        </div>
+    </div>
+    <div class="my_socials">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+        <a href="https://toomi.pages.dev/atom.xml" target="_blank"><i class="iconfont icon-rss"></i></a>
+    </div>
+</div>
+
+    <div class="header_menu">
+        
+            
+                <a href="/" class="menu">首页</a>
+            
+        
+            
+                <a href="/archives" class="menu">归档</a>
+            
+        
+            
+                <a href="/post/about" class="menu">关于</a>
+            
+        
+            
+                <a href="http://:2015/" class="menu" target="_blank">learn</a>
+            
+        
+            
+                <a href="/love" class="menu">love</a>
+            
+        
+            
+                <a href="/post/gong-ju" class="menu">工具</a>
+            
+        
+        <div class="gridea-search-div">
+            <form id="gridea-search-form" action="https://toomi.pages.dev/search/">
+                <input class="gridea-search-input" autocomplete="off" spellcheck="false" name="q"/>
+            </form>
+        </div>
+    </div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+                    <div class="post_page">
+                        <div class="post animated fadeInDown">
+                            <div class="post_title post_detail_title">
+                                <h2>
+                                    Evolution of Java Concurrency
+                                </h2>
+                                <span class="article-info">
+                                    2023-02-02, 750 words, 5 min read
+                                </span>
+                            </div>
+                            <div class="post_content markdown">
+                                <p class="md_block">
+                                    <span class="md_line md_line_start md_line_end">
+                                        <p>Java’s concurrency support has changed significantly over the last 20 years to mostly reflect the changes in hardware, software systems, and programming concepts.</p>
+<p>Going through the evolution of Java concurrency support can help in understanding the reason for the new additions and their roles.</p>
+<h2 id="javas-initial-concurrency-support">Java’s Initial Concurrency Support</h2>
+<p>Initially, Java had threads and built-in monitor objects, which are supported by locks (via synchronized classes and methods), Runnable and Thread interfaces.</p>
+<p>The built-in monitor objects allow mutual exclusion and coordination among threads.</p>
+<p>The focus was on basic multi-threading and synchronisation primitives.</p>
+<p>They are efficient but low-level and very limited in capabilities. They are also difficult and error-prone to use, which can cause accidental complexity</p>
+<p>As per JDK 1.x release, there were only few classes present in this initial release. To be very specific, there classes/interfaces were:</p>
+<ul>
+<li>java.lang.Thread</li>
+<li>java.lang.ThreadGroup</li>
+<li>java.lang.Runnable</li>
+<li>java.lang.Process</li>
+<li>java.lang.ThreadDeath</li>
+</ul>
+<p>and some exception classes</p>
+<ul>
+<li>java.lang.IllegalMonitorStateException</li>
+<li>java.lang.IllegalStateException</li>
+<li>java.lang.IllegalThreadStateException.</li>
+</ul>
+<p>It also had few synchronized collections e.g. <strong>java.util.Hashtable</strong>.<br>
+JDK 1.2 and JDK 1.3 had no noticeable changes related to multi-threading. (Correct me if I have missed anything).</p>
+<p>JDK 1.4, there were few JVM level changes to suspend/resume multiple threads with single call. But no major API changes were present.</p>
+<h2 id="java-5-concurrency-changes">Java 5 Concurrency Changes</h2>
+<p>n 2004, Java 5 introduced new concurrency support: Java Executor framework, synchronizers, blocking queues, atomics, and concurrent collections.</p>
+<p>JDK 1.5 was first big release after JDK 1.x; and it had included multiple concurrency utilities. <strong>Executor</strong>, <strong>semaphore</strong>, <strong>mutex</strong>, <strong>barrier</strong>, <strong>latches</strong>, concurrent collections and blocking queues; all were included in this release itself. The biggest change in java multi-threading applications cloud happened in this release.</p>
+<blockquote>
+<p>Read full set of changes in this link: http://docs.oracle.com/javase/1.5.0/docs/guide/concurrency/overview.html</p>
+</blockquote>
+<p>It was a big step forward with better support compared to the earlier one.</p>
+<p>The idea of thread pools as a higher-level idea capturing the power of threads allowed developers to decouple task submission from task execution.</p>
+<p>It also enabled coarse-grained task parallelism (there was not a lot of computing power at that time), which is</p>
+<ul>
+<li>Submit tasks to execute so that they can run in a pool of worker threads</li>
+<li>The results are computed and put into a queue</li>
+<li>The queue can be accessed by other threads to get the results.</li>
+</ul>
+<p>Also by Future and Callable interfaces, it provided higher-level and result-returning variants of Runnable and Thread.</p>
+<p>It is feature-rich and optimized but also difficult and error-prone as still uses low-levels of abstraction.</p>
+<h2 id="java-7-concurrency-changes">Java 7 Concurrency Changes</h2>
+<p>Java 1.7 added foundational parallelism support.</p>
+<p>It provided data parallelism that runs the same tasks on different data elements. It added RecursiveTask to support fork-join approach of divide-and-conquer algorithms.</p>
+<p>Fork-join approach is powerful and scalable but tricky to program correctly</p>
+<h2 id="java-8-concurrency-changes">Java 8 Concurrency Changes</h2>
+<p>Java 1.8 provided advanced level parallelism, which is support for streams and their parallel processing by building on the newly added support for lambdas.</p>
+<p>So, the focus was on functional programming for data parallelism and asynchronous programming. It added support for composing Futures via the CompletableFutures( implementation of Future)</p>
+<p>It provided an effective balance between productivity and performance</p>
+<h2 id="java-9-concurrency-changes">Java 9 Concurrency Changes</h2>
+<p>Changes Java 9, provided explicit support for distributed asynchronous programming.</p>
+<p>It is basically the Flow API based on the publish-subscribe protocol, including back-pressure, and forms the basis for reactive programming. It is a set of interfaces for publish-subscribe model to standardize the concepts to maximize the interoperability of different implementations.</p>
+<h2 id="which-one-to-use">Which one to use?</h2>
+<p>As the new changes came in, the level of abstraction has been increased.</p>
+<p>It is good to learn the constructs on all levels.</p>
+<p>Learning low-level constructs will help in understanding the high-level constructs better and how they work underneath.</p>
+<p>As a rule of thumb, it is always good to use the simplest and most efficient option. So, it is better to start with using the most high-level option, which is Java 8’s concurrency/parallelism frameworks (i.e parallel streams and completable futures) or Java 9’s reactive programming) if it fits your needs. Consider using lower-level constructs only if needed, which should be rare at the application level.</p>
+<h2 id="来源">来源</h2>
+<p>https://www.turgaykivrak.com/posts/2021-12-14-evolution-java-concurrency/</p>
+<br />
+                                            
+                                </p>
+                            </div>
+                            <div class="post_footer">
+                                
+                                        
+                                            <div class="next-post" style="margin-top: 20px;">
+                                                <div class="next">下一篇</div>
+                                                <a href="https://toomi.pages.dev/post/java-zi-xuan-suo-clh-suo-ji-mcs-suo-yuan-li-ji-shi-xian/">
+                                                    <h3 class="post-title">
+                                                        Java自旋锁、CLH锁及MCS锁原理及实现
+                                                    </h3>
+                                                </a>
+                                            </div>
+                                            
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="footer">
+    
+    <div class="powered_by">
+        <a href="https://github.com/kytrun/gridea-theme-one" target="_blank">Theme One,</a>
+        <a href="https://gridea.dev/" target="_blank">Powered by Gridea&#65281;</a>
+    </div>
+    <div class="footer_slogan">
+        简单记录
+    </div>
+    <div id="back_to_top" class="back_to_top">
+        <span>△</span>
+    </div>
+    
+</div>
+
+<script src="https://toomi.pages.dev/media/scripts/util.js"></script>
+        <link rel="stylesheet" href="//unpkg.com/@highlightjs/cdn-assets@11.5.1/styles/default.min.css">
+        <script src="//unpkg.com/@highlightjs/cdn-assets@11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+</body>
+
+</html>
